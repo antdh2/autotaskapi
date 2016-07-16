@@ -1,0 +1,10 @@
+<h1>index</h1>
+
+{% for field, value in accounts %}
+  {% if field == "AccountName" and value == "test" %}
+    <p><strong>Account Name:</strong> {{ value }}</p>
+  {% endif %}
+  {% if field == "id" %}
+    <p><strong>Account ID:</strong> {{ value }}</p>
+  {% endif %}
+{% endfor %}
