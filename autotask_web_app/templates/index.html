@@ -16,3 +16,15 @@
 {% for field, value in tickets %}
   <p><strong>{{ field }}:</strong> {{ value }}</p>
 {% endfor %}
+
+
+<form action="{% url 'index' %}" method="post">
+  {% csrf_token %}
+  <label for="content"></label>
+  <input type="text" name="input-account-id" id="input-account-id" />
+  <input type="submit" />
+</form>
+
+{% if user_account_id_input %}
+  {{ user_account_id_input }}
+{% endif %}

@@ -28,4 +28,12 @@ def index(request):
     tquery = atws.Query('Ticket')
     tquery.WHERE('AccountID',query.Equals,account_id_value)
     tickets = at.query(tquery).fetch_one()
-    return render_to_response('index.html', {"accounts": accounts, "tickets": tickets})
+
+
+    if request.method == "POST":
+        # do stuff with a form input
+        user_account_id_input = request.POST['input-account-id']
+    else:
+        user_account_id_input = ""
+
+    return render(request, 'index.html', {"accounts": accounts, "tickets": tickets, "user_account_id_input": user_account_id_input})
