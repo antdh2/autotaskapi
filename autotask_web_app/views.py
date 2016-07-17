@@ -23,4 +23,9 @@ def index(request):
         if field == "id":
             account_id_field = field
             account_id_value = str(value)
-    return render_to_response('index.html', {"account_name_field": account_name_value, "account_id_field": account_id_value, "accounts": accounts})
+
+
+    tquery = atws.Query('Ticket')
+    tquery.WHERE('AccountID',query.Equals,account_id_value)
+    tickets = at.query(tquery).fetch_one()
+    return render_to_response('index.html', {"accounts": accounts, "tickets": tickets})
