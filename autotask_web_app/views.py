@@ -9,6 +9,55 @@ from autotask_api_app import atvar
 at = None
 accounts = None
 
+QUEUE_IDS = {
+    "Monthlies": atvar.Ticket_QueueID_Monthlies,
+    "Customer Services": atvar.Ticket_QueueID_CustomerServices,
+    "Client Project Tickets": atvar.Ticket_QueueID_ClientProjectTickets,
+    "Backup Tickets": atvar.Ticket_QueueID_BackupTickets,
+    "Sales Office": atvar.Ticket_QueueID_SalesOffice,
+    "Bridges Electrical": atvar.Ticket_QueueID_BridgesElectrical,
+    "Home User Tickets": atvar.Ticket_QueueID_HomeUserTickets,
+    "Post Sale": atvar.Ticket_QueueID_PostSale,
+    "Gadget Repairs": atvar.Ticket_QueueID_GadgetRepairs,
+    "Recurring Tickets": atvar.Ticket_QueueID_RecurringTickets,
+    "Monitoring Alert": atvar.Ticket_QueueID_MonitoringAlert,
+    "Management": atvar.Ticket_QueueID_Management,
+    "Support Desk": atvar.Ticket_QueueID_SupportDesk,
+    "ETIT Internal": atvar.Ticket_QueueID_ETITInternal,
+    "Client Portal": atvar.Ticket_QueueID_ClientPortal,
+    "Selwood Taskfire": atvar.Ticket_QueueID_SelwoodTaskfire,
+    "Ready for Invoicing": atvar.Ticket_QueueID_ReadyforInvoicing,
+}
+
+PRIORITY = {
+    "Low": atvar.Ticket_Priority_Low,
+    "Critical": atvar.Ticket_Priority_Critical,
+    "High": atvar.Ticket_Priority_High,
+    "Awaiting Assessment": atvar.Ticket_Priority_AwaitingAssessment,
+    "Medium": atvar.Ticket_Priority_Medium,
+}
+
+STATUS = {
+    "In Progress": atvar.Ticket_Status_InProgress,
+    "On Hold": atvar.Ticket_Status_OnHold,
+    "Note Added By Email": atvar.Ticket_Status_NoteAddedbyEmail,
+    "Complete: to be Collected": atvar.Ticket_Status_CompletetobeCollected,
+    "Monitoring": atvar.Ticket_Status_Monitoring,
+    "With Sales Office": atvar.Ticket_Status_WithSalesOffice,
+    "Escalated": atvar.Ticket_Status_Escalated,
+    "Complete": atvar.Ticket_Status_Complete,
+    "New": atvar.Ticket_Status_New,
+    "Goods Received": atvar.Ticket_Status_GoodsReceived,
+    "Waiting Customer": atvar.Ticket_Status_WaitingCustomer,
+    "Engineer Dispatched": atvar.Ticket_Status_EngineerDispatched,
+    "With Customer Services": atvar.Ticket_Status_WithCustomerServices ,
+    "Waiting Approval": atvar.Ticket_Status_WaitingApproval,
+    "Waiting 3rd Party": atvar.Ticket_Status_Waiting3rdParty,
+    "Assessed": atvar.Ticket_Status_Assessed,
+    "Booked With Customer": atvar.Ticket_Status_BookedwithCustomer,
+    "Ready for Invoicing": atvar.Ticket_Status_ReadyforInvoicing,
+}
+
 def autotask_login(username, password):
     return login
 
@@ -155,6 +204,8 @@ def resolve_account_name_from_id(account_id):
 def create_ticket(request, id):
     account_id = id
     account = get_account(account_id)
+
+
     if request.method == "POST":
         new_ticket = at.new('Ticket')
         new_ticket.AccountID = account_id
@@ -165,4 +216,4 @@ def create_ticket(request, id):
         new_ticket.Status = request.POST['status']
         new_ticket.QueueID = request.POST['queueid']
         ticket = at.create(new_ticket).fetch_one()
-    return render(request, 'create_ticket.html', {"account": account})
+    return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
