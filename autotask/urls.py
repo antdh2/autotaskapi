@@ -18,5 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', include('autotask_web_app.urls')),
+    url(r'^', include('autotask_web_app.urls')),
 ]

@@ -1,0 +1,108 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://use.typekit.net/bvl3cit.js"></script>
+    <script>try{Typekit.load({ async: true });}catch(e){}</script>
+    <meta charset="utf-8">
+    <title>Task Tiger</title>
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mdb.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Montserrat:400,700' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu:400,300,300italic,400italic,500,500italic,700,700italic' rel='stylesheet' type='text/css'>    <script src="{% static 'js/jquery-2.2.3.min.js' %}"></script>
+
+
+  </head>
+
+  <body>
+    <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.6&appId=259468097756069";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+    <section id="menu">
+      <!-- SideNav slide-out button -->
+      <a style="position: relative; float: right; margin-right: 45px;" href="#" data-activates="slide-out" class="button-collapse"><i class="fa fa-bars fa-2x"></i></a>
+
+      <!--/. SideNav slide-out button -->
+
+      <!-- Sidebar navigation -->
+      <ul id="slide-out" class="side-nav admin-side-nav light-side-nav">
+
+           <div class="logo-wrapper">
+              <img src="{% static 'img/avatar.png' %}" class="img-fluid img-circle">
+              <div class="rgba-stylish-strong"><p class="user white-text">Ant Horner<br>
+              antdh2@gmail.com</p></div>
+          </div>
+          <!--/. Logo -->
+
+          {% if user and not user.is_anonymous %}
+          <!-- Side navigation links -->
+          <ul class="collapsible collapsible-accordion">
+              <h6 class="dropdown-header">About Me</h6>
+              <hr class="hrnomargin">
+              <li class="noborder"><a href="#" class="waves-effect"><i class="fa fa-home"></i> My Profile</a></li>
+              <h6 class="dropdown-header">Tasks & Orders</h6>
+              <hr class="hrnomargin">
+              <li class="noborder"><a href="#" class="waves-effect"><i class="fa fa-users"></i> My Tasks</a></li>
+              <li><a href="#" class="waves-effect"><i class="fa fa-line-chart"></i> My Orders</a></li>
+              <li class="noborder"><a href="#" class="waves-effect"><i class="fa fa-money"></i> My Sales</a></li>
+              <h6 class="dropdown-header">Actions</h6>
+              <hr class="hrnomargin">
+              <li class="noborder"><a href="#" class="waves-effect"><i class="fa fa-search"></i> Create Task</a></li>
+              <li><a href="#" class="waves-effect"><i class="fa fa-share-alt"></i> Logout</a></li>
+          </ul>
+          {% else %}
+          <ul class="collapsible collapsible-accordion">
+              <a style="padding-left: 10px" href="#"><button type="button" class="btn btn-fb"><i class="fa fa-facebook left"></i> Login with Facebook</button></a>
+              <a style="padding-left: 10px" href="#"><button type="button" class="btn btn-gplus"><i class="fa fa-google-plus left"></i> Login with Google +</button></a>
+              <a style="padding-left: 10px" href="#"><button type="button" class="btn btn-li"><i class="fa fa-linkedin left"></i> Login with Linkedin</button></a>
+          </ul>
+          {% endif %}
+          <!--/. Side navigation links -->
+      </ul>
+      <!--/. Sidebar navigation -->
+    </section>
+
+    <section id="body">
+        {% block page %}
+
+        {% endblock %}
+    </section>
+
+
+    <footer id="footer" align="center">
+      <!--Footer-->
+
+        <!--Copyright-->
+        <div class="footer-copyright">
+            <div class="container-fluid">
+              <span>Sixerr App &copy; 2016 by <a href="http://www.studiointhecloud.co.uk"> Studio in the Cloud </a></span>
+            </div>
+        </div>
+        <!--/.Copyright-->
+
+        <!--/.Footer-->
+        <script src="{% static 'js/tether.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'js/mdb.min.js' %}"></script>
+        <script>
+          $('.button-collapse').sideNav({
+            edge: 'right', // Choose the horizontal origin
+            closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+          });
+        </script>
+    </footer>
+
+  </body>
+</html>

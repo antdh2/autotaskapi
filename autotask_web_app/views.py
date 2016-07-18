@@ -1,12 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
+from django.contrib import messages
 
 import atws
 
+at = None
 
+def autotask_login(username, password):
+    return login
 
-# First we must connect to autotask using valid credentials
-at = atws.connect(username='ant.horner@eye-techit.com',password='Mnschnaap1!')
+def login(request):
+    # First we must connect to autotask using valid credentials
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        global at
+        at = atws.connect(username=username,password=password)
+        messages.add_message(request, messages.SUCCESS, 'Successfully logged in.')
+        return redirect("/", successMessage="Success!")
+    else:
+        messages.add_message(request, messages.ERROR, 'Something went wrong.')
+        return render(request, 'login.html', {})
 
 # Create your views here.
 def index(request):
