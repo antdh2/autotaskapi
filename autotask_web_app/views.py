@@ -150,3 +150,19 @@ def resolve_account_name_from_id(account_id):
         if field == "AccountName":
             account_name = value
             return account_name
+
+
+def create_ticket(request, id):
+    account_id = id
+    account = get_account(account_id)
+    if request.method == "POST":
+        new_ticket = at.new('Ticket')
+        new_ticket.AccountID = account_id
+        new_ticket.Title = request.POST['title']
+        new_ticket.Description = request.POST['description']
+        new_ticket.DueDateTime = request.POST['duedatetime']
+        new_ticket.Priority = request.POST['priority']
+        new_ticket.Status = request.POST['status']
+        new_ticket.QueueID = request.POST['queueid']
+        ticket = at.create(new_ticket).fetch_one()
+    return render(request, 'create_ticket.html', {"account": account})

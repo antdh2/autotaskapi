@@ -68,7 +68,7 @@
     <div class="card">
             <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
             <div class="card-block">
-
+              <a href="{% url 'create_ticket' account.id %}">Create Ticket</a>
 
                 <table class="table table-striped">
                   <thead class="">
