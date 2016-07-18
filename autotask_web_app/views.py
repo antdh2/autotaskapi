@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.contrib import messages
+from django.http import HttpResponse
 
 import atws
 
 at = None
+accounts = None
 
 def autotask_login(username, password):
     return login
@@ -22,8 +24,11 @@ def login(request):
         messages.add_message(request, messages.ERROR, 'Something went wrong.')
         return render(request, 'login.html', {})
 
+
+
 # Create your views here.
 def index(request):
+    accounts = None
     # Once an account name/id is entered
     if request.method == "POST":
         # map account_id to the inputted value

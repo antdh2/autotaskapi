@@ -13,7 +13,7 @@
                   {% endfor %}
               </ul>
               {% endif %}
-                <form action="{% url 'index' %}" method="post">
+                <form class="search-account" id="search-account" action="{% url 'index' %}" method="post">
                   {% csrf_token %}
                   <label for="account-name">Account Name: </label>
                   <input type="text" name="account-name" id="account-name" />
