@@ -26,9 +26,10 @@
 </div>
 
 <div class="row">
+  {% if accounts %}
   <div class="col-md-4" style="margin-left: 20px; width: 40%;">
     <div class="card">
-            <h6 class="card-header primary-color white-text">Autotask Account Information</h6>
+            <h6 class="card-header primary-color white-text">Autotask Account Information - <strong>{{ accounts.AccountName }}</strong></h6>
             <div class="card-block">
               <!-- {{ accounts.id }}
               {{ accounts.AccountName }} -->
@@ -38,12 +39,14 @@
             </div>
       </div>
   </div>
+  {% endif %}
+  {% if tickets %}
   <div class="col-md-8" style="margin-right: 20px; width: 50%;">
     <div class="card">
-            <h6 class="card-header primary-color white-text">All Account Tickets</h6>
+            <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
             <div class="card-block">
 
-              {% if tickets %}
+
                 <table>
                   <tr>
                     <th>Ticket Number</th>
