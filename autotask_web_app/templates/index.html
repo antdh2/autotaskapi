@@ -1,54 +1,56 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block page %}
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-  <h1>Search AT Account</h1>
-  <hr>
-  <form action="{% url 'index' %}" method="post">
-    {% csrf_token %}
-    <label for="account-name">Account Name: </label>
-    <input type="text" name="account-name" id="account-name" />
-    <input type="submit" />
-  </form>
-
-  <hr>
-
-  {{ accounts.id }}
-  {{ accounts.AccountName }}
-
-  {% for field, value in accounts %}
-    <p><strong>{{ field }}:</strong> {{ value }}</p>
-  {% endfor %}
-
-  <hr>
-
-  <br>
-
-  {% if tickets %}
-    <table>
-      <tr>
-        <th>Ticket Number</th>
-        <th>Ticket Title</th>
-        <th>Account</th>
-        <th>Queue</th>
-      </tr>
-      {% for n in tickets %}
-      <tr>
-        <td><a href="javascript:void(0);"
-           NAME="My Window Name"
-           title=" My title here "
-           onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-        <td>{{ n.Title }}</td>
-        <td>{{ ticket_account_name }}</td>
-        <td>{{ n.QueueID }}</td>
-      </tr>
+<div class="container">
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
       {% endfor %}
-    </table>
+  </ul>
   {% endif %}
+    <h1>Search AT Account</h1>
+    <hr>
+    <form action="{% url 'index' %}" method="post">
+      {% csrf_token %}
+      <label for="account-name">Account Name: </label>
+      <input type="text" name="account-name" id="account-name" />
+      <input type="submit" />
+    </form>
+
+    <hr>
+
+    {{ accounts.id }}
+    {{ accounts.AccountName }}
+
+    {% for field, value in accounts %}
+      <p><strong>{{ field }}:</strong> {{ value }}</p>
+    {% endfor %}
+
+    <hr>
+
+    <br>
+
+    {% if tickets %}
+      <table>
+        <tr>
+          <th>Ticket Number</th>
+          <th>Ticket Title</th>
+          <th>Account</th>
+          <th>Queue</th>
+        </tr>
+        {% for n in tickets %}
+        <tr>
+          <td><a href="javascript:void(0);"
+             NAME="My Window Name"
+             title=" My title here "
+             onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
+          <td>{{ n.Title }}</td>
+          <td>{{ ticket_account_name }}</td>
+          <td>{{ n.QueueID }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+</div>
 {% endblock %}
