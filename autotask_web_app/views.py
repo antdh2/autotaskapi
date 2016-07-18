@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 
 import atws
+from autotask_api_app import atvar
 
 at = None
 accounts = None
@@ -48,7 +49,17 @@ def account(request, id):
     tickets = get_tickets_for_account(account_id)
     ticket_account_name = resolve_account_name_from_id(account_id)
     ticket_info = get_ticket_info(tickets)
-    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name})
+
+    account_types = {
+        "Lead": atvar.Account_AccountType_Lead,
+        "Dead": atvar.Account_AccountType_Dead,
+        "Vendor": atvar.Account_AccountType_Vendor,
+        "Partner": atvar.Account_AccountType_Partner,
+        "Prospect": atvar.Account_AccountType_Prospect,
+        "Customer": atvar.Account_AccountType_Customer,
+        "Cancellation": atvar.Account_AccountType_Cancellation,
+    }
+    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "account_types": account_types})
 
 
 def edit_account(request, id):
