@@ -29,21 +29,21 @@ def index(request):
         # map account_id to the inputted value
         account_name = request.POST['account-name']
         accounts = resolve_account_name(account_name)
-        account_id = resolve_account_id(account_name)
+        #account_id = resolve_account_id(account_name)
         # then get autotask account using that ID
-        # accounts = get_account(account_id)
-        tickets = get_tickets_for_account(account_id)
-        ticket_account_name = resolve_account_name_from_id(account_id)
-        ticket_info = get_ticket_info(tickets)
-
     else:
-        account_id = None
         accounts = None
-        tickets = None
-        ticket_account_name = None
-        ticket_info = None
 
-    return render(request, 'index.html', {"account_id": account_id, "accounts": accounts, "tickets": tickets, "ticket_account_name": ticket_account_name, "ticket_info": ticket_info})
+    return render(request, 'index.html', {"accounts": accounts})
+
+
+def account(request, id):
+    account_id = id
+    account = get_account(account_id)
+    tickets = get_tickets_for_account(account_id)
+    ticket_account_name = resolve_account_name_from_id(account_id)
+    ticket_info = get_ticket_info(tickets)
+    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name})
 
 
 def get_account(account_id):
@@ -86,11 +86,9 @@ def get_individual_ticket_info(ticket):
 
 def resolve_account_name(string):
     aquery = atws.Query('Account')
-    aquery.WHERE('AccountName',aquery.Equals,string)
-    accounts = at.query(aquery).fetch_one()
-    for field, value in accounts:
-        if field == "AccountName" and value == string:
-            return accounts
+    aquery.WHERE('AccountName',aquery.Contains,string)
+    accounts = at.query(aquery).fetch_all()
+    return accounts
 
 def resolve_account_id(string):
     aquery = atws.Query('Account')

@@ -20,59 +20,29 @@
                   <br>
                   <input type="submit" style="margin-top: 10px;" />
                 </form>
-            </div>
-      </div>
-  </div>
-</div>
-
-<div class="row">
-  {% if accounts %}
-  <div class="col-md-4" style="margin-left: 20px; width: 40%;">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">Autotask Account Information - <strong>{{ accounts.AccountName }}</strong></h6>
-            <div class="card-block">
-              <!-- {{ accounts.id }}
-              {{ accounts.AccountName }} -->
-              {% for field, value in accounts %}
-                <p><strong>{{ field }}:</strong> {{ value }}</p>
-              {% endfor %}
-            </div>
-      </div>
-  </div>
-  {% endif %}
-  {% if tickets %}
-  <div class="col-md-8" style="margin-right: 20px; width: 50%;">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
-            <div class="card-block">
-
-
+                {% if accounts %}
+                {{ accounts.AccountName }}
                 <table class="table table-striped">
                   <thead class="">
                     <tr>
-                      <th>Ticket Number</th>
-                      <th>Ticket Title</th>
-                      <th>Account</th>
-                      <th>Queue</th>
+                      <th>Account Name</th>
+                      <th>Account Type</th>
                     </tr>
                   </thead>
-                  {% for n in tickets %}
+                  {% for n in accounts %}
                   <tr>
                     <td><a href="javascript:void(0);"
                        NAME="My Window Name"
                        title=" My title here "
-                       onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-                    <td>{{ n.Title }}</td>
-                    <td>{{ ticket_account_name }}</td>
-                    <td>{{ n.QueueID }}</td>
+                       onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.AccountName }}</a></td>
+                    <td><a href="{% url 'account' n.id %}">{{ n.AccountType }}</a></td>
                   </tr>
                   {% endfor %}
                 </table>
-              {% endif %}
+                {% endif %}
             </div>
       </div>
   </div>
 </div>
-
 
 {% endblock %}
