@@ -67,7 +67,19 @@ def edit_account(request, id):
     account = get_account(account_id)
     if request.method == "POST":
         new_account_name = request.POST['account-name']
+        new_address_1 = request.POST['address1']
+        new_address_2 = request.POST['address2']
+        new_state = request.POST['state']
+        new_city = request.POST['city']
+        new_postalcode = request.POST['postcode']
+        new_phone = request.POST['phone']
         account.AccountName = new_account_name
+        account.Address1 = new_address_1
+        account.Address2 = new_address_2
+        account.State = new_state
+        account.City = new_city
+        account.PostalCode = new_postalcode
+        account.Phone = new_phone
         account.update()
         messages.add_message(request, messages.SUCCESS, 'Successfully edited.')
 

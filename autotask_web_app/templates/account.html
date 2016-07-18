@@ -46,19 +46,19 @@
 </div>
 
 <div class="row">
-  <div class="container">
-    {{ account }}
-  </div>
   {% if account %}
   <div class="col-md-4" style="margin-left: 20px; width: 40%;">
     <div class="card">
             <h6 class="card-header primary-color white-text">Autotask Account Information - <strong>{{ account.AccountName }}</strong></h6>
             <div class="card-block">
-              <!-- {{ accounts.id }}
-              {{ accounts.AccountName }} -->
-              {% for field, value in account %}
-                <p><strong>{{ field }}:</strong> {{ value }}</p>
-              {% endfor %}
+              <p>Account Name: {{ account.AccountName }}</p>
+              <p>Address 1: {{ account.Address1 }}</p>
+              <p>Address 2: {{ account.Address2 }}</p>
+              <p>State: {{ account.State }}</p>
+              <p>City: {{ account.City }}</p>
+              <p>Postcode: {{ account.PostalCode }}</p>
+              <p>Phone: {{ account.Phone }}</p>
+              <p>Account Type: {{ account.AccountType }}</p>
             </div>
       </div>
   </div>
@@ -114,6 +114,10 @@
                       <input type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
                     </div>
                     <div class="form-group">
+                      <label for="">Edit State: </label>
+                      <input type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
+                    </div>
+                    <div class="form-group">
                       <label for="">Edit City: </label>
                       <input type="text" name="city" id="city" value="{{ account.City }}"/>
                     </div>
@@ -124,22 +128,6 @@
                     <div class="form-group">
                       <label for="">Edit Phone: </label>
                       <input type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Account Type: </label>
-                      <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Account Name: </label>
-                      <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Account Name: </label>
-                      <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Account Name: </label>
-                      <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
                     </div>
                     <label>Account Type</label>
                     <select class="form-control">
