@@ -51,6 +51,19 @@ def account(request, id):
     return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name})
 
 
+def edit_account(request, id):
+    account_id = id
+    account = get_account(account_id)
+    if request.method == "POST":
+        new_account_name = request.POST['account-name']
+        account.AccountName = new_account_name
+        account.update()
+        messages.add_message(request, messages.SUCCESS, 'Successfully edited.')
+
+    return redirect("/account/" + account_id, successMessage="Success!")
+
+
+
 def get_account(account_id):
     # Then we need to grab a query object using autotask wrapper
     query = atws.Query('Account')
