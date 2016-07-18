@@ -47,13 +47,15 @@
             <div class="card-block">
 
 
-                <table>
-                  <tr>
-                    <th>Ticket Number</th>
-                    <th>Ticket Title</th>
-                    <th>Account</th>
-                    <th>Queue</th>
-                  </tr>
+                <table class="table table-striped">
+                  <thead class="">
+                    <tr>
+                      <th>Ticket Number</th>
+                      <th>Ticket Title</th>
+                      <th>Account</th>
+                      <th>Queue</th>
+                    </tr>
+                  </thead>
                   {% for n in tickets %}
                   <tr>
                     <td><a href="javascript:void(0);"
