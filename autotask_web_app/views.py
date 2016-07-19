@@ -215,5 +215,5 @@ def create_ticket(request, id):
         new_ticket.Priority = request.POST['priority']
         new_ticket.Status = request.POST['status']
         new_ticket.QueueID = request.POST['queueid']
-        ticket = at.create(new_ticket).fetch_one()
+        #ticket = at.create(new_ticket).fetch_one()
     return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})

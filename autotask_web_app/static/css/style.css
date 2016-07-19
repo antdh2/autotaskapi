@@ -1,1 +1,5 @@
 /* YOUR CUSTOM STYLES */
+
+.error {
+  color: red !important;
+}

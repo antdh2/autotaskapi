@@ -2,12 +2,61 @@
 {% load staticfiles %}
 
 {% block page %}
+<script>
+$(document).ready(function () {
+
+
+
+  $('#create-ticket').validate({ // initialize the plugin
+      rules: {
+          title: {
+              required: true,
+          },
+          description: {
+              required: true,
+          },
+          duedatetime: {
+            required: true,
+          },
+          estimatedhours: {
+            required: true,
+          }
+      },
+      messages: {
+        title: {
+          required: "You must enter a title",
+        },
+        description: {
+          required: "You must enter a description",
+        },
+        duedatetime: {
+          required: "You must enter a Due Date Time",
+        },
+        estimatedhours: {
+          required: "You must enter an estimated hours",
+        },
+      },
+      submitHandler: function (form) { // for demo
+          alert('valid form submitted'); // for demo
+          return false; // for demo
+      }
+  });
+
+});
+</script>
   <div class="container">
     <div class="card">
       <h6 class="card-header primary-color white-text">Create New Ticket</strong></h6>
       <div class="card-block">
           <form id="create-ticket" action="{% url 'create_ticket' account.id %}" method="post">
             {% csrf_token %}
+
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+
             <div class="form-group">
               <label for="account-name">Ticket Title: </label>
               <input type="text" name="title" id="title"/>
@@ -23,10 +72,9 @@
             <div class="form-group">
               <label for="">Ticket Estimated Hours: </label>
               <input type="number" name="estimatedhours" id="estimatedhours"/>
-              <p id="estimatedhoursval"></p>
             </div>
             <label>Ticket Priority</label>
-            <select class="form-control" name="priority" id="priority">
+            <select class="form-control priority" name="priority" id="priority">
               {% for field, value in PRIORITY.items %}
                   <option value="{{ value }}">{{ field }}</option>
               {% endfor %}
