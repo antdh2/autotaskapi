@@ -9,3 +9,36 @@
 .error {
   color: red !important;
 }
+
+.header {
+    background-color: #4285F4 !important;
+    min-height: 200px;
+    max-height: 250px;
+}
+
+.headertext {
+  color: #fff;
+}
+
+footer {
+  background: #4285F4 !important;
+  color: #fff;
+  padding: 20px;
+}
+
+footer hr {
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+footer a {
+  color: #fff;
+}
+
+.login {
+  z-index: 50;
+  position: relative;
+  margin-left: 3%;
+  margin-right: 3%;
+  margin-top: -30px;
+  margin-bottom: 70px;
+}

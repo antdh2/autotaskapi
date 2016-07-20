@@ -1,47 +1,51 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block page %}
-<div class="container" style="margin-top: 45px;">
-  <div class="row">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">Search Autotask Account</h6>
-            <div class="card-block">
-              {% if messages %}
-              <ul class="messages">
-                  {% for message in messages %}
-                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                  {% endfor %}
-              </ul>
-              {% endif %}
-                <form class="search-account" id="search-account" action="{% url 'index' %}" method="post">
-                  {% csrf_token %}
-                  <label for="account-name">Account Name: </label>
-                  <input type="text" name="account-name" id="account-name" />
-                  <br>
-                  <input type="submit" style="margin-top: 10px;" />
-                </form>
-                {% if accounts %}
-                {{ accounts.AccountName }}
-                <table class="table table-striped">
-                  <thead class="">
-                    <tr>
-                      <th>Account Name</th>
-                      <th>Account Type</th>
-                    </tr>
-                  </thead>
-                  {% for n in accounts %}
-                  <tr>
-                    <td><a href="javascript:void(0);"
-                       NAME="My Window Name"
-                       title=" My title here "
-                       onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.AccountName }}</a></td>
-                    <td><a href="{% url 'account' n.id %}">{{ n.AccountType }}</a></td>
-                  </tr>
-                  {% endfor %}
-                </table>
-                {% endif %}
-            </div>
+
+  <div class="container" style="padding-top: 80px;">
+    <!--Post data-->
+    <div class="jumbotron m-1 text-xs-center" style="margin-top: -150px;">
+        <h4 class="h4-responsive">Search Autotask Account</h4>
+        <hr>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <div class="container" style="max-width: 50%">
+          <form class="search-account" id="search-account" action="{% url 'index' %}" method="post">
+            {% csrf_token %}
+            <br><br>
+            <input type="text" name="account-name" id="account-name" placeholder="Enter account name..."/>
+            <br>
+            <input type="submit" style="margin-top: 10px;" />
+          </form>
+        </div>
       </div>
+      <div class="row">
+        <div class="card">
+          {% if accounts %}
+          {{ accounts.AccountName }}
+          <table class="table table-striped">
+            <thead class="">
+              <tr>
+                <th>Account Name</th>
+                <th>Account Type</th>
+              </tr>
+            </thead>
+            {% for n in accounts %}
+            <tr>
+              <td><a href="{% url 'account' n.id %}">{{ n.AccountName }}</a></td>
+              <td><a href="{% url 'account' n.id %}">{{ n.AccountType }}</a></td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

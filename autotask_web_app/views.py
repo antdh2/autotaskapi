@@ -107,7 +107,7 @@ def account(request, id):
         "Customer": atvar.Account_AccountType_Customer,
         "Cancellation": atvar.Account_AccountType_Cancellation,
     }
-    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "account_types": account_types})
+    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "account_types": account_types, "QUEUE_IDS": QUEUE_IDS})
 
 
 def edit_account(request, id):

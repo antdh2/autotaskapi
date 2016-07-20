@@ -3,148 +3,140 @@
 {% block page %}
 <div class="container" style="margin-top: 45px;">
   <div class="row">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">Search Autotask Account</h6>
-            <div class="card-block">
-              {% if messages %}
-              <ul class="messages">
-                  {% for message in messages %}
-                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                  {% endfor %}
-              </ul>
-              {% endif %}
-                <form action="{% url 'index' %}" method="post">
-                  {% csrf_token %}
-                  <label for="account-name">Account Name: </label>
-                  <input type="text" name="account-name" id="account-name" />
-                  <br>
-                  <input type="submit" style="margin-top: 10px;" />
-                </form>
-                {% if accounts %}
-                {{ accounts.AccountName }}
-                <table class="table table-striped">
-                  <thead class="">
-                    <tr>
-                      <th>Account Name</th>
-                      <th>Account Type</th>
-                    </tr>
-                  </thead>
-                  {% for n in accounts %}
-                  <tr>
-                    <td><a href="javascript:void(0);"
-                       NAME="My Window Name"
-                       title=" My title here "
-                       onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.AccountName }}</a></td>
-                    <td>{{ n.AccountType }}</td>
-                  </tr>
-                  {% endfor %}
-                </table>
-                {% endif %}
+    <div class="jumbotron m-1 text-xs-center" style="margin-top: -120px;">
+        <h4 class="h4-responsive">{{ account.AccountName }}</h4>
+        <hr>
+        <div class="container" style="display: inline-flex;">
+          <button type="button" class="btn btn-primary">Edit Account</button>
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              View
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
+              <a class="dropdown-item" href="#">Tickets</a>
+              <a class="dropdown-item" href="#">To Do's</a>
+              <a class="dropdown-item" href="#">Account Notes</a>
+              <a class="dropdown-item" href="#">Opportunities</a>
+              <a class="dropdown-item" href="#">Contacts</a>
             </div>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Create New
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
+              <a class="dropdown-item" href="#">Ticket</a>
+              <a class="dropdown-item" href="#">To Do</a>
+              <a class="dropdown-item" href="#">Account Note</a>
+              <a class="dropdown-item" href="#">Opportunity</a>
+              <a class="dropdown-item" href="#">Contact</a>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" disabled>Create Opportunity</button>
+        </div>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
       </div>
+    </div>
   </div>
 </div>
 
 <div class="row">
-  {% if account %}
-  <div class="col-md-4" style="margin-left: 20px; width: 40%;">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">Autotask Account Information - <strong>{{ account.AccountName }}</strong></h6>
-            <div class="card-block">
-              <p>Account Name: {{ account.AccountName }}</p>
-              <p>Address 1: {{ account.Address1 }}</p>
-              <p>Address 2: {{ account.Address2 }}</p>
-              <p>State: {{ account.State }}</p>
-              <p>City: {{ account.City }}</p>
-              <p>Postcode: {{ account.PostalCode }}</p>
-              <p>Phone: {{ account.Phone }}</p>
-              <p>Account Type: {{ account.AccountType }}</p>
-            </div>
-      </div>
-  </div>
-  {% endif %}
-  {% if tickets %}
-  <div class="col-md-8" style="margin-right: 20px; width: 50%;">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
-            <div class="card-block">
-              <a href="{% url 'create_ticket' account.id %}">Create Ticket</a>
+  <div class="container">
+      {% if tickets %}
+      <div class="col-md-8">
+        <div class="card">
+          <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
+          <div class="card-block">
+            <a href="{% url 'create_ticket' account.id %}">Create Ticket</a>
 
-                <table class="table table-striped">
-                  <thead class="">
-                    <tr>
-                      <th>Ticket Number</th>
-                      <th>Ticket Title</th>
-                      <th>Account</th>
-                      <th>Queue</th>
-                    </tr>
-                  </thead>
-                  {% for n in tickets %}
+              <table class="table table-striped">
+                <thead class="">
                   <tr>
-                    <td><a href="javascript:void(0);"
-                       NAME="My Window Name"
-                       title=" My title here "
-                       onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-                    <td>{{ n.Title }}</td>
-                    <td>{{ ticket_account_name }}</td>
-                    <td>{{ n.QueueID }}</td>
+                    <th>Ticket Number</th>
+                    <th>Ticket Title</th>
+                    <th>Account</th>
+                    <th>Queue</th>
                   </tr>
-                  {% endfor %}
-                </table>
-              {% endif %}
-            </div>
-      </div>
-
-      <div class="card">
-              <h6 class="card-header primary-color white-text">Edit Account</strong></h6>
-              <div class="card-block">
-                  <p><strong>Account Name:</strong> {{ account.AccountName }}</p>
-                  <form action="{% url 'edit_account' account.id %}" method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                      <label for="account-name">Edit Account Name: </label>
-                      <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="address1">Edit Address 1: </label>
-                      <input type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Address 2: </label>
-                      <input type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit State: </label>
-                      <input type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit City: </label>
-                      <input type="text" name="city" id="city" value="{{ account.City }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Postcode: </label>
-                      <input type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
-                    </div>
-                    <div class="form-group">
-                      <label for="">Edit Phone: </label>
-                      <input type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
-                    </div>
-                    <label>Account Type</label>
-                    <select class="form-control">
-                      {% for field, value in account_types.items %}
-                        {% if value == account.AccountType %}
-                          <option value="{{ value }}" selected>{{ field }}</option>
-                        {% endif %}
-                        {% if value != account.AccountType %}
-                          <option value="{{ value }}">{{ field }}</option>
-                        {% endif %}
-                      {% endfor %}
-                  </select>
-                    <br>
-                    <input type="submit" style="margin-top: 10px;" />
-                  </form>
-              </div>
+                </thead>
+                {% for n in tickets %}
+                <tr>
+                  <td><a href="javascript:void(0);"
+                     NAME="My Window Name"
+                     title=" My title here "
+                     onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
+                  <td>{{ n.Title }}</td>
+                  <td>{{ ticket_account_name }}</td>
+                  <td>
+                    {% for queue_name, queue_id in QUEUE_IDS.items %}
+                      {% if n.QueueID == queue_id %}
+                        {{ queue_name }}
+                      {% endif %}
+                    {% endfor %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+            {% endif %}
+          </div>
         </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <h6 class="card-header primary-color white-text">Edit Account</strong></h6>
+          <div class="card-block">
+            <form action="{% url 'edit_account' account.id %}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="account-name">Edit Account Name: </label>
+                <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
+              </div>
+              <div class="form-group">
+                <label for="address1">Edit Address 1: </label>
+                <input type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
+              </div>
+              <div class="form-group">
+                <label for="">Edit Address 2: </label>
+                <input type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
+              </div>
+              <div class="form-group">
+                <label for="">Edit State: </label>
+                <input type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
+              </div>
+              <div class="form-group">
+                <label for="">Edit City: </label>
+                <input type="text" name="city" id="city" value="{{ account.City }}"/>
+              </div>
+              <div class="form-group">
+                <label for="">Edit Postcode: </label>
+                <input type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
+              </div>
+              <div class="form-group">
+                <label for="">Edit Phone: </label>
+                <input type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
+              </div>
+              <label>Account Type</label>
+              <select class="form-control">
+                {% for field, value in account_types.items %}
+                  {% if value == account.AccountType %}
+                    <option value="{{ value }}" selected>{{ field }}</option>
+                  {% endif %}
+                  {% if value != account.AccountType %}
+                    <option value="{{ value }}">{{ field }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+              <br>
+              <input type="submit" style="margin-top: 10px;" />
+            </form>
+        </div>
+      </div>
+      </div>
   </div>
 </div>
 

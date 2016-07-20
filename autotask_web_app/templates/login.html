@@ -2,29 +2,33 @@
 {% load staticfiles %}
 {% block page %}
 
-<div class="container">
-  <div id="login" class="col-md-8 col-md-offset-2">
+
+<div class="container" style="margin-top: -80px;">
+  <div class="view overlay hm-white-slight z-depth-2">
     <img src="{% static 'img/autotask.jpg' %}" class="img-fluid">
-    <div class="card">
-            <h6 class="card-header primary-color white-text">Login to Autotask</h6>
-            <div class="card-block">
-              <form method="POST">
-                {% csrf_token %}
-                <div class="md-form">
-                  <i class="fa fa-user prefix"></i>
-                  <input type="text" name="username" id="username" class="form-control">
-                  <label for="content">Enter your username</label>
-                </div>
-                <div class="md-form">
-                  <i class="fa fa-unlock-alt prefix"></i>
-                  <input type="password" name="password" id="password" class="form-control">
-                  <label for="star">Enter your password</label>
-                </div>
-                <div id="actions" align="center">
-                  <button type="submit" class="btn btn-primary">Login</button>
-                </div>
-              </form>
-            </div>
+      <a>
+          <div class="mask"></div>
+      </a>
+  </div>
+  <div class="card login">
+      <h6 class="card-header primary-color white-text">Login to Autotask</h6>
+      <div class="card-block">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="md-form">
+            <i class="fa fa-user prefix"></i>
+            <input type="text" name="username" id="username" class="form-control">
+            <label for="content">Enter your username</label>
+          </div>
+          <div class="md-form">
+            <i class="fa fa-unlock-alt prefix"></i>
+            <input type="password" name="password" id="password" class="form-control">
+            <label for="star">Enter your password</label>
+          </div>
+          <div id="actions" align="center">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
       </div>
   </div>
 </div>
