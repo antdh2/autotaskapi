@@ -32,7 +32,8 @@
 
     <section id="menu">
       <!-- SideNav slide-out button -->
-      <a style="position: relative; float: right; margin-right: 45px;" href="#" data-activates="slide-out" class="button-collapse"><i class="fa fa-bars fa-2x"></i></a>
+      <a style="position: relative;float: right;margin-right: 45px;text-align: center;text-align: -webkit-center;" href="#" data-activates="slide-out" class="button-collapse">
+        <i class="fa fa-bars fa-2x"></i> <br><p id="quicklinks">Quick<br>Links</p></a>
 
       <!--/. SideNav slide-out button -->
 
@@ -87,6 +88,9 @@
         <!--Copyright-->
         <div class="footer-copyright">
             <div class="container-fluid">
+              <span><a href="{% url 'login' %}">Login</a> | <a href="{% url 'index' %}">Home</a></span>
+              <br>
+              <hr width="250px">
               <span>Autotask Validator &copy; 2016 by <a href="http://www.studiointhecloud.co.uk"> Studio in the Cloud </a></span>
             </div>
         </div>

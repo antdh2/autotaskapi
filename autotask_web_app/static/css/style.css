@@ -1,5 +1,11 @@
 /* YOUR CUSTOM STYLES */
 
+#quicklinks {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  line-height: 17px;
+}
+
 .error {
   color: red !important;
 }

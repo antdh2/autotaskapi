@@ -69,9 +69,8 @@ def login(request):
         global at
         at = atws.connect(username=username,password=password)
         messages.add_message(request, messages.SUCCESS, 'Successfully logged in.')
-        return redirect("/", successMessage="Success!")
+        return redirect("/index", successMessage="Success!")
     else:
-        messages.add_message(request, messages.ERROR, 'Something went wrong.')
         return render(request, 'login.html', {})
 
 
@@ -212,6 +211,7 @@ def create_ticket(request, id):
         new_ticket.Title = request.POST['title']
         new_ticket.Description = request.POST['description']
         new_ticket.DueDateTime = request.POST['duedatetime']
+        new_ticket.EstimatedHours = request.POST['estimatedhours']
         new_ticket.Priority = request.POST['priority']
         new_ticket.Status = request.POST['status']
         new_ticket.QueueID = request.POST['queueid']
