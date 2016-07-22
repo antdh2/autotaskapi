@@ -203,8 +203,6 @@ def resolve_account_name_from_id(account_id):
 def create_ticket(request, id):
     account_id = id
     account = get_account(account_id)
-
-
     if request.method == "POST":
         new_ticket = at.new('Ticket')
         new_ticket.AccountID = account_id
@@ -215,5 +213,23 @@ def create_ticket(request, id):
         new_ticket.Priority = request.POST['priority']
         new_ticket.Status = request.POST['status']
         new_ticket.QueueID = request.POST['queueid']
-        ticket = at.create(new_ticket).fetch_one()
+
+        # custom validation rules
+        if new_ticket.EstimatedHours == '3' and new_ticket.Priority == '3':
+            messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
+            return redirect("/account/" + account_id, {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+        else:
+            ticket = at.create(new_ticket).fetch_one()
     return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+
+
+def create_home_user_ticket(request, id):
+    account_id = id
+    account = get_account(account_id)
+    new_ticket = at.new('Ticket')
+    accountID = account_id
+    title = "Test Home User Ticket"
+    description = "Test Home User Description"
+    status = atvar.Ticket_QueueID_PostSale
+
+    return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
