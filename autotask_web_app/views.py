@@ -226,10 +226,28 @@ def create_ticket(request, id):
 def create_home_user_ticket(request, id):
     account_id = id
     account = get_account(account_id)
-    new_ticket = at.new('Ticket')
-    accountID = account_id
+
+    # Preset fields for home user ticket creation
     title = "Test Home User Ticket"
     description = "Test Home User Description"
-    status = atvar.Ticket_QueueID_PostSale
+    status = atvar.Ticket_Status_New
 
-    return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+    # Grab field values from user input, include predefined fields above
+    if request.method == "POST":
+        new_ticket = at.new('Ticket')
+        new_ticket.AccountID = account_id
+        new_ticket.Title = request.POST['title']
+        new_ticket.Description = description
+        new_ticket.DueDateTime = request.POST['duedatetime']
+        new_ticket.EstimatedHours = request.POST['estimatedhours']
+        new_ticket.Priority = request.POST['priority']
+        new_ticket.Status = status
+        new_ticket.QueueID = request.POST['queueid']
+        # custom validation rules
+        if new_ticket.Title != title:
+            messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
+            return redirect("create_home_user_ticket.html", {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+        else:
+            ticket = at.create(new_ticket).fetch_one()
+
+    return render(request, 'create_home_user_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
