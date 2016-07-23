@@ -58,10 +58,8 @@ STATUS = {
     "Ready for Invoicing": atvar.Ticket_Status_ReadyforInvoicing,
 }
 
-def autotask_login(username, password):
-    return login
-
-def login(request):
+def autotask_login(request):
+    page = 'settings'
     # First we must connect to autotask using valid credentials
     if request.method == "POST":
         username = request.POST['username']
@@ -69,14 +67,17 @@ def login(request):
         global at
         at = atws.connect(username=username,password=password)
         messages.add_message(request, messages.SUCCESS, 'Successfully logged in.')
-        return redirect("/index", successMessage="Success!")
+        step = 2
+        return render(request, 'index.html', {"page": page, "step": step})
     else:
-        return render(request, 'login.html', {})
+        step = 1
+        return render(request, 'autotask_login.html', {"page": page, "step": step})
 
 
 
 # Create your views here.
 def index(request):
+    page = 'index'
     accounts = None
     # Once an account name/id is entered
     if request.method == "POST":
@@ -85,10 +86,13 @@ def index(request):
         accounts = resolve_account_name(account_name)
         #account_id = resolve_account_id(account_name)
         # then get autotask account using that ID
+        # set step id to 3
+        step = 3
     else:
+        step = 2
         accounts = None
 
-    return render(request, 'index.html', {"accounts": accounts})
+    return render(request, 'index.html', {"accounts": accounts, "page": page, "step": step})
 
 
 def account(request, id):
