@@ -1,145 +1,198 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
 {% block page %}
-<div class="container" style="margin-top: 45px;">
-  <div class="row">
-    <div class="jumbotron m-1 text-xs-center" style="margin-top: -120px;">
-        <h4 class="h4-responsive">{{ account.AccountName }}</h4>
-        <hr>
-        <div class="container" style="display: inline-flex;">
-          <button type="button" class="btn btn-primary">Edit Account</button>
-          <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              View
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-              <a class="dropdown-item" href="#">Tickets</a>
-              <a class="dropdown-item" href="#">To Do's</a>
-              <a class="dropdown-item" href="#">Account Notes</a>
-              <a class="dropdown-item" href="#">Opportunities</a>
-              <a class="dropdown-item" href="#">Contacts</a>
-            </div>
+
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+  <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+      <!-- BEGIN PAGE HEADER-->
+      <h1 class="page-title"> Autotask Validator</h1>
+      <!-- END PAGE HEADER-->
+      <div class="note note-info">
+          <p> Welcome to the Autotask Validator, get started by following the instructions below.</p>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
+            <ul class="messages">
+              <p>{{ message }}</p>
+            </ul>
           </div>
-          <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Create New
+        {% endfor %}
+      {% endif %}
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Account Details - {{ account.AccountName }}</span>
+          <div class="btn-group" style="margin-left: 25px;">
+            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-search"></i>&nbsp;
+                <span class="hidden-sm hidden-xs">View&nbsp;</span>&nbsp;
+                <i class="fa fa-angle-down"></i>
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-              <a class="dropdown-item" href="#">Ticket</a>
-              <a class="dropdown-item" href="#">To Do</a>
-              <a class="dropdown-item" href="#">Account Note</a>
-              <a class="dropdown-item" href="#">Opportunity</a>
-              <a class="dropdown-item" href="#">Contact</a>
-            </div>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                  <a href="javascript:;">
+                      <i class="icon-docs"></i> Tickets </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-tag"></i> To Do's </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-share"></i> Account Notes </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-flag"></i> Opportunities
+                  </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-users"></i> Contacts
+                  </a>
+              </li>
+            </ul>
           </div>
-          <button type="button" class="btn btn-primary" disabled>Create Opportunity</button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-plus"></i>&nbsp;
+                <span class="hidden-sm hidden-xs">New&nbsp;</span>&nbsp;
+                <i class="fa fa-angle-down"></i>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                  <a href="{% url 'create_ticket' account.id %}">
+                      <i class="icon-docs"></i> Ticket </a>
+              </li>
+              <li>
+                  <a href="{% url 'create_home_user_ticket' account.id %}">
+                      <i class="icon-tag"></i> Home User Ticket </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-share"></i> Account Note </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-flag"></i> Opportunity
+                  </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-users"></i> Contact
+                  </a>
+              </li>
+            </ul>
+          </div>
         </div>
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+          <div class="col-md-6">
+              {% if tickets %}
+                  <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
+                  <div class="card-block">
+                    <table class="table table-bordered table-striped table-condensed flip-content">
+                      <thead class="flip-content">
+                          <tr>
+                            <th>Ticket Number</th>
+                            <th>Ticket Title</th>
+                            <th>Account</th>
+                            <th>Queue</th>
+                          </tr>
+                        </thead>
+                        {% for n in tickets %}
+                        <tr>
+                          <td><a href="javascript:void(0);"
+                             NAME="My Window Name"
+                             title=" My title here "
+                             onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
+                          <td>{{ n.Title }}</td>
+                          <td>{{ ticket_account_name }}</td>
+                          <td>
+                            {% for queue_name, queue_id in QUEUE_IDS.items %}
+                              {% if n.QueueID == queue_id %}
+                                {{ queue_name }}
+                              {% endif %}
+                            {% endfor %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                      </table>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card">
+                    <h6 class="card-header primary-color white-text">Edit Account</strong></h6>
+                    <div class="card-block">
+                      <form action="{% url 'edit_account' account.id %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label for="account-name">Edit Account Name: </label>
+                          <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="address1">Edit Address 1: </label>
+                          <input type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="">Edit Address 2: </label>
+                          <input type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="">Edit State: </label>
+                          <input type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="">Edit City: </label>
+                          <input type="text" name="city" id="city" value="{{ account.City }}"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="">Edit Postcode: </label>
+                          <input type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
+                        </div>
+                        <div class="form-group">
+                          <label for="">Edit Phone: </label>
+                          <input type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
+                        </div>
+                        <label>Account Type</label>
+                        <select class="form-control">
+                          {% for field, value in account_types.items %}
+                            {% if value == account.AccountType %}
+                              <option value="{{ value }}" selected>{{ field }}</option>
+                            {% endif %}
+                            {% if value != account.AccountType %}
+                              <option value="{{ value }}">{{ field }}</option>
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                        <br>
+                        <input type="submit" style="margin-top: 10px;" />
+                      </form>
+                  </div>
+                </div>
+                </div>
+              </div>
+          </div>
+        </div>
+
+
+
+
+
+
+        <!-- End Portlet -->
       </div>
     </div>
   </div>
 </div>
-
-<div class="row">
-  <div class="container">
-      {% if tickets %}
-      <div class="col-md-8">
-        <div class="card">
-          <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
-          <div class="card-block">
-            <a href="{% url 'create_ticket' account.id %}">Create Ticket</a>
-            <a href="{% url 'create_home_user_ticket' account.id %}">Create Home User Ticket</a>
-
-              <table class="table table-striped">
-                <thead class="">
-                  <tr>
-                    <th>Ticket Number</th>
-                    <th>Ticket Title</th>
-                    <th>Account</th>
-                    <th>Queue</th>
-                  </tr>
-                </thead>
-                {% for n in tickets %}
-                <tr>
-                  <td><a href="javascript:void(0);"
-                     NAME="My Window Name"
-                     title=" My title here "
-                     onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-                  <td>{{ n.Title }}</td>
-                  <td>{{ ticket_account_name }}</td>
-                  <td>
-                    {% for queue_name, queue_id in QUEUE_IDS.items %}
-                      {% if n.QueueID == queue_id %}
-                        {{ queue_name }}
-                      {% endif %}
-                    {% endfor %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </table>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card">
-          <h6 class="card-header primary-color white-text">Edit Account</strong></h6>
-          <div class="card-block">
-            <form action="{% url 'edit_account' account.id %}" method="post">
-              {% csrf_token %}
-              <div class="form-group">
-                <label for="account-name">Edit Account Name: </label>
-                <input type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
-              </div>
-              <div class="form-group">
-                <label for="address1">Edit Address 1: </label>
-                <input type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
-              </div>
-              <div class="form-group">
-                <label for="">Edit Address 2: </label>
-                <input type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
-              </div>
-              <div class="form-group">
-                <label for="">Edit State: </label>
-                <input type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
-              </div>
-              <div class="form-group">
-                <label for="">Edit City: </label>
-                <input type="text" name="city" id="city" value="{{ account.City }}"/>
-              </div>
-              <div class="form-group">
-                <label for="">Edit Postcode: </label>
-                <input type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
-              </div>
-              <div class="form-group">
-                <label for="">Edit Phone: </label>
-                <input type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
-              </div>
-              <label>Account Type</label>
-              <select class="form-control">
-                {% for field, value in account_types.items %}
-                  {% if value == account.AccountType %}
-                    <option value="{{ value }}" selected>{{ field }}</option>
-                  {% endif %}
-                  {% if value != account.AccountType %}
-                    <option value="{{ value }}">{{ field }}</option>
-                  {% endif %}
-                {% endfor %}
-              </select>
-              <br>
-              <input type="submit" style="margin-top: 10px;" />
-            </form>
-        </div>
-      </div>
-      </div>
-  </div>
-</div>
-
-
+<!-- END CONTENT BODY -->
+<!-- END CONTENT -->
 {% endblock %}

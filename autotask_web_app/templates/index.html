@@ -13,6 +13,16 @@
             <p> Welcome to the Autotask Validator, get started by following the instructions below.</p>
         </div>
 
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
+              <ul class="messages">
+                <p>{{ message }}</p>
+              </ul>
+            </div>
+          {% endfor %}
+        {% endif %}
+
         <div class="portlet light portlet-fit ">
           <div class="portlet-title">
               <div class="caption">

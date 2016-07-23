@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load staticfiles %}
-
 {% block page %}
 <script>
 $(document).ready(function () {
@@ -44,57 +43,158 @@ $(document).ready(function () {
 
 });
 </script>
-  <div class="container">
-    <div class="card">
-      <h6 class="card-header primary-color white-text">Create New Ticket</strong></h6>
-      <div class="card-block">
-          <form id="create-ticket" action="{% url 'create_ticket' account.id %}" method="post">
-            {% csrf_token %}
-
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+  <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+      <!-- BEGIN PAGE HEADER-->
+      <h1 class="page-title"> Autotask Validator</h1>
+      <!-- END PAGE HEADER-->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
             <ul class="messages">
-                {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
+              <p>{{ message }}</p>
             </ul>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-            <div class="form-group">
-              <label for="account-name">Ticket Title: </label>
-              <input type="text" name="title" id="title" {% if title %} value="{{ title }}" />{% endif %}
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Create New Ticket - {{ account.AccountName }}</span>
+          <div class="btn-group" style="margin-left: 25px;">
+            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-search"></i>&nbsp;
+                <span class="hidden-sm hidden-xs">View&nbsp;</span>&nbsp;
+                <i class="fa fa-angle-down"></i>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                <a href="{% url 'account' account.id %}">
+                      <i class="icon-docs"></i> Tickets </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-tag"></i> To Do's </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-share"></i> Account Notes </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-flag"></i> Opportunities
+                  </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-users"></i> Contacts
+                  </a>
+              </li>
+            </ul>
+          </div>
+          <div class="btn-group">
+            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-plus"></i>&nbsp;
+                <span class="hidden-sm hidden-xs">New&nbsp;</span>&nbsp;
+                <i class="fa fa-angle-down"></i>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li>
+                  <a href="{% url 'create_ticket' account.id %}">
+                      <i class="icon-docs"></i> Ticket </a>
+              </li>
+              <li>
+                  <a href="{% url 'create_home_user_ticket' account.id %}">
+                      <i class="icon-tag"></i> Home User Ticket </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-share"></i> Account Note </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-flag"></i> Opportunity
+                  </a>
+              </li>
+              <li class="disabled">
+                  <a href="javascript:;">
+                      <i class="icon-users"></i> Contact
+                  </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+          <div class="col-md-8">
+            <h6 class="card-header primary-color white-text">Create New Ticket</strong></h6>
+            <div class="card-block">
+                <form id="create-ticket" action="{% url 'create_ticket' account.id %}" method="post">
+                  {% csrf_token %}
+                  <div class="form-group">
+                    <label>Ticket Title</label>
+                        <input type="text" class="form-control" placeholder="Ticket Title" name="title" id="title" {% if title %} value="{{ title }}" {% endif %}></input>
+                  </div>
+                  <br>
+                  <div class="form-group">
+                    <label>Ticket Description</label>
+                    <textarea class="form-control" rows="3" placeholder="Enter Ticket Description" name="description" id="description" {% if description %} value="{{ description }}" {% endif %}></textarea>
+                  </div>
+
+                  <label>Ticket Due Date</label>
+                  <div class="form-group" data-date-start-date="+0d">
+                    <input id="duedatetime" name="duedatetime" class="form-control form-control-inline input-medium date-picker" size="16" type="text" value="">
+                  </div>
+                  <br>
+                  <div class="form-group">
+                    <label>Ticket Estimated Hours</label>
+                        <input type="text" class="form-control" placeholder="Estimated Hours" name="estimatedhours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" {% endif %}></input>
+                  <br>
+                  <label>Ticket Priority</label>
+                  <select class="form-control priority" name="priority" id="priority">
+                    {% for field, value in PRIORITY.items %}
+                        <option value="{{ value }}">{{ field }}</option>
+                    {% endfor %}
+                  </select>
+                  <br>
+                  <label>Ticket Status</label>
+                  <select class="form-control" name="status" id="status">
+                    {% for field, value in STATUS.items %}
+                        <option value="{{ value }}">{{ field }}</option>
+                    {% endfor %}
+                  </select>
+                  <br>
+                  <label>Ticket Queue</label>
+                  <select class="form-control" name="queueid" id="queueid">
+                    {% for field, value in QUEUE_IDS.items %}
+                      <option value="{{ value }}">{{ field }}</option>
+                    {% endfor %}
+                  </select>
+                  <br>
+                  <input type="submit" style="margin-top: 10px;" />
+                </form>
             </div>
-            <div class="form-group">
-              <label for="address1">Ticket Description: </label>
-              <input type="text" name="description" id="description" {% if description %} value="{{ description }}" />{% endif %}
-            </div>
-            <div class="form-group">
-              <label for="">Ticket Due Date Time: </label>
-              <input type="text" name="duedatetime" id="duedatetime" {% if duedatetime %} value="{{ duedatetime }}" />{% endif %}
-            </div>
-            <div class="form-group">
-              <label for="">Ticket Estimated Hours: </label>
-              <input type="number" name="estimatedhours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" />{% endif %}
-            </div>
-            <label>Ticket Priority</label>
-            <select class="form-control priority" name="priority" id="priority">
-              {% for field, value in PRIORITY.items %}
-                  <option value="{{ value }}">{{ field }}</option>
-              {% endfor %}
-            </select>
-            <label>Ticket Status</label>
-            <select class="form-control" name="status" id="status">
-              {% for field, value in STATUS.items %}
-                  <option value="{{ value }}">{{ field }}</option>
-              {% endfor %}
-            </select>
-            <label>Ticket Queue</label>
-            <select class="form-control" name="queueid" id="queueid">
-              {% for field, value in QUEUE_IDS.items %}
-                <option value="{{ value }}">{{ field }}</option>
-              {% endfor %}
-            </select>
-            <br>
-            <input type="submit" style="margin-top: 10px;" />
-          </form>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+
+
+        <!-- End Portlet -->
       </div>
     </div>
   </div>
+</div>
+<!-- END CONTENT BODY -->
+<!-- END CONTENT -->
 {% endblock %}

@@ -77,22 +77,27 @@ def autotask_login(request):
 
 # Create your views here.
 def index(request):
-    page = 'index'
-    accounts = None
-    # Once an account name/id is entered
-    if request.method == "POST":
-        # map account_id to the inputted value
-        account_name = request.POST['account-name']
-        accounts = resolve_account_name(account_name)
-        #account_id = resolve_account_id(account_name)
-        # then get autotask account using that ID
-        # set step id to 3
-        step = 3
-    else:
-        step = 2
+    try:
+        page = 'index'
         accounts = None
+        # Once an account name/id is entered
+        if request.method == "POST":
+            # map account_id to the inputted value
+            account_name = request.POST['account-name']
+            accounts = resolve_account_name(account_name)
+            #account_id = resolve_account_id(account_name)
+            # then get autotask account using that ID
+            # set step id to 3
+            step = 3
+        else:
+            step = 2
+            accounts = None
 
-    return render(request, 'index.html', {"accounts": accounts, "page": page, "step": step})
+        return render(request, 'index.html', {"accounts": accounts, "page": page, "step": step})
+    except AttributeError:
+        messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
+        step = 1
+        return render(request, 'index.html', {"step": step})
 
 
 def account(request, id):
@@ -241,11 +246,11 @@ def create_home_user_ticket(request, id):
         new_ticket = at.new('Ticket')
         new_ticket.AccountID = account_id
         new_ticket.Title = request.POST['title']
-        new_ticket.Description = description
+        new_ticket.Description = request.POST['description']
         new_ticket.DueDateTime = request.POST['duedatetime']
         new_ticket.EstimatedHours = request.POST['estimatedhours']
         new_ticket.Priority = request.POST['priority']
-        new_ticket.Status = status
+        new_ticket.Status = request.POST['status']
         new_ticket.QueueID = request.POST['queueid']
         # custom validation rules
         if new_ticket.Title != title:
