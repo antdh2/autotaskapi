@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block page %}
+
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+  <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+      <!-- BEGIN PAGE HEADER-->
+      <h1 class="page-title">Ticket Detail</h1>
+      <!-- END PAGE HEADER-->
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
+            <ul class="messages">
+              <p>{{ message }}</p>
+            </ul>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Account - {{ account.AccountName }}</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card-block">
+              <strong>{{ account.AccountName }}</strong><br>
+              {{ account.Address1 }}<br>
+              {{ account.Address2 }}<br>
+              {{ account.City }}<br>
+              {{ account.PostalCode }}<br>
+              {{ account.Phone }}<br>
+            </div>
+          </div>
+          <div class="col-md-6">
+            {% for key, value in ticket_info.items %}
+              {% if key == 'ContactID' %}
+              <p><strong>{{ key }}</strong>: {{ value }}</p>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Ticket - {{ ticket.Title }} for Account - {{ account.AccountName }}</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card-block">
+              {{ contact_name }}
+              {{ ticket }}
+            </div>
+          </div>
+          <div class="col-md-4">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
+        <!-- End Portlet -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END CONTENT BODY -->
+<!-- END CONTENT -->
+{% endblock %}

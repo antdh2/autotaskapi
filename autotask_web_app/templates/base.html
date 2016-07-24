@@ -72,41 +72,80 @@
               <!-- END RESPONSIVE MENU TOGGLER -->
               <!-- BEGIN PAGE ACTIONS -->
               <!-- DOC: Remove "hide" class to enable the page header actions -->
-              <div class="page-actions">
-                  <div class="btn-group">
-                      <button type="button" class="btn btn-circle btn-outline red dropdown-toggle" data-toggle="dropdown">
-                          <i class="fa fa-plus"></i>&nbsp;
-                          <span class="hidden-sm hidden-xs">New&nbsp;</span>&nbsp;
-                          <i class="fa fa-angle-down"></i>
-                      </button>
-                      <ul class="dropdown-menu" role="menu">
-                          <li>
-                              <a href="javascript:;">
-                                  <i class="icon-docs"></i> Ticket </a>
-                          </li>
-                          <li>
-                              <a href="javascript:;">
-                                  <i class="icon-tag"></i> To Do </a>
-                          </li>
-                          <li>
-                              <a href="javascript:;">
-                                  <i class="icon-share"></i> Account Note </a>
-                          </li>
-                          <li>
-                              <a href="javascript:;">
-                                  <i class="icon-flag"></i> Opportunity
-                                  <span class="badge badge-success">4</span>
-                              </a>
-                          </li>
-                          <li>
-                              <a href="javascript:;">
-                                  <i class="icon-users"></i> Contact
-                                  <span class="badge badge-danger">2</span>
-                              </a>
-                          </li>
-                      </ul>
+              {% if account %}
+                <div class="page-actions">
+                  <span class="caption-subject font-green bold uppercase">Quick Links - {{ account.AccountName }}</span>
+                  <div class="btn-group"  style="margin-left: 25px;">
+                    <a href="{% url 'edit_account' account.id %}" class="btn btn-circle btn-outline green">Edit</a>
                   </div>
-              </div>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-search"></i>&nbsp;
+                        <span class="hidden-sm hidden-xs">View&nbsp;</span>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li>
+                        <a href="{% url 'account' account.id %}">
+                              <i class="icon-docs"></i> Tickets </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-tag"></i> To Do's </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-share"></i> Account Notes </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-flag"></i> Opportunities
+                          </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-users"></i> Contacts
+                          </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="btn-group">
+                    <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
+                        <i class="fa fa-plus"></i>&nbsp;
+                        <span class="hidden-sm hidden-xs">New&nbsp;</span>&nbsp;
+                        <i class="fa fa-angle-down"></i>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                      <li>
+                          <a href="{% url 'create_ticket' account.id %}">
+                              <i class="icon-docs"></i> Ticket </a>
+                      </li>
+                      <li>
+                          <a href="{% url 'create_home_user_ticket' account.id %}">
+                              <i class="icon-tag"></i> Home User Ticket </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-share"></i> Account Note </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-flag"></i> Opportunity
+                          </a>
+                      </li>
+                      <li class="disabled">
+                          <a href="javascript:;">
+                              <i class="icon-users"></i> Contact
+                          </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                {% else %}
+                <div class="page-actions">
+                  <span class="caption-subject font-green bold uppercase">No Account Selected</span>
+                </div>
+                {% endif %}
               <!-- END PAGE ACTIONS -->
               <!-- BEGIN PAGE TOP -->
               <div class="page-top">
@@ -185,8 +224,8 @@
                   <ul class="page-sidebar-menu  page-header-fixed" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
                       <li class="nav-item start {% if page == 'index' %} active open{% endif %}">
                           <a href="{% url 'index' %}" class="nav-link nav-toggle">
-                              <i class="icon-home"></i>
-                              <span class="title">Dashboard</span>
+                              <i class="fa fa-search"></i>
+                              <span class="title">Search for Account</span>
                               <span class="selected"></span>
                           </a>
                       </li>

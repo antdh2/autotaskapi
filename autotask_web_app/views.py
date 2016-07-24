@@ -101,11 +101,25 @@ def index(request):
         else:
             accounts = None
 
-        return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at})
+        return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
-        step = 1
-        return render(request, 'index.html', {"at": at})
+        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+
+
+def ticket_detail(request, account_id, ticket_id):
+    try:
+        page = 'ticket_detail'
+        account = get_account(account_id)
+        ticket = get_ticket_from_id(ticket_id)
+        for key, value in ticket:
+            if key == 'ContactID':
+                contact_id = value
+        contact_name = resolve_contact_name_from_id(contact_id)
+        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact_name": contact_name})
+    except AttributeError:
+        messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
+        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
 def account(request, id):
@@ -159,6 +173,12 @@ def get_tickets_for_account(account_id):
     tickets = at.query(tquery).fetch_all()
     return tickets
 
+def get_ticket_from_id(ticket_id):
+    tquery = atws.Query('Ticket')
+    tquery.WHERE('id',tquery.Equals,ticket_id)
+    ticket = at.query(tquery).fetch_one()
+    return ticket
+
 
 def get_ticket_info(tickets):
     # tickets variable is entered as a LIST of tickets
@@ -207,6 +227,25 @@ def resolve_account_name_from_id(account_id):
         if field == "AccountName":
             account_name = value
             return account_name
+
+
+def resolve_contact_id_from_ticket(ticket):
+    for key, value in ticket:
+        if key == 'ContactID':
+            contact_id = value
+    return contact_id
+
+def resolve_contact_name_from_id(contact_id):
+    aquery = atws.Query('Contact')
+    aquery.WHERE('id',aquery.Equals,contact_id)
+    contact = at.query(aquery).fetch_one()
+    for field, value in contact:
+        if field == 'FirstName':
+            firstname = value
+        elif field == 'LastName':
+            lastname = value
+            contact_name = firstname + " " + lastname
+    return contact_name
 
 
 def create_ticket(request, id):

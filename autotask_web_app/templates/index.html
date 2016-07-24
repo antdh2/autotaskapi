@@ -20,71 +20,79 @@
         {% if at == None %}
         <div class="note note-danger">
             <h4 class="block">Autotask connection not established</h4>
-            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials</p></a>
+            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
         </div>
         {% endif %}
-        <div class="portlet light portlet-fit ">
-          <div class="portlet-title">
-              <div class="caption">
-                  <i class=" fa fa-search fa-2x font-green"></i>
-                  <span class="caption-subject font-green bold uppercase">Search for an Account</span>
-              </div>
-          </div>
-          <div class="portlet-body form">
-              <!-- BEGIN FORM-->
-              <form id="search-account" action="{% url 'index' %}" method="post" class="form-horizontal">
-                {% csrf_token %}
-                  <div class="form-body">
-                      <div class="form-group">
-                          <label class="col-md-3 control-label">Account</label>
-                          <div class="col-md-4">
-                              <input type="text" class="form-control input-circle" placeholder="Enter text" id="account-name" name="account-name">
-                              <span class="help-block"> You can enter partial account names </span>
-                          </div>
+        {% if at != None %}
+          <div class="portlet light portlet-fit ">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class=" fa fa-search fa-2x font-green"></i>
+                    <span class="caption-subject font-green bold uppercase">Search for an Account</span>
+                </div>
+            </div>
+            <div class="portlet-body form">
+                <!-- BEGIN FORM-->
+                <form id="search-account" action="{% url 'index' %}" method="post" class="form-horizontal">
+                  {% csrf_token %}
+                    <div class="form-body">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Account</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control input-circle" placeholder="Enter text" id="account-name" name="account-name">
+                                <span class="help-block"> You can enter partial account names </span>
+                            </div>
+                      </div>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-4 col-md-9">
+                                <button type="submit" class="btn btn-circle green">Submit</button>
+                            </div>
+                        </div>
                     </div>
-                  <div class="form-actions">
-                      <div class="row">
-                          <div class="col-md-offset-4 col-md-9">
-                              <button type="submit" class="btn btn-circle green">Submit</button>
-                          </div>
+                </form>
+                <!-- END FORM-->
+                <div class="container">
+                  <div class="portlet box green">
+                    <div class="portlet-title">
+                      <div class="caption">
+                          <i class="fa fa-cogs"></i>Accounts search results... </div>
+                      <div class="tools">
+                          <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
+                          <a href="javascript:;" class="remove" data-original-title="" title=""> </a>
+                      </div>
+                    </div>
+                    <div class="portlet-body flip-scroll" style="padding: 20px;">
+                        {% if accounts %}
+                        {{ accounts.AccountName }}
+                        <table class="table table-bordered table-striped table-condensed flip-content">
+                          <thead class="flip-content">
+                            <tr>
+                              <th>Account Name</th>
+                              <th>Account Type</th>
+                            </tr>
+                          </thead>
+                          {% for n in accounts %}
+                          <tr>
+                            <td><a href="{% url 'account' n.id %}">{{ n.AccountName }}</a></td>
+                            <td>
+                              {% for account_type, account_type_id in ACCOUNT_TYPES.items %}
+                                {% if n.AccountType == account_type_id %}
+                                  {{ account_type }}
+                                {% endif %}
+                              {% endfor %}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </table>
+                        {% endif %}
                       </div>
                   </div>
-              </form>
-              <!-- END FORM-->
-              <div class="container">
-                <div class="portlet box green">
-                  <div class="portlet-title">
-                    <div class="caption">
-                        <i class="fa fa-cogs"></i>Accounts search results... </div>
-                    <div class="tools">
-                        <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
-                        <a href="javascript:;" class="remove" data-original-title="" title=""> </a>
-                    </div>
                   </div>
-                  <div class="portlet-body flip-scroll" style="padding: 20px;">
-                      {% if accounts %}
-                      {{ accounts.AccountName }}
-                      <table class="table table-bordered table-striped table-condensed flip-content">
-                        <thead class="flip-content">
-                          <tr>
-                            <th>Account Name</th>
-                            <th>Account Type</th>
-                          </tr>
-                        </thead>
-                        {% for n in accounts %}
-                        <tr>
-                          <td><a href="{% url 'account' n.id %}">{{ n.AccountName }}</a></td>
-                          <td><a href="{% url 'account' n.id %}">{{ n.AccountType }}</a></td>
-                        </tr>
-                        {% endfor %}
-                      </table>
-                      {% endif %}
-                    </div>
                 </div>
-                </div>
-              </div>
+            </div>
           </div>
-        </div>
+        {% endif %}
       </div>
     </div>
     <!-- END CONTENT BODY -->
