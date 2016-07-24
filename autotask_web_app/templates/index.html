@@ -9,49 +9,20 @@
         <!-- BEGIN PAGE HEADER-->
         <h1 class="page-title"> Autotask Validator</h1>
         <!-- END PAGE HEADER-->
-        <div class="note note-info">
-            <p> Welcome to the Autotask Validator, get started by following the instructions below.</p>
-        </div>
 
         {% if messages %}
           {% for message in messages %}
-            <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
-              <ul class="messages">
+            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
                 <p>{{ message }}</p>
-              </ul>
             </div>
           {% endfor %}
         {% endif %}
-          <div class="portlet light portlet-fit ">
-            <div class="portlet-title">
-                <div class="caption">
-                    <i class=" icon-layers font-green"></i>
-                    <span class="caption-subject font-green bold uppercase">Let's Get Started {{ step }}</span>
-                </div>
-            </div>
-            <div class="portlet-body">
-                <div class="mt-element-step">
-                    <div class="row step-line">
-                      <a href="{% url 'autotask_login' %}">
-                        <div class="col-md-4 mt-step-col first {% if step == 1 %} active {% elif step == 2 %} done {% elif step == 3 %} done {% endif %}">
-                          <div class="mt-step-number bg-white font-grey">1</div>
-                          <div class="mt-step-title uppercase font-grey-cascade">Connect to Autotask</div>
-                          <div class="mt-step-content font-grey-cascade">Login with your credentials</div>
-                      </div></a>
-                        <div class="col-md-4 mt-step-col {% if step == 1 %}  {% elif step == 2 %} active {% else %} done {% endif %}">
-                            <div class="mt-step-number bg-white font-grey">2</div>
-                            <div class="mt-step-title uppercase font-grey-cascade">Search for An Account</div>
-                            <div class="mt-step-content font-grey-cascade">Select an account to interact with</div>
-                        </div>
-                        <div class="col-md-4 mt-step-col last {% if step == 2 %}  {% elif step == 3 %} active {% elif step == 4 %} done {% endif %}">
-                            <div class="mt-step-number bg-white font-grey">3</div>
-                            <div class="mt-step-title uppercase font-grey-cascade">Create, Edit, Validate</div>
-                            <div class="mt-step-content font-grey-cascade">Create or edit tickets with input validation</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-          </div>
+        {% if at == None %}
+        <div class="note note-danger">
+            <h4 class="block">Autotask connection not established</h4>
+            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials</p></a>
+        </div>
+        {% endif %}
         <div class="portlet light portlet-fit ">
           <div class="portlet-title">
               <div class="caption">

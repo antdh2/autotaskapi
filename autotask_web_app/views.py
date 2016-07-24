@@ -75,16 +75,16 @@ def autotask_login(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        global at
-        at = atws.connect(username=username,password=password)
-        messages.add_message(request, messages.SUCCESS, 'Successfully logged in.')
-        global step
-        step = 2
-        return render(request, 'index.html', {"page": page, "step": step})
+        autotask_login_function(username, password)
+        messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
+        return render(request, 'index.html', {"page": page, "at": at})
     else:
-        return render(request, 'autotask_login.html', {"page": page})
+        return render(request, 'autotask_login.html', {"page": page, "at": at})
 
-
+def autotask_login_function(username, password):
+    global at
+    at = atws.connect(username=username,password=password)
+    return at
 
 # Create your views here.
 def index(request):
@@ -98,17 +98,14 @@ def index(request):
             accounts = resolve_account_name(account_name)
             #account_id = resolve_account_id(account_name)
             # then get autotask account using that ID
-            # set step id to 3
-            global step
-            step = 3
         else:
             accounts = None
 
-        return render(request, 'index.html', {"accounts": accounts, "page": page, "step": step})
+        return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
         step = 1
-        return render(request, 'index.html', {"step": step})
+        return render(request, 'index.html', {"at": at})
 
 
 def account(request, id):

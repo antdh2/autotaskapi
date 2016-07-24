@@ -1,5 +1,17 @@
 /* YOUR CUSTOM STYLES */
 
+.note.note-success {
+    border-left: 4px solid #58d0da;
+}
+
+.note.note-info {
+    border-left: 4px solid #8bb4e7;
+}
+
+.note.note-danger {
+    border-left: 4px solid #f0868e;
+}
+
 .disabled a {
     color: #e0e0e0 !important;
 }
