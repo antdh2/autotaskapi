@@ -59,7 +59,7 @@
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Ticket Information</span>
+          <span class="caption-subject font-green bold uppercase">Ticket - {{ ticket.TicketNumber }} - {{ ticket.Title }}</span>
         </div>
       </div>
       <div class="portlet-body">
@@ -76,6 +76,45 @@
       </div>
       <div class="portlet-body">
         {{ ticket.Description }}
+      </div>
+    </div>
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Ticket Details</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        {% for key, value in STATUS.items %}
+          {% if ticket.Status == value %}
+            <strong>Status:</strong> {{ key }}<br>
+          {% endif %}
+        {% endfor %}
+        {% for key, value in PRIORITY.items %}
+          {% if ticket.Priority == value %}
+            <strong>Priority:</strong> {{ key }}<br>
+          {% endif %}
+        {% endfor %}
+        {% for key, value in TICKET_SOURCES.items %}
+          {% if ticket.Source == value %}
+            <strong>Source:</strong> {{ key }}<br>
+          {% endif %}
+        {% endfor %}
+        <strong>Estimated Hours:</strong> {{ ticket.EstimatedHours }}<br>
+
+        {% for key, value in QUEUE_IDS.items %}
+          {% if ticket.QueueID == value %}
+            <strong>Queue:</strong> {{ key }}<br>
+          {% endif %}
+        {% endfor %}
+        <strong>Primary Resource:</strong> {{ assigned_resource.FirstName }} {{ assigned_resource.LastName }} {{ assigned_resource }}<br>
+        {% for key, value in RESOURCE_ROLES.items %}
+          {% if ticket.AssignedResourceRoleID == value %}
+          <strong>Primary Resource Role:</strong> {{ key }}<br>
+          {% endif %}
+        {% endfor %}
       </div>
     </div>
 

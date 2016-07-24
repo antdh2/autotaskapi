@@ -10,6 +10,24 @@ at = None
 accounts = None
 step = 1
 
+TICKET_SOURCES = {
+    "LinkedIn": atvar.Ticket_Source_LinkedIn,
+    "In Person at Support Centre": atvar.Ticket_Source_InPersonatSupportCentre,
+    "Unspecified": atvar.Ticket_Source_Unspecified,
+    "Facebook": atvar.Ticket_Source_Facebook,
+    "Contractual": atvar.Ticket_Source_Contractual,
+    "Telephone": atvar.Ticket_Source_Telephone,
+    "On Site Request": atvar.Ticket_Source_OnSiteRequest,
+    "Complaint": atvar.Ticket_Source_Complaint,
+    "Twitter": atvar.Ticket_Source_Twitter,
+    "Insourced": atvar.Ticket_Source_Insourced,
+    "Remote Monitor": atvar.Ticket_Source_RemoteMonitor,
+    "Client Portal": atvar.Ticket_Source_ClientPortal,
+    "Sales Office": atvar.Ticket_Source_SalesOffice,
+    "Backup": atvar.Ticket_Source_Backup,
+    "Email": atvar.Ticket_Source_Email,
+}
+
 QUEUE_IDS = {
     "Monthlies": atvar.Ticket_QueueID_Monthlies,
     "Customer Services": atvar.Ticket_QueueID_CustomerServices,
@@ -69,6 +87,14 @@ ACCOUNT_TYPES = {
     "Cancellation": atvar.Account_AccountType_Cancellation,
 }
 
+RESOURCE_ROLES = {
+    "Engineer": 29682834,
+    "Admin": 29683587,
+    "Home User Engineer": 29683586,
+    "Sales": 29683582,
+
+}
+
 def autotask_login(request):
     page = 'settings'
     # First we must connect to autotask using valid credentials
@@ -112,14 +138,21 @@ def ticket_detail(request, account_id, ticket_id):
         page = 'ticket_detail'
         account = get_account(account_id)
         ticket = get_ticket_from_id(ticket_id)
+        assigned_resource_id = ''
         for key, value in ticket:
             if key == 'ContactID':
                 contact_id = value
             if key == 'CreatorResourceID':
                 resource_id = value
+            if key == 'AssignedResourceID':
+                assigned_resource_id = value
         contact = get_contact_for_ticket(contact_id)
         resource = get_resource_from_id(resource_id)
-        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact": contact, "resource": resource})
+        if assigned_resource_id:
+            assigned_resource = get_resource_from_id(assigned_resource_id)
+        else:
+            assigned_resource = "No Resource Set"
+        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact": contact, "resource": resource, "assigned_resource": assigned_resource, "TICKET_SOURCES": TICKET_SOURCES, "STATUS": STATUS, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "RESOURCE_ROLES": RESOURCE_ROLES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
@@ -131,7 +164,7 @@ def account(request, id):
     tickets = get_tickets_for_account(account_id)
     ticket_account_name = resolve_account_name_from_id(account_id)
     ticket_info = get_ticket_info(tickets)
-    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS})
+    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
 
 
 def edit_account(request, id):
