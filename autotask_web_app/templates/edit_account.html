@@ -7,7 +7,7 @@
   <!-- BEGIN CONTENT BODY -->
   <div class="page-content">
       <!-- BEGIN PAGE HEADER-->
-      <h1 class="page-title"> Autotask Validator</h1>
+      <h1 class="page-title">Edit Account Autotask Validator</h1>
       <!-- END PAGE HEADER-->
       <div class="note note-info">
           <p> Welcome to the Autotask Validator, get started by following the instructions below.</p>
@@ -96,47 +96,54 @@
         </div>
       </div>
       <div class="portlet-body">
-        <div class="row">
-          <div class="col-md-6">
-              {% if tickets %}
-                  <h6 class="card-header primary-color white-text">All Tickets for Account - <strong>{{ ticket_account_name }}</strong></h6>
-                  <div class="card-block">
-                    <table class="table table-bordered table-striped table-condensed flip-content">
-                      <thead class="flip-content">
-                          <tr>
-                            <th>Ticket Number</th>
-                            <th>Ticket Title</th>
-                            <th>Account</th>
-                            <th>Queue</th>
-                          </tr>
-                        </thead>
-                        {% for n in tickets %}
-                        <tr>
-                          <td><a href="javascript:void(0);"
-                             NAME="My Window Name"
-                             title=" My title here "
-                             onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-                          <td>{{ n.Title }}</td>
-                          <td>{{ ticket_account_name }}</td>
-                          <td>
-                            {% for queue_name, queue_id in QUEUE_IDS.items %}
-                              {% if n.QueueID == queue_id %}
-                                {{ queue_name }}
-                              {% endif %}
-                            {% endfor %}
-                          </td>
-                        </tr>
-                        {% endfor %}
-                      </table>
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="col-md-4">
-
-                </div>
-              </div>
-          </div>
-        </div>
+          <form action="{% url 'edit_account' account.id %}" method="post" style="width: 66.67%">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="account-name">Edit Account Name: </label>
+              <input class="form-control" type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
+            </div>
+            <div class="form-group">
+              <label for="address1">Edit Address 1: </label>
+              <input class="form-control" type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
+            </div>
+            <div class="form-group">
+              <label for="">Edit Address 2: </label>
+              <input class="form-control" type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
+            </div>
+            <div class="form-group">
+              <label for="">Edit State: </label>
+              <input class="form-control" type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
+            </div>
+            <div class="form-group">
+              <label for="">Edit City: </label>
+              <input class="form-control" type="text" name="city" id="city" value="{{ account.City }}"/>
+            </div>
+            <div class="form-group">
+              <label for="">Edit Postcode: </label>
+              <input class="form-control" type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
+            </div>
+            <div class="form-group">
+              <label for="">Edit Phone: </label>
+              <input class="form-control" type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
+            </div>
+            <label>Account Type</label>
+            <select class="form-control">
+              {% for field, value in ACCOUNT_TYPES.items %}
+                {% if value == account.AccountType %}
+                  <option value="{{ value }}" selected>{{ field }}</option>
+                {% endif %}
+                {% if value != account.AccountType %}
+                  <option value="{{ value }}">{{ field }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <br>
+            <input type="submit" style="margin-top: 10px;" />
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 

@@ -8,6 +8,7 @@ from autotask_api_app import atvar
 
 at = None
 accounts = None
+step = 1
 
 QUEUE_IDS = {
     "Monthlies": atvar.Ticket_QueueID_Monthlies,
@@ -58,6 +59,16 @@ STATUS = {
     "Ready for Invoicing": atvar.Ticket_Status_ReadyforInvoicing,
 }
 
+ACCOUNT_TYPES = {
+    "Lead": atvar.Account_AccountType_Lead,
+    "Dead": atvar.Account_AccountType_Dead,
+    "Vendor": atvar.Account_AccountType_Vendor,
+    "Partner": atvar.Account_AccountType_Partner,
+    "Prospect": atvar.Account_AccountType_Prospect,
+    "Customer": atvar.Account_AccountType_Customer,
+    "Cancellation": atvar.Account_AccountType_Cancellation,
+}
+
 def autotask_login(request):
     page = 'settings'
     # First we must connect to autotask using valid credentials
@@ -67,11 +78,11 @@ def autotask_login(request):
         global at
         at = atws.connect(username=username,password=password)
         messages.add_message(request, messages.SUCCESS, 'Successfully logged in.')
+        global step
         step = 2
         return render(request, 'index.html', {"page": page, "step": step})
     else:
-        step = 1
-        return render(request, 'autotask_login.html', {"page": page, "step": step})
+        return render(request, 'autotask_login.html', {"page": page})
 
 
 
@@ -88,9 +99,9 @@ def index(request):
             #account_id = resolve_account_id(account_name)
             # then get autotask account using that ID
             # set step id to 3
+            global step
             step = 3
         else:
-            step = 2
             accounts = None
 
         return render(request, 'index.html', {"accounts": accounts, "page": page, "step": step})
@@ -106,17 +117,7 @@ def account(request, id):
     tickets = get_tickets_for_account(account_id)
     ticket_account_name = resolve_account_name_from_id(account_id)
     ticket_info = get_ticket_info(tickets)
-
-    account_types = {
-        "Lead": atvar.Account_AccountType_Lead,
-        "Dead": atvar.Account_AccountType_Dead,
-        "Vendor": atvar.Account_AccountType_Vendor,
-        "Partner": atvar.Account_AccountType_Partner,
-        "Prospect": atvar.Account_AccountType_Prospect,
-        "Customer": atvar.Account_AccountType_Customer,
-        "Cancellation": atvar.Account_AccountType_Cancellation,
-    }
-    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "account_types": account_types, "QUEUE_IDS": QUEUE_IDS})
+    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS})
 
 
 def edit_account(request, id):
@@ -140,7 +141,9 @@ def edit_account(request, id):
         account.update()
         messages.add_message(request, messages.SUCCESS, 'Successfully edited.')
 
-    return redirect("/account/" + account_id, successMessage="Success!")
+        return redirect("/account/" + account_id, successMessage="Success!")
+    return render(request, 'edit_account.html', {"account": account, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+
 
 
 
