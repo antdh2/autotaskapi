@@ -11,3 +11,18 @@
 .error {
   color: red;
 }
+
+.logo-text>a {
+  float: none !important;
+  color: white;
+  margin-top: 10px;
+}
+
+.logo-text small {
+  color: #e0e0e0;
+}
+
+.logo-text>a:hover {
+  color: white;
+  text-decoration: initial;
+  }
