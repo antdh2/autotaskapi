@@ -29,7 +29,7 @@
       </div>
       <div class="portlet-body">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="card-block">
               <strong>{{ account.AccountName }}</strong><br>
               {{ account.Address1 }}<br>
@@ -39,12 +39,17 @@
               {{ account.Phone }}<br>
             </div>
           </div>
-          <div class="col-md-6">
-            {% for key, value in ticket_info.items %}
-              {% if key == 'ContactID' %}
-              <p><strong>{{ key }}</strong>: {{ value }}</p>
-              {% endif %}
-            {% endfor %}
+          <div class="col-md-4">
+            <strong>{{ contact.FirstName }} {{ contact.LastName }}</strong><br>
+            {{ contact.Phone }}<br>
+            <a href="mailto:{{ contact.EMailAddress }}">{{ contact.EMailAddress }}</a><br>
+          </div>
+          <div class="col-md-4">
+            <strong>FIRST RESPONSE</strong><br>
+            {{ ticket.FirstResponseDateTime }}<br>
+            <br>
+            <strong>LAST ACTIVITY</strong><br>
+            {{ ticket.LastActivityDate }}
           </div>
         </div>
       </div>
@@ -54,14 +59,37 @@
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Ticket - {{ ticket.Title }} for Account - {{ account.AccountName }}</span>
+          <span class="caption-subject font-green bold uppercase">Ticket Information</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        Created by {{ resource.FirstName }} {{ resource.LastName }} on {{ ticket.CreateDate }}
+      </div>
+    </div>
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Ticket Description</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        {{ ticket.Description }}
+      </div>
+    </div>
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Ticket - {{ ticket.Title }}</span>
         </div>
       </div>
       <div class="portlet-body">
         <div class="row">
           <div class="col-md-6">
             <div class="card-block">
-              {{ contact_name }}
               {{ ticket }}
             </div>
           </div>

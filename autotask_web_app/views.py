@@ -115,8 +115,11 @@ def ticket_detail(request, account_id, ticket_id):
         for key, value in ticket:
             if key == 'ContactID':
                 contact_id = value
-        contact_name = resolve_contact_name_from_id(contact_id)
-        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact_name": contact_name})
+            if key == 'CreatorResourceID':
+                resource_id = value
+        contact = get_contact_for_ticket(contact_id)
+        resource = get_resource_from_id(resource_id)
+        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact": contact, "resource": resource})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
@@ -229,23 +232,17 @@ def resolve_account_name_from_id(account_id):
             return account_name
 
 
-def resolve_contact_id_from_ticket(ticket):
-    for key, value in ticket:
-        if key == 'ContactID':
-            contact_id = value
-    return contact_id
+def get_resource_from_id(resource_id):
+    aquery = atws.Query('Resource')
+    aquery.WHERE('id',aquery.Equals,resource_id)
+    resource = at.query(aquery).fetch_one()
+    return resource
 
-def resolve_contact_name_from_id(contact_id):
+def get_contact_for_ticket(contact_id):
     aquery = atws.Query('Contact')
     aquery.WHERE('id',aquery.Equals,contact_id)
     contact = at.query(aquery).fetch_one()
-    for field, value in contact:
-        if field == 'FirstName':
-            firstname = value
-        elif field == 'LastName':
-            lastname = value
-            contact_name = firstname + " " + lastname
-    return contact_name
+    return contact
 
 
 def create_ticket(request, id):
