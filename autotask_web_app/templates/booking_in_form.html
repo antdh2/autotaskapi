@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block page %}
+
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+    <!-- BEGIN CONTENT BODY -->
+    <div class="page-content">
+        <!-- BEGIN PAGE HEADER-->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
+                <p>{{ message }}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <h1 class="page-title"> Autotask Validator</h1>
+        <!-- END PAGE HEADER-->
+
+        {% if at == None %}
+        <div class="note note-danger">
+            <h4 class="block">Autotask connection not established</h4>
+            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
+        </div>
+        {% endif %}
+
+        {% if at != None %}
+          <div class="portlet light portlet-fit ">
+              <div class="portlet-title">
+                  <div class="caption">
+                      <i class=" icon-layers font-green"></i>
+                      <span class="caption-subject font-green bold uppercase">Customer Booking In Form {{ step }}</span>
+                  </div>
+              </div>
+              <div class="portlet-body">
+                  <div class="mt-element-step">
+                      <div class="row step-line">
+                          <div class="col-md-4 mt-step-col first {% if step == 1 %} active {% elif step == 2 %} done {% elif step == 3 %} done {% endif %}">
+                            <div class="mt-step-number bg-white font-grey">1</div>
+                            <div class="mt-step-title uppercase font-grey-cascade">Customer Details</div>
+                            <div class="mt-step-content font-grey-cascade">Create an Account in Autotask</div>
+                        </div>
+                        <div class="col-md-4 mt-step-col {% if step == 1 %} {% elif step == 2 %} active {% elif step == 3 %} done {% endif %}">
+                              <div class="mt-step-number bg-white font-grey">2</div>
+                              <div class="mt-step-title uppercase font-grey-cascade">Ticket Information</div>
+                              <div class="mt-step-content font-grey-cascade">Problems the customer has</div>
+                          </div>
+                          <div class="col-md-4 mt-step-col last {% if step == 3 %} done {% endif %}">
+                              <div class="mt-step-number bg-white font-grey">3</div>
+                              <div class="mt-step-title uppercase font-grey-cascade">Sign Off</div>
+                              <div class="mt-step-content font-grey-cascade">Customer sign off page</div>
+                          </div>
+                      </div>
+                  </div>
+                  <!-- Start Step 1 Form -->
+                  {% if at != None and step == 1 %}
+                  <div class="portlet-body">
+                      <form action="{% url 'booking_in_form' %}" method="post" style="width: 66.67%">
+                        {% csrf_token %}
+                        {{ ticket_account_id }}
+                        <input type="hidden" name="step1" value="step1">
+                        <div class="form-group">
+                          <label for="account-name">Account Name: </label>
+                          <input class="form-control" type="text" name="account-name" id="account-name" />
+                        </div>
+                        <div class="form-group">
+                          <label for="account-name">Contact First Name: </label>
+                          <input class="form-control" type="text" name="firstname" id="firstname" />
+                        </div>
+                        <div class="form-group">
+                          <label for="account-name">Contact Surname: </label>
+                          <input class="form-control" type="text" name="surname" id="surname" />
+                        </div>
+                        <div class="form-group">
+                          <label for="account-name">Contact Email Address: </label>
+                          <input class="form-control" type="email" name="email" id="email" />
+                        </div>
+                        <div class="form-group">
+                          <label for="address1">Address 1: </label>
+                          <input class="form-control" type="text" name="address1" id="address1" />
+                        </div>
+                        <div class="form-group">
+                          <label for="">Address 2: </label>
+                          <input class="form-control" type="text" name="address2" id="address2" />
+                        </div>
+                        <div class="form-group">
+                          <label for="">City: </label>
+                          <input class="form-control" type="text" name="city" id="city" />
+                        </div>
+                        <div class="form-group">
+                          <label for="">Postcode: </label>
+                          <input class="form-control" type="text" name="postcode" id="postcode" />
+                        </div>
+                        <div class="form-group">
+                          <label for="">Phone: </label>
+                          <input class="form-control" type="text" name="phone" id="phone" />
+                        </div>
+                        <label>Account Type</label>
+                        <select id="type" name="type" class="form-control">
+                          {% for field, value in ACCOUNT_TYPES.items %}
+                              <option  value="{{ value }}">{{ field }}</option>
+                          {% endfor %}
+                        </select>
+                        <br>
+                        <input type="submit" style="margin-top: 10px;" />
+                      </form>
+                  </div>
+                {% endif %}
+              </div>
+      {% endif %}
+      <!-- End Step 1 Form -->
+
+      <!-- Begin Step 2 Form -->
+      {% if at != None and step == 2 %}
+        <div class="portlet-body">
+          <form id="create-ticket" action="{% url 'booking_in_form' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="step2" value="step2">
+            {{ ticket_account_id }}
+            {{ ticket_contact_id }}
+            <div class="form-group">
+              <label>Ticket Title</label>
+                  <input type="text" class="form-control" placeholder="Ticket Title" name="title" id="title"></input>
+            </div>
+            <br>
+            <div class="form-group">
+              <label>Ticket Description</label>
+              <textarea class="form-control" rows="3" placeholder="Enter Ticket Description" name="description" id="description"></textarea>
+            </div>
+
+            <label>Ticket Due Date</label>
+            <div class="form-group" data-date-start-date="+0d">
+              <input id="duedatetime" name="duedatetime" class="form-control form-control-inline input-medium date-picker" size="16" type="text" value="">
+            </div>
+            <br>
+            <div class="form-group">
+              <label>Ticket Estimated Hours</label>
+                  <input type="text" class="form-control" placeholder="Estimated Hours" name="estimatedhours" id="estimatedhours"></input>
+            <br>
+            <label>Ticket Priority</label>
+            <select class="form-control priority" name="priority" id="priority">
+              {% for field, value in PRIORITY.items %}
+                  <option value="{{ value }}">{{ field }}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <label>Ticket Status</label>
+            <select class="form-control" name="status" id="status">
+              {% for field, value in STATUS.items %}
+                  <option value="{{ value }}">{{ field }}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <label>Ticket Queue</label>
+            <select class="form-control" name="queueid" id="queueid">
+              {% for field, value in QUEUE_IDS.items %}
+                <option value="{{ value }}">{{ field }}</option>
+              {% endfor %}
+            </select>
+            <br>
+            <input type="submit" style="margin-top: 10px;" />
+          </form>
+          </div>
+        </div>
+      {% endif %}
+      <!-- End Step 2 Form -->
+
+      <!-- Start Step 3 Form -->
+      {% if at != None and step == 3 %}
+        <div class="portlet-body">
+            <p>A document will appear here to print off and have the customer sign</p>
+        </div>
+      {% endif %}
+    </div>
+      <!-- End Step 3 Form -->
+    </div>
+
+    </div>
+  </div>
+    <!-- END CONTENT BODY -->
+</div>
+<!-- END CONTENT -->
+{% endblock %}

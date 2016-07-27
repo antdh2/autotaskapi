@@ -95,6 +95,79 @@ RESOURCE_ROLES = {
 
 }
 
+ticket_account_id = {}
+ticket_contact_id = {}
+def booking_in_form(request):
+    page = "booking_in_form"
+    step = 1
+    if request.method == 'POST':
+        if request.POST.get('step1', False):
+            # first we need to check this account doesn't already exist
+            # then we need to create an account
+            # set the step to 2 and return to the page
+            account_name = request.POST['account-name']
+            account = check_account_exists(account_name)
+            if account:
+                # if an account exists then show error message
+                messages.add_message(request, messages.ERROR, 'Account already exists.')
+                return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS})
+            else:
+                # else process the form and create a new account
+                # then need to create a new contact for that account
+                new_account = at.new('Account')
+                new_account.AccountName = request.POST['account-name']
+                new_account.Address1 = request.POST['address1']
+                new_account.Address2 = request.POST['address2']
+                new_account.City = request.POST['city']
+                new_account.PostalCode = request.POST['postcode']
+                new_account.Phone = request.POST['phone']
+                new_account.AccountType = request.POST['type']
+                new_account.OwnerResourceID = 29683570
+                at.create(new_account).fetch_one()
+                # now create a contact
+                new_contact = at.new('Contact')
+                new_contact.FirstName = request.POST['firstname']
+                new_contact.LastName = request.POST['surname']
+                new_contact.EMailAddress = request.POST['email']
+                new_contact.AddressLine = request.POST['address1']
+                new_contact.AddressLine1 = request.POST['address2']
+                new_contact.City = request.POST['city']
+                new_contact.ZipCode = request.POST['postcode']
+                new_contact.Phone = request.POST['phone']
+                new_contact.Active = 1
+                account_id = resolve_account_id(account_name)
+                new_contact.AccountID = account_id
+                # append account_id to a dict to use for making sure ticket is added to right account
+                ticket_account_id['AccountID'] = account_id
+                at.create(new_contact).fetch_one()
+                step = 2
+                messages.add_message(request, messages.SUCCESS, 'Successfully created account')
+
+                # update contact info to add contacts to ticket creation
+                contact = get_contact_for_account(account_id)
+                contact_id = contact.id
+                ticket_contact_id['ContactID'] = contact_id
+        if request.POST.get('step2', False):
+            # first grab account from step 1
+            # then create a new autotask ticket from form fields
+            new_ticket = at.new('Ticket')
+            new_ticket.AccountID = ticket_account_id['AccountID']
+            new_ticket.ContactID = ticket_contact_id['ContactID']
+            new_ticket.Title = request.POST['title']
+            new_ticket.Description = request.POST['description']
+            new_ticket.DueDateTime = request.POST['duedatetime']
+            new_ticket.EstimatedHours = request.POST['estimatedhours']
+            new_ticket.Priority = request.POST['priority']
+            new_ticket.Status = request.POST['status']
+            new_ticket.QueueID = request.POST['queueid']
+            new_ticket.Source = atvar.Ticket_Source_InPersonatSupportCentre
+            at.create(new_ticket).fetch_one()
+            step = 3
+            messages.add_message(request, messages.SUCCESS, 'Successfully created ticket')
+
+    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account_id": ticket_account_id, "ticket_contact_id": ticket_contact_id})
+
+
 def autotask_login(request):
     page = 'settings'
     # First we must connect to autotask using valid credentials
@@ -192,6 +265,20 @@ def edit_account(request, id):
     return render(request, 'edit_account.html', {"account": account, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
+def check_account_exists(account_name):
+    aquery = atws.Query('Account')
+    aquery.WHERE('AccountName',aquery.Equals,account_name)
+    accounts = at.query(aquery).fetch_all()
+    if accounts:
+        return True
+    else:
+        return False
+
+def get_contact_for_account(account_id):
+    tquery = atws.Query('Contact')
+    tquery.WHERE('AccountID',tquery.Equals,account_id)
+    contact = at.query(tquery).fetch_one()
+    return contact
 
 
 def get_account(account_id):

@@ -229,6 +229,13 @@
                               <span class="selected"></span>
                           </a>
                       </li>
+                      <li class="nav-item start {% if page == 'booking_in_form' %} active open{% endif %}">
+                          <a href="{% url 'booking_in_form' %}" class="nav-link nav-toggle">
+                              <i class="fa fa-pencil"></i>
+                              <span class="title">Booking in Form</span>
+                              <span class="selected"></span>
+                          </a>
+                      </li>
                       <li class="nav-item {% if page == 'settings' %} active open{% endif %} ">
                           <a href="javascript:;" class="nav-link nav-toggle">
                               <i class="fa fa-cog fa-2x"></i>
