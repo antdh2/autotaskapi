@@ -9,7 +9,7 @@
         <!-- BEGIN PAGE HEADER-->
         {% if messages %}
           {% for message in messages %}
-            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
+            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}{% endif %}">
                 <p>{{ message }}</p>
             </div>
           {% endfor %}
