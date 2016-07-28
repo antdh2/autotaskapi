@@ -1,5 +1,41 @@
 /* YOUR CUSTOM STYLES */
 
+.client-deposit {
+  border: 1px solid #ececec;
+  padding: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 15px;
+}
+
+.client-deposit p {
+  line-height: 18px;
+}
+
+.client-collection {
+  border: 1px solid #ececec;
+  padding: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.client-collection p {
+  line-height: 18px;
+}
+
+
+.ticket-sheet {
+  -webkit-box-shadow: 4px 6px 30px -8px rgba(0,0,0,0.75);
+  -moz-box-shadow: 4px 6px 30px -8px rgba(0,0,0,0.75);
+  box-shadow: 4px 6px 30px -8px rgba(0,0,0,0.75);
+}
+
+.ticket-sheet-header {
+  background: #ececec;
+}
+
 .note.note-success {
     border-left: 4px solid #58d0da;
 }
@@ -38,3 +74,17 @@
   color: white;
   text-decoration: initial;
   }
+
+  @media print {
+  body * {
+    visibility: hidden;
+  }
+  #print * {
+    visibility: visible;
+  }
+  #print {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

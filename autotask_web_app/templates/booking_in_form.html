@@ -36,18 +36,23 @@
               <div class="portlet-body">
                   <div class="mt-element-step">
                       <div class="row step-line">
-                          <div class="col-md-4 mt-step-col first {% if step == 1 %} active {% elif step == 2 %} done {% elif step == 3 %} done {% endif %}">
+                          <div class="col-md-3 mt-step-col first {% if step == 1 %} active {% else %} done {% endif %}">
                             <div class="mt-step-number bg-white font-grey">1</div>
                             <div class="mt-step-title uppercase font-grey-cascade">Customer Details</div>
                             <div class="mt-step-content font-grey-cascade">Create an Account in Autotask</div>
                         </div>
-                        <div class="col-md-4 mt-step-col {% if step == 1 %} {% elif step == 2 %} active {% elif step == 3 %} done {% endif %}">
+                        <div class="col-md-3 mt-step-col {% if step == 1 %} {% elif step == 2 %} active {% else %} done {% endif %}">
                               <div class="mt-step-number bg-white font-grey">2</div>
                               <div class="mt-step-title uppercase font-grey-cascade">Ticket Information</div>
                               <div class="mt-step-content font-grey-cascade">Problems the customer has</div>
                           </div>
-                          <div class="col-md-4 mt-step-col last {% if step == 3 %} done {% endif %}">
+                          <div class="col-md-3 mt-step-col  {% if step == 3 %} active {% else %} done {% endif %}">
                               <div class="mt-step-number bg-white font-grey">3</div>
+                              <div class="mt-step-title uppercase font-grey-cascade">Additional Info</div>
+                              <div class="mt-step-content font-grey-cascade">Passwords, software, items etc.</div>
+                          </div>
+                          <div class="col-md-3 mt-step-col last {% if step == 4 %} done {% endif %}">
+                              <div class="mt-step-number bg-white font-grey">4</div>
                               <div class="mt-step-title uppercase font-grey-cascade">Sign Off</div>
                               <div class="mt-step-content font-grey-cascade">Customer sign off page</div>
                           </div>
@@ -117,8 +122,6 @@
           <form id="create-ticket" action="{% url 'booking_in_form' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="step2" value="step2">
-            {{ ticket_account_id }}
-            {{ ticket_contact_id }}
             <div class="form-group">
               <label>Ticket Title</label>
                   <input type="text" class="form-control" placeholder="Ticket Title" name="title" id="title"></input>
@@ -166,14 +169,310 @@
       {% endif %}
       <!-- End Step 2 Form -->
 
-      <!-- Start Step 3 Form -->
+
+      <!-- Begin Step 3 Form -->
       {% if at != None and step == 3 %}
         <div class="portlet-body">
-            <p>A document will appear here to print off and have the customer sign</p>
+          <form id="create-ticket" action="{% url 'booking_in_form' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="step3" value="step3">
+            <p>Did you collect from the customer any of the following?</p>
+            <hr width="50%">
+            <div class="row">
+              <div class="col-md-1">
+                <div class="form-group">
+                  <label>Software</label>
+                  <select class="form-control" name="software-collected" id="software-collected" style="width: 60%">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-1">
+                <div class="form-group">
+                  <label>Charger(s)</label>
+                  <select class="form-control" name="chargers-collected" id="chargers-collected" style="width: 60%">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-1">
+                <div class="form-group">
+                  <label>Cable(s)</label>
+                  <select class="form-control" name="cables-collected" id="cables-collected" style="width: 60%">
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>What is the item being booked in?</label>
+                  <select class="form-control" name="item" id="item" style="width: 35%">
+                      <option value="">Please select...</option>
+                      <option value="laptop">Laptop</option>
+                      <option value="PC">PC</option>
+                      <option value="tablet">Tablet</option>
+                      <option value="phone">Phone</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Customer Passwords</label>
+                  <textarea style="width: 35%" class="form-control" rows="3" placeholder="If any, please log any customer specific passwords here..." name="passwords" id="passwords"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Fault/Action Required?</label>
+                  <select class="form-control" name="action-required" id="action-required" style="width: 35%">
+                      <option value="">Please select...</option>
+                      <option value="mot">MOT</option>
+                      <option value="diagnostic">Diagnostic</option>
+                      <option value="reload">Reload</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Software Legitimacy</label>
+                  <select class="form-control" name="software-legitimacy" id="software-legitimacy" style="width: 35%">
+                      <option value="">Please select...</option>
+                      <option value="license">Licensed</option>
+                      <option value="unlicensed">Unlicensed</option>
+                      <option value="unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Condition</label>
+                  <select class="form-control" name="condition" id="condition" style="width: 35%">
+                      <option value="">Please select...</option>
+                      <option value="new">New</option>
+                      <option value="used">Used</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>If yes, please enter details for:</label>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Front" name="front" id="front"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="L Side" name="lside" id="lside"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="R Side" name="rside" id="rside"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Top" name="top" id="top"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Bottom" name="bottom" id="bottom"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Screen" name="screen" id="screen"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Cables" name="cables" id="cables"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Keyboard" name="keyboard" id="keyboard"></input>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="Other" name="other" id="other"></input>
+                  </div>
+                </div>
+              </div>
+              <input type="submit" style="margin-top: 10px;" />
+
+            </div>
+          </form>
+          </div>
         </div>
       {% endif %}
-    </div>
       <!-- End Step 3 Form -->
+
+
+
+      <!-- Start Step 4 Form -->
+      {% if at != None and step == 4 %}
+      {% for key, ticket in ticket_sheet_obj.items  %}
+        <div class="container ticket-sheet" id="print">
+          <div class="portlet-body" style="padding-top: 0px;">
+            	<div class="row ticket-sheet-header">
+            		<div class="col-md-6">
+                  <h3>{{ ticket.TicketNumber }} - {{ ticket.Title }}</h3>
+            		</div>
+                <div class="col-md-6">
+                  <h3>Product Information</h3>
+                </div>
+            	</div>
+            	<div class="row">
+            		<div class="col-md-6">
+                  <table class="table table-hover" style="width: 75%;">
+                    <tr>
+                      <td><strong>Account Name</strong></td>
+                      <td>{{ ticket_account.AccountObj.AccountName }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Date</strong></td>
+                      <td>{{ ticket.CreateDate }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Address 1</strong></td>
+                      <td>{{ ticket_account.AccountObj.Address1 }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Address 2</strong></td>
+                      <td>{{ ticket_account.AccountObj.Address2 }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>City</strong></td>
+                      <td>{{ ticket_account.AccountObj.City }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Postcode</strong></td>
+                      <td>{{ ticket_account.AccountObj.PostalCode }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Phone</strong></td>
+                      <td>{{ ticket_account.AccountObj.Phone }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Email</strong></td>
+                      <td>{{ ticket_contact.ContactObj.EMailAddress }}</td>
+                    </tr>
+                  </table>
+
+                  <strong>Items collected: ( software, cables, chargers etc) table</strong>
+                  <br>
+                  <br>
+                  <table class="table table-hover" style="width: 75%;">
+                    <tr>
+                      <td><strong>Software</strong></td>
+                      <td>{{ ticket_misc.software_collected }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Cables</strong></td>
+                      <td>{{ ticket_misc.cables_collected }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Chargers</strong></td>
+                      <td>{{ ticket_misc.chargers_collected }}</td>
+                    </tr>
+                  </table>
+            		</div>
+            		<div class="col-md-6">
+                  <table class="table table-hover" style="width: 75%;">
+                    <tr>
+                      <td><strong>Product Type</strong></td>
+                      <td>{{ ticket_misc.item }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Password(s)</strong></td>
+                      <td>{{ ticket_misc.passwords }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Fault/Action Required</strong></td>
+                      <td>{{ ticket_misc.action_required }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Software Legitimacy</strong></td>
+                      <td>{{ ticket_misc.software_legitimacy }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Condition</strong></td>
+                      <td>{{ ticket_misc.condition }}</td>
+                    </tr>
+                  </table><br>
+                  <strong>Any Damage/Marks? If so, note below: </strong>
+                  <br>
+                  <br>
+                  <table class="table table-hover" style="width: 75%;">
+                    <tr>
+                      <td><strong>Front</strong></td>
+                      <td>{{ ticket_misc.front }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>L Side</strong></td>
+                      <td>{{ ticket_misc.lside }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>R Side</strong></td>
+                      <td>{{ ticket_misc.rside }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Top</strong></td>
+                      <td>{{ ticket_misc.top }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Bottom</strong></td>
+                      <td>{{ ticket_misc.bottom }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Screen</strong></td>
+                      <td>{{ ticket_misc.screen }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Cables</strong></td>
+                      <td>{{ ticket_misc.cables }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Keyboard</strong></td>
+                      <td>{{ ticket_misc.keyboard }}</td>
+                    </tr>
+                    <tr>
+                      <td><strong>Other</strong></td>
+                      <td>{{ ticket_misc.other }}</td>
+                    </tr>
+                  </table>
+            		</div>
+            	</div>
+            	<div class="row client-deposit">
+                <div class="col-md-4">
+                  Client Signature - Deposit
+            		</div>
+                <div class="col-md-8">
+                  <strong>I accept and understand the following:</strong><br>
+                  <p>• The condition of the equipment being left with Eye-Tech IT is as described above and Eye-Tech IT will endeavour to avoid damage or data loss whilst it is in their care.<br></p>
+                  <p>• It is my sole responsibility to have backups of all my data.<br></p>
+                  <p>• All equipment is left at the owners own risk and on condition Eye-Tech IT will not accept any responsibility or liability for any loss of data or equipment and or any subsequent consequential losses.</p>
+                </div>
+            	</div>
+            	<div class="row client-collection">
+                <div class="col-md-4">
+                  Client Signature - Collection
+            		</div>
+                <div class="col-md-8">
+                  <strong>I accept and understand the following:</strong><br>
+                    <p>• The equipment and its condition collected from Eye-Tech IT is as listed above and has not been damaged whilst in their care.</p>
+                </div>
+            	</div>
+          </div>
+        </div>
+        <br><br>
+      {% endfor %}
+      {% endif %}
+    </div>
+      <!-- End Step 4 Form -->
     </div>
 
     </div>

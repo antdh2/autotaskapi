@@ -95,8 +95,10 @@ RESOURCE_ROLES = {
 
 }
 
-ticket_account_id = {}
-ticket_contact_id = {}
+ticket_account = {}
+ticket_contact = {}
+ticket_sheet_obj = {}
+ticket_misc = {}
 def booking_in_form(request):
     page = "booking_in_form"
     step = 1
@@ -106,8 +108,8 @@ def booking_in_form(request):
             # then we need to create an account
             # set the step to 2 and return to the page
             account_name = request.POST['account-name']
-            account = check_account_exists(account_name)
-            if account:
+            account_exist = check_account_exists(account_name)
+            if account_exist:
                 # if an account exists then show error message
                 messages.add_message(request, messages.ERROR, 'Account already exists.')
                 return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS})
@@ -123,7 +125,7 @@ def booking_in_form(request):
                 new_account.Phone = request.POST['phone']
                 new_account.AccountType = request.POST['type']
                 new_account.OwnerResourceID = 29683570
-                at.create(new_account).fetch_one()
+                account = at.create(new_account).fetch_one()
                 # now create a contact
                 new_contact = at.new('Contact')
                 new_contact.FirstName = request.POST['firstname']
@@ -138,21 +140,21 @@ def booking_in_form(request):
                 account_id = resolve_account_id(account_name)
                 new_contact.AccountID = account_id
                 # append account_id to a dict to use for making sure ticket is added to right account
-                ticket_account_id['AccountID'] = account_id
-                at.create(new_contact).fetch_one()
+                ticket_account['AccountID'] = account_id
+                ticket_account['AccountObj'] = account
+                contact = at.create(new_contact).fetch_one()
                 step = 2
                 messages.add_message(request, messages.SUCCESS, 'Successfully created account')
 
                 # update contact info to add contacts to ticket creation
-                contact = get_contact_for_account(account_id)
-                contact_id = contact.id
-                ticket_contact_id['ContactID'] = contact_id
+                ticket_contact['ContactID'] = contact.id
+                ticket_contact['ContactObj'] = contact
         if request.POST.get('step2', False):
             # first grab account from step 1
             # then create a new autotask ticket from form fields
             new_ticket = at.new('Ticket')
-            new_ticket.AccountID = ticket_account_id['AccountID']
-            new_ticket.ContactID = ticket_contact_id['ContactID']
+            new_ticket.AccountID = ticket_account['AccountID']
+            new_ticket.ContactID = ticket_contact['ContactID']
             new_ticket.Title = request.POST['title']
             new_ticket.Description = request.POST['description']
             new_ticket.DueDateTime = request.POST['duedatetime']
@@ -161,11 +163,30 @@ def booking_in_form(request):
             new_ticket.Status = request.POST['status']
             new_ticket.QueueID = request.POST['queueid']
             new_ticket.Source = atvar.Ticket_Source_InPersonatSupportCentre
-            at.create(new_ticket).fetch_one()
+            ticket = at.create(new_ticket).fetch_one()
             step = 3
-            messages.add_message(request, messages.SUCCESS, 'Successfully created ticket')
+            ticket_sheet_obj['Ticket'] = ticket
+        if request.POST.get('step3', False):
+            ticket_misc['software_collected'] = request.POST['software-collected']
+            ticket_misc['chargers_collected'] = request.POST['chargers-collected']
+            ticket_misc['cables_collected'] = request.POST['cables-collected']
+            ticket_misc['passwords'] = request.POST['passwords']
+            ticket_misc['action_required'] = request.POST['action-required']
+            ticket_misc['software_legitimacy'] = request.POST['software-legitimacy']
+            ticket_misc['condition'] = request.POST['condition']
+            ticket_misc['front'] = request.POST['front']
+            ticket_misc['lside'] = request.POST['lside']
+            ticket_misc['rside'] = request.POST['rside']
+            ticket_misc['top'] = request.POST['top']
+            ticket_misc['bottom'] = request.POST['bottom']
+            ticket_misc['screen'] = request.POST['screen']
+            ticket_misc['cables'] = request.POST['cables']
+            ticket_misc['keyboard'] = request.POST['keyboard']
+            ticket_misc['other'] = request.POST['other']
+            step = 4
+            messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
 
-    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account_id": ticket_account_id, "ticket_contact_id": ticket_contact_id})
+    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 
 
 def autotask_login(request):
