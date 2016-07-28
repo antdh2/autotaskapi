@@ -46,7 +46,7 @@
                               <div class="mt-step-title uppercase font-grey-cascade">Ticket Information</div>
                               <div class="mt-step-content font-grey-cascade">Problems the customer has</div>
                           </div>
-                          <div class="col-md-3 mt-step-col  {% if step == 3 %} active {% else %} done {% endif %}">
+                          <div class="col-md-3 mt-step-col  {% if step == 1 %} {% elif step == 2 %} {% elif step == 3 %} active {% else %} done {% endif %}">
                               <div class="mt-step-number bg-white font-grey">3</div>
                               <div class="mt-step-title uppercase font-grey-cascade">Additional Info</div>
                               <div class="mt-step-content font-grey-cascade">Passwords, software, items etc.</div>
