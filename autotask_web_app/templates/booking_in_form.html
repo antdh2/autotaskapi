@@ -123,6 +123,15 @@
             {% csrf_token %}
             <input type="hidden" name="step2" value="step2">
             <div class="form-group">
+              {% if contacts %}
+              <label>Account Type</label>
+              <select id="contact" name="contact" class="form-control">
+                {% for contact in contacts %}
+                    <option  value="{{ contact.id }}">{{ contact.FirstName }} {{ contact.LastName }}</option>
+                {% endfor %}
+              </select>
+              {% endif %}
+              <br>
               <label>Ticket Title</label>
                   <input type="text" class="form-control" placeholder="Ticket Title" name="title" id="title"></input>
             </div>
@@ -226,10 +235,10 @@
                   <label>What is the item being booked in?</label>
                   <select class="form-control" name="item" id="item" style="width: 35%">
                       <option value="">Please select...</option>
-                      <option value="laptop">Laptop</option>
+                      <option value="Laptop">Laptop</option>
                       <option value="PC">PC</option>
-                      <option value="tablet">Tablet</option>
-                      <option value="phone">Phone</option>
+                      <option value="Tablet">Tablet</option>
+                      <option value="Phone">Phone</option>
                   </select>
                 </div>
               </div>
@@ -250,10 +259,12 @@
                   <label>Fault/Action Required?</label>
                   <select class="form-control" name="action-required" id="action-required" style="width: 35%">
                       <option value="">Please select...</option>
-                      <option value="mot">MOT</option>
-                      <option value="diagnostic">Diagnostic</option>
-                      <option value="reload">Reload</option>
+                      <option value="MOT">MOT</option>
+                      <option value="Diagnostic">Diagnostic</option>
+                      <option value="Reload">Reload</option>
+                      <option value="Other">Other</option>
                   </select>
+                  <input style="width: 35%" type="text" class="form-control" placeholder="If Other, please specify" name="ifotheraction" id="ifotheraction"></input>
                 </div>
               </div>
             </div>
@@ -264,9 +275,9 @@
                   <label>Software Legitimacy</label>
                   <select class="form-control" name="software-legitimacy" id="software-legitimacy" style="width: 35%">
                       <option value="">Please select...</option>
-                      <option value="license">Licensed</option>
-                      <option value="unlicensed">Unlicensed</option>
-                      <option value="unknown">Unknown</option>
+                      <option value="Licensed">Licensed</option>
+                      <option value="Unlicensed">Unlicensed</option>
+                      <option value="Unknown">Unknown</option>
                   </select>
                 </div>
               </div>
@@ -278,8 +289,21 @@
                   <label>Condition</label>
                   <select class="form-control" name="condition" id="condition" style="width: 35%">
                       <option value="">Please select...</option>
-                      <option value="new">New</option>
-                      <option value="used">Used</option>
+                      <option value="New">New</option>
+                      <option value="Used">Used</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Is the item already damaged?</label>
+                  <select class="form-control" name="damaged" id="damaged" style="width: 35%">
+                      <option value="">Please select...</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
                   </select>
                 </div>
               </div>
@@ -402,11 +426,16 @@
                       <td><strong>Condition</strong></td>
                       <td>{{ ticket_misc.condition }}</td>
                     </tr>
-                  </table><br>
-                  <strong>Any Damage/Marks? If so, note below: </strong>
-                  <br>
-                  <br>
+                  </table>
                   <table class="table table-hover" style="width: 75%;">
+                    <tr>
+                      <td><strong>Any Damage/Marks?</strong></td>
+                      <td>{{ ticket_misc.damaged }}</td>
+                    </tr>
+                  </table>
+                  <table class="table table-hover" style="width: 75%;">
+                    <strong> If yes, note below: </strong>
+                    <br><br>
                     <tr>
                       <td><strong>Front</strong></td>
                       <td>{{ ticket_misc.front }}</td>

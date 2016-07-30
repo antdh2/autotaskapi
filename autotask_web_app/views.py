@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.http import HttpResponse
+import time
 
 import atws
 from autotask_api_app import atvar
@@ -95,10 +96,55 @@ RESOURCE_ROLES = {
 
 }
 
+def create_upsell(request, id):
+    account_id = id
+    account = get_account(account_id)
+
+    try:
+        if request.method == 'POST':
+            AVG = request.POST.get('AVG', False)
+            SSD128 = request.POST.get('SSD128', False)
+            SSD256 = request.POST.get('SSD256', False)
+            SSD512 = request.POST.get('SSD512', False)
+            HDD50025 = request.POST.get('HDD50025', False)
+            HDD100025 = request.POST.get('HDD100025', False)
+            HDD50035 = request.POST.get('HDD50035', False)
+            HDD100035 = request.POST.get('HDD100035', False)
+    except MultiValueDictKeyError or NameError:
+        return render(request, 'create_upsell.html', {"account": account})
+    # First we need to create a new opportunity
+    new_opportunity = at.new('Opportunity')
+    new_opportunity.AccountID = account_id
+    new_opportunity.Amount = 5
+    new_opportunity.Cost = 1
+    new_opportunity.CreateDate = time.strftime("%d/%m/%Y")
+    new_opportunity.OwnerResourceID = 29715730 # AH
+    new_opportunity.Probability = 100
+    new_opportunity.ProjectedCloseDate = time.strftime("%d/%m/%Y")
+    new_opportunity.Stage = atvar.Opportunity_Stage_QWOrderReceived
+    new_opportunity.Status = atvar.Opportunity_Status_Active
+    new_opportunity.Title = "Upsell"
+    new_opportunity.UseQuoteTotals = False
+    new_opportunity.LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion
+    opportunity = at.create(new_opportunity).fetch_one()
+    # Now to update UDF's in opportunity
+    # my_udf_value = opportunity.get_udf('Next Action Date')
+    # my_udf_value1 = opportunity.get_udf('Next Action Comment')
+    opportunity.set_udf('Next Action Date', '26.07.2016')
+    opportunity.set_udf('Next Action Comment', 'won')
+    opportunity.update()
+    # aquery = atws.Query('Opportunity')
+    # aquery.WHERE('id',aquery.Equals,29736172)
+    # opportunity = at.query(aquery).fetch_one()
+
+    return render(request, 'create_upsell.html', {"account": account, "opportunity": opportunity})
+
+# For booking in form only
 ticket_account = {}
 ticket_contact = {}
 ticket_sheet_obj = {}
 ticket_misc = {}
+# For booking in form only
 def booking_in_form(request):
     page = "booking_in_form"
     step = 1
@@ -111,8 +157,19 @@ def booking_in_form(request):
             account_exist = check_account_exists(account_name)
             if account_exist:
                 # if an account exists then show error message
-                messages.add_message(request, messages.ERROR, 'Account already exists.')
-                return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS})
+                messages.add_message(request, messages.ERROR, 'Account already exists and has been selected. Please continue with the booking in process.')
+                # Then grab that account to continue with the form
+                account_id = resolve_account_id(account_name)
+                account = get_account(account_id)
+                ticket_account['AccountID'] = account_id
+                ticket_account['AccountObj'] = account
+                # Now we need to find a contact for the account
+                # First we need to find all contacts with an AccountID equal to our account.id object
+                contacts = get_contacts_for_account(account_id)
+                # Then we need to loop through each of these and display them to the user to select the appropriate contact. This is done on frontend
+                # Then update our contact arrays
+                step = 2
+                return render(request, 'booking_in_form.html', {"contacts": contacts, "page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
             else:
                 # else process the form and create a new account
                 # then need to create a new contact for that account
@@ -154,6 +211,8 @@ def booking_in_form(request):
             # then create a new autotask ticket from form fields
             new_ticket = at.new('Ticket')
             new_ticket.AccountID = ticket_account['AccountID']
+            # this is for list of contacts displayed
+            ticket_contact['ContactID'] = request.POST['contact']
             new_ticket.ContactID = ticket_contact['ContactID']
             new_ticket.Title = request.POST['title']
             new_ticket.Description = request.POST['description']
@@ -170,10 +229,13 @@ def booking_in_form(request):
             ticket_misc['software_collected'] = request.POST['software-collected']
             ticket_misc['chargers_collected'] = request.POST['chargers-collected']
             ticket_misc['cables_collected'] = request.POST['cables-collected']
+            ticket_misc['item'] = request.POST['item']
             ticket_misc['passwords'] = request.POST['passwords']
             ticket_misc['action_required'] = request.POST['action-required']
             ticket_misc['software_legitimacy'] = request.POST['software-legitimacy']
             ticket_misc['condition'] = request.POST['condition']
+            ticket_misc['ifotheraction'] = request.POST['ifotheraction']
+            ticket_misc['damaged'] = request.POST['damaged']
             ticket_misc['front'] = request.POST['front']
             ticket_misc['lside'] = request.POST['lside']
             ticket_misc['rside'] = request.POST['rside']
@@ -299,6 +361,12 @@ def get_contact_for_account(account_id):
     tquery = atws.Query('Contact')
     tquery.WHERE('AccountID',tquery.Equals,account_id)
     contact = at.query(tquery).fetch_one()
+    return contact
+
+def get_contacts_for_account(account_id):
+    tquery = atws.Query('Contact')
+    tquery.WHERE('AccountID',tquery.Equals,account_id)
+    contact = at.query(tquery).fetch_all()
     return contact
 
 

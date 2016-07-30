@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block page %}
+<script>
+$(document).ready(function () {
+
+
+
+  $('#create-ticket').validate({ // initialize the plugin
+      rules: {
+          title: {
+              required: true,
+          },
+          description: {
+              required: true,
+          },
+          duedatetime: {
+            required: true,
+          },
+          estimatedhours: {
+            required: true,
+          }
+      },
+      messages: {
+        title: {
+          required: "You must enter a title",
+        },
+        description: {
+          required: "You must enter a description",
+        },
+        duedatetime: {
+          required: "You must enter a Due Date Time",
+        },
+        estimatedhours: {
+          required: "You must enter an estimated hours",
+        },
+      },
+      // submitHandler: function (form) { // for demo
+      //     alert('valid form submitted'); // for demo
+      //     return false; // for demo
+      // }
+  });
+
+});
+</script>
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+  <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+      <!-- BEGIN PAGE HEADER-->
+      <h1 class="page-title"> Autotask Validator</h1>
+      <!-- END PAGE HEADER-->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
+            <ul class="messages">
+              <p>{{ message }}</p>
+            </ul>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">Create Upsell - {{ account.AccountName }}</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card-block">
+              <form id="create-upsell" action="{% url 'create_upsell' account.id %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label>Which items did you sell?</label>
+                  <div class="mt-checkbox-inline">
+                      <label class="mt-checkbox">
+                          <input type="checkbox" id="AVG" value="AVG"> AVG Internet Security
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox">
+                          <input type="checkbox" id="SSD128" value="SSD128"> 128GB SSD
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox mt-checkbox">
+                          <input type="checkbox" id="SSD256" value="SSD256"> 256GB SSD
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox mt-checkbox">
+                          <input type="checkbox" id="SSD512" value="SSD512"> 512GB SSD
+                          <span></span>
+                      </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="mt-checkbox-inline">
+                      <label class="mt-checkbox">
+                          <input type="checkbox" id="HDD50025" value="HDD50025"> 2.5" 500GB Hard Drive
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox">
+                          <input type="checkbox" id="HDD100025" value="HDD100025"> 2.5" 1TB Hard Drive
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox mt-checkbox">
+                          <input type="checkbox" id="HDD50035" value="HDD50035"> 3.5" 500GB Hard Drive
+                          <span></span>
+                      </label>
+                      <label class="mt-checkbox mt-checkbox">
+                          <input type="checkbox" id="HDD100035" value="HDD100035"> 3.5" 1TB Hard Drive
+                          <span></span>
+                      </label>
+                  </div>
+                </div>
+              <input type="submit" style="margin-top: 10px;" />
+            </form>
+            <br>
+            {{ opportunity }}
+            <br><br>
+            {{ opportunity.UserDefinedFields.UserDefinedField }}
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+
+
+        <!-- End Portlet -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END CONTENT BODY -->
+<!-- END CONTENT -->
+{% endblock %}
