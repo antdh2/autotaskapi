@@ -3,6 +3,8 @@ from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.http import HttpResponse
 import time
+import datetime
+
 
 import atws
 from autotask_api_app import atvar
@@ -110,32 +112,62 @@ def create_upsell(request, id):
             HDD100025 = request.POST.get('HDD100025', False)
             HDD50035 = request.POST.get('HDD50035', False)
             HDD100035 = request.POST.get('HDD100035', False)
-    except MultiValueDictKeyError or NameError:
-        return render(request, 'create_upsell.html', {"account": account})
-    # First we need to create a new opportunity
-    new_opportunity = at.new('Opportunity')
-    new_opportunity.AccountID = account_id
-    new_opportunity.Amount = 5
-    new_opportunity.Cost = 1
-    new_opportunity.CreateDate = time.strftime("%d/%m/%Y")
-    new_opportunity.OwnerResourceID = 29715730 # AH
-    new_opportunity.Probability = 100
-    new_opportunity.ProjectedCloseDate = time.strftime("%d/%m/%Y")
-    new_opportunity.Stage = atvar.Opportunity_Stage_QWOrderReceived
-    new_opportunity.Status = atvar.Opportunity_Status_Active
-    new_opportunity.Title = "Upsell"
-    new_opportunity.UseQuoteTotals = False
-    new_opportunity.LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion
-    opportunity = at.create(new_opportunity).fetch_one()
-    # Now to update UDF's in opportunity
-    # my_udf_value = opportunity.get_udf('Next Action Date')
-    # my_udf_value1 = opportunity.get_udf('Next Action Comment')
-    opportunity.set_udf('Next Action Date', '26.07.2016')
-    opportunity.set_udf('Next Action Comment', 'won')
-    opportunity.update()
-    # aquery = atws.Query('Opportunity')
-    # aquery.WHERE('id',aquery.Equals,29736172)
-    # opportunity = at.query(aquery).fetch_one()
+            # First we need to create a new opportunity
+            new_opportunity = at.new('Opportunity')
+            new_opportunity.AccountID = account_id
+            new_opportunity.Amount = 5
+            new_opportunity.Cost = 1
+            new_opportunity.CreateDate = time.strftime("%d.%m.%Y")
+            new_opportunity.OwnerResourceID = 29715730 # AH
+            new_opportunity.Probability = 100
+            new_opportunity.ProjectedCloseDate = time.strftime("%d.%m.%Y")
+            new_opportunity.Stage = atvar.Opportunity_Stage_QWOrderReceived
+            new_opportunity.Status = atvar.Opportunity_Status_Active
+            new_opportunity.Title = "Upsell"
+            new_opportunity.UseQuoteTotals = False
+            new_opportunity.LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion
+            opportunity = at.create(new_opportunity).fetch_one()
+            # Before creating a quote we must have a quote location
+            new_quote_location = at.new('QuoteLocation')
+            new_quote_location.Address1 = account.Address1
+            new_quote_location.Address2 = account.Address2
+            new_quote_location.City = account.City
+            new_quote_location.PostalCode = account.PostalCode
+            quote_location = at.create(new_quote_location).fetch_one()
+            # Then we need to create a quote with the items in
+            new_quote = at.new('Quote')
+            new_quote.AccountID = account_id
+            new_quote.BillToLocationID = quote_location.id
+            # Need to grab a contact to extract the id
+            contact = get_contact_for_account(account_id)
+            new_quote.ContactID = contact.id
+            new_quote.EffectiveDate = time.strftime("%d.%m.%Y")
+            new_quote.ExpirationDate = '14.08.2016'
+            new_quote.Name = "New Upsell Quote"
+            new_quote.OpportunityID = opportunity.id
+            new_quote.ShipToLocationID = quote_location.id
+            new_quote.SoldToLocationID = quote_location.id
+            quote = at.create(new_quote).fetch_one()
+            # Now we need to add in the items that are not defined as False at post method
+            new_quote_item = at.new('QuoteItem')
+            new_quote_item.IsOptional = False
+            new_quote_item.LineDiscount = 0
+            new_quote_item.PercentageDiscount = 0
+            new_quote_item.Quantity = 1
+            new_quote_item.QuoteID = quote.id
+            new_quote_item.ProductID = 29729474
+            new_quote_item.PeriodType = atvar.QuoteItem_PeriodType_OneTime
+            new_quote_item.Type = atvar.QuoteItem_Type_Product
+            new_quote_item.UnitDiscount = 0
+            new_quote_item.Name = 'Test Item Name'
+            quote_item = at.create(new_quote_item).fetch_one()
+
+
+
+    except NameError:
+        opportunity = None
+        return render(request, 'create_upsell.html', {"account": account, "opportunity": opportunity})
+    opportunity = None
 
     return render(request, 'create_upsell.html', {"account": account, "opportunity": opportunity})
 
