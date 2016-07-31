@@ -245,7 +245,8 @@ def booking_in_form(request):
             new_ticket = at.new('Ticket')
             new_ticket.AccountID = ticket_account['AccountID']
             # this is for list of contacts displayed
-            ticket_contact['ContactID'] = request.POST['contact']
+            if not ticket_contact['ContactID']:
+                ticket_contact['ContactID'] = request.POST['contact']
             new_ticket.ContactID = ticket_contact['ContactID']
             new_ticket.Title = request.POST['title']
             new_ticket.Description = request.POST['description']
@@ -280,6 +281,7 @@ def booking_in_form(request):
             ticket_misc['other'] = request.POST['other']
             step = 4
             messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
+
 
     return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 

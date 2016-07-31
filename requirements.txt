@@ -1,0 +1,9 @@
+atws==0.3.4
+click==6.6
+Django==1.9.7
+future==0.15.2
+pdfkit==0.5.0
+pytz==2016.6.1
+requests==2.10.0
+suds-jurko==0.6
+wkhtmltopdf==0.2
