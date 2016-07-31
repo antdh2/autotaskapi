@@ -7,6 +7,7 @@ import datetime
 
 
 import atws
+import atws.monkeypunch.attributes
 from autotask_api_app import atvar
 
 at = None
