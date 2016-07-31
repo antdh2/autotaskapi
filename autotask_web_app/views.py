@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.http import HttpResponse
 import time
 import datetime
-import pdfkit
 
 
 import atws
