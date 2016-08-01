@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     url(r'^booking_in_form/$', views.booking_in_form, name='booking_in_form'),
     url(r'^autotask_login/$', views.autotask_login, name='autotask_login'),
+    url(r'^create_picklist', views.create_picklist, name='create_picklist'),
     url(r'^$', views.index, name='index'),
     url(r'^create_ticket/(?P<id>[0-9]+)/$', views.create_ticket, name='create_ticket'),
     url(r'^create_upsell/(?P<id>[0-9]+)/$', views.create_upsell, name='create_upsell'),

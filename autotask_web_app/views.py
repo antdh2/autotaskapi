@@ -4,15 +4,26 @@ from django.contrib import messages
 from django.http import HttpResponse
 import time
 import datetime
+import os
+from django.core.files import File
 
 
 import atws
-import atws.monkeypunch.attributes
+import atws.monkeypatch.attributes
 from autotask_api_app import atvar
+import re
 
 at = None
+at_username = None
+at_password = None
 accounts = None
 step = 1
+
+def create_picklist(request):
+    string = "create_picklist_module --username {} --password {} atvar-test.py".format(at_username, at_password)
+    os.system(string)
+    messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
+    return render(request, 'autotask_login.html', {})
 
 TICKET_SOURCES = {
     "LinkedIn": atvar.Ticket_Source_LinkedIn,
@@ -81,15 +92,34 @@ STATUS = {
     "Ready for Invoicing": atvar.Ticket_Status_ReadyforInvoicing,
 }
 
+def create_picklist_dict(dict_name, index, regex):
+    file = open('atvar.py', 'r')
+    for line in file.readlines():
+        my_line = line
+        if re.search(regex, line):
+            line_array = line.split()
+            # This splits the left side of the equasion into an array seperated by underscore
+            dict_key_parse = line_array[0].split("_", 3)
+            # Then we grab the specific array we want for key name
+            dict_key = dict_key_parse[index] # we want 2
+            # Now to build the atvar string and we must convert to int for conditions to work
+            dict_value = int(line_array[2])
+            dict_name[dict_key] = dict_value
+    return dict_name
+
 ACCOUNT_TYPES = {
-    "Lead": atvar.Account_AccountType_Lead,
-    "Dead": atvar.Account_AccountType_Dead,
-    "Vendor": atvar.Account_AccountType_Vendor,
-    "Partner": atvar.Account_AccountType_Partner,
-    "Prospect": atvar.Account_AccountType_Prospect,
-    "Customer": atvar.Account_AccountType_Customer,
-    "Cancellation": atvar.Account_AccountType_Cancellation,
+#     "Lead": atvar.Account_AccountType_Lead,
+#     "Dead": atvar.Account_AccountType_Dead,
+#     "Vendor": atvar.Account_AccountType_Vendor,
+#     "Partner": atvar.Account_AccountType_Partner,
+#     "Prospect": atvar.Account_AccountType_Prospect,
+#     "Customer": atvar.Account_AccountType_Customer,
+#     "Cancellation": atvar.Account_AccountType_Cancellation,
 }
+create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
+
+
+
 
 RESOURCE_ROLES = {
     "Engineer": 29682834,
@@ -300,7 +330,11 @@ def autotask_login(request):
 
 def autotask_login_function(username, password):
     global at
+    global at_username
+    global at_password
     at = atws.connect(username=username,password=password)
+    at_username = username
+    at_password = password
     return at
 
 # Create your views here.
@@ -321,7 +355,7 @@ def index(request):
         return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
-        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES, "dict_key": dict_key, "dict_value": dict_value, "line_array": line_array, "my_line": my_line})
 
 
 def ticket_detail(request, account_id, ticket_id):
