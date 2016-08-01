@@ -4,5 +4,5 @@ This should be able to be done under a settings page on frontend
 1) enter login details
 2) run picklist code:
 create_picklist_module --username 'user@usernamespace.com' --password 'userpassword' atvar.py
-
 3) Using the generated atvar.py use python to search for common strings and add them to custom dicts
+4) Next up is to read input from user to determine the types to search for

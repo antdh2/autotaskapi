@@ -293,7 +293,7 @@ def index(request):
         return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
-        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES, "dict_key": dict_key, "dict_value": dict_value, "line_array": line_array, "my_line": my_line})
+        return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
 def ticket_detail(request, account_id, ticket_id):
