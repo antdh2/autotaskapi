@@ -25,73 +25,6 @@ def create_picklist(request):
     messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
     return render(request, 'autotask_login.html', {})
 
-TICKET_SOURCES = {
-    "LinkedIn": atvar.Ticket_Source_LinkedIn,
-    "In Person at Support Centre": atvar.Ticket_Source_InPersonatSupportCentre,
-    "Unspecified": atvar.Ticket_Source_Unspecified,
-    "Facebook": atvar.Ticket_Source_Facebook,
-    "Contractual": atvar.Ticket_Source_Contractual,
-    "Telephone": atvar.Ticket_Source_Telephone,
-    "On Site Request": atvar.Ticket_Source_OnSiteRequest,
-    "Complaint": atvar.Ticket_Source_Complaint,
-    "Twitter": atvar.Ticket_Source_Twitter,
-    "Insourced": atvar.Ticket_Source_Insourced,
-    "Remote Monitor": atvar.Ticket_Source_RemoteMonitor,
-    "Client Portal": atvar.Ticket_Source_ClientPortal,
-    "Sales Office": atvar.Ticket_Source_SalesOffice,
-    "Backup": atvar.Ticket_Source_Backup,
-    "Email": atvar.Ticket_Source_Email,
-}
-
-QUEUE_IDS = {
-    "Monthlies": atvar.Ticket_QueueID_Monthlies,
-    "Customer Services": atvar.Ticket_QueueID_CustomerServices,
-    "Client Project Tickets": atvar.Ticket_QueueID_ClientProjectTickets,
-    "Backup Tickets": atvar.Ticket_QueueID_BackupTickets,
-    "Sales Office": atvar.Ticket_QueueID_SalesOffice,
-    "Bridges Electrical": atvar.Ticket_QueueID_BridgesElectrical,
-    "Home User Tickets": atvar.Ticket_QueueID_HomeUserTickets,
-    "Post Sale": atvar.Ticket_QueueID_PostSale,
-    "Gadget Repairs": atvar.Ticket_QueueID_GadgetRepairs,
-    "Recurring Tickets": atvar.Ticket_QueueID_RecurringTickets,
-    "Monitoring Alert": atvar.Ticket_QueueID_MonitoringAlert,
-    "Management": atvar.Ticket_QueueID_Management,
-    "Support Desk": atvar.Ticket_QueueID_SupportDesk,
-    "ETIT Internal": atvar.Ticket_QueueID_ETITInternal,
-    "Client Portal": atvar.Ticket_QueueID_ClientPortal,
-    "Selwood Taskfire": atvar.Ticket_QueueID_SelwoodTaskfire,
-    "Ready for Invoicing": atvar.Ticket_QueueID_ReadyforInvoicing,
-}
-
-PRIORITY = {
-    "Low": atvar.Ticket_Priority_Low,
-    "Critical": atvar.Ticket_Priority_Critical,
-    "High": atvar.Ticket_Priority_High,
-    "Awaiting Assessment": atvar.Ticket_Priority_AwaitingAssessment,
-    "Medium": atvar.Ticket_Priority_Medium,
-}
-
-STATUS = {
-    "In Progress": atvar.Ticket_Status_InProgress,
-    "On Hold": atvar.Ticket_Status_OnHold,
-    "Note Added By Email": atvar.Ticket_Status_NoteAddedbyEmail,
-    "Complete: to be Collected": atvar.Ticket_Status_CompletetobeCollected,
-    "Monitoring": atvar.Ticket_Status_Monitoring,
-    "With Sales Office": atvar.Ticket_Status_WithSalesOffice,
-    "Escalated": atvar.Ticket_Status_Escalated,
-    "Complete": atvar.Ticket_Status_Complete,
-    "New": atvar.Ticket_Status_New,
-    "Goods Received": atvar.Ticket_Status_GoodsReceived,
-    "Waiting Customer": atvar.Ticket_Status_WaitingCustomer,
-    "Engineer Dispatched": atvar.Ticket_Status_EngineerDispatched,
-    "With Customer Services": atvar.Ticket_Status_WithCustomerServices ,
-    "Waiting Approval": atvar.Ticket_Status_WaitingApproval,
-    "Waiting 3rd Party": atvar.Ticket_Status_Waiting3rdParty,
-    "Assessed": atvar.Ticket_Status_Assessed,
-    "Booked With Customer": atvar.Ticket_Status_BookedwithCustomer,
-    "Ready for Invoicing": atvar.Ticket_Status_ReadyforInvoicing,
-}
-
 def create_picklist_dict(dict_name, index, regex):
     file = open('atvar.py', 'r')
     for line in file.readlines():
@@ -107,26 +40,31 @@ def create_picklist_dict(dict_name, index, regex):
             dict_name[dict_key] = dict_value
     return dict_name
 
+TICKET_SOURCES = {
+}
+create_picklist_dict(TICKET_SOURCES, 2, '^Ticket_Source_')
+
+QUEUE_IDS = {
+}
+create_picklist_dict(QUEUE_IDS, 2, '^Ticket_QueueID_')
+
+PRIORITY = {
+}
+create_picklist_dict(PRIORITY, 2, '^Ticket_Priority_')
+
+STATUS = {
+}
+create_picklist_dict(STATUS, 2, '^Ticket_Status_')
+
 ACCOUNT_TYPES = {
-#     "Lead": atvar.Account_AccountType_Lead,
-#     "Dead": atvar.Account_AccountType_Dead,
-#     "Vendor": atvar.Account_AccountType_Vendor,
-#     "Partner": atvar.Account_AccountType_Partner,
-#     "Prospect": atvar.Account_AccountType_Prospect,
-#     "Customer": atvar.Account_AccountType_Customer,
-#     "Cancellation": atvar.Account_AccountType_Cancellation,
 }
 create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
-
-
-
 
 RESOURCE_ROLES = {
     "Engineer": 29682834,
     "Admin": 29683587,
     "Home User Engineer": 29683586,
     "Sales": 29683582,
-
 }
 
 def create_upsell(request, id):
