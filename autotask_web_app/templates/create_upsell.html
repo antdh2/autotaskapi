@@ -64,14 +64,14 @@ $(document).ready(function () {
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Create Upsell - {{ account.AccountName }}</span>
+          <span class="caption-subject font-green bold uppercase">Create Upsell - {{ ataccount.AccountName }}</span>
         </div>
       </div>
       <div class="portlet-body">
         <div class="row">
           <div class="col-md-8">
             <div class="card-block">
-              <form id="create-upsell" action="{% url 'create_upsell' account.id %}" method="post">
+              <form id="create-upsell" action="{% url 'create_upsell' ataccount.id %}" method="post">
                 {% csrf_token %}
                 <div class="form-group">
                   <label>Which items did you sell?</label>

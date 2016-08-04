@@ -74,7 +74,7 @@
                           </thead>
                           {% for n in accounts %}
                           <tr>
-                            <td><a href="{% url 'account' n.id %}">{{ n.AccountName }}</a></td>
+                            <td><a href="{% url 'ataccount' n.id %}">{{ n.AccountName }}</a></td>
                             <td>
                               {% for key, value in ACCOUNT_TYPES.items %}
                                 {% if n.AccountType == value %}

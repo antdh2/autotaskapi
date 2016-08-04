@@ -1,5 +1,17 @@
 /* YOUR CUSTOM STYLES */
 
+#id_password {
+  margin-bottom: 15px;
+}
+
+input#id_remember {
+  margin-left: 10px;
+  padding: 10px;
+  margin-top: 1px\9;
+  line-height: normal;
+}
+
+
 .client-deposit {
   border: 1px solid #ececec;
   padding: 10px;

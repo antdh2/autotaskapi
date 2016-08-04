@@ -33,12 +33,14 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'autotask_api_app',
     'autotask_web_app',
+    'account',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -50,9 +52,15 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'account.middleware.LocaleMiddleware',
+    'account.middleware.TimezoneMiddleware',
 ]
 
 ROOT_URLCONF = 'autotask.urls'
+
+AUTHENTICATION_BACKENDS = (
+    'account.auth_backends.EmailAuthenticationBackend',
+    )
 
 TEMPLATES = [
     {
@@ -65,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'account.context_processors.account',
             ],
         },
     },
@@ -82,6 +91,9 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+ACCOUNT_EMAIL_UNIQUE = True
+ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 
 
 # Password validation
@@ -126,3 +138,12 @@ STATIC_URL = '/static/'
 
 # To server static files on heroku
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.office365.com'
+EMAIL_HOST_USER = 'info@studiointhecloud.co.uk'
+EMAIL_HOST_PASSWORD = 'Mnschnaap1'
+SERVER_EMAIL = 'info@studiointhecloud.co.uk'
+DEFAULT_FROM_EMAIL = 'info@studiointhecloud.co.uk'

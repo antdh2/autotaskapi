@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load account_tags %}
+{% load i18n %}
+
+{% block page %}
+
+<!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+  <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+      <!-- BEGIN PAGE HEADER-->
+      <!-- END PAGE HEADER-->
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
+            <ul class="messages">
+              <p>{{ message }}</p>
+            </ul>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+        <div class="caption">
+          <i class=" icon-layers font-green"></i>
+          <span class="caption-subject font-green bold uppercase">LOGIN</span>
+        </div>
+      </div>
+      <div class="portlet-body">
+        <div class="form-group">
+          <form method="POST" action="{% url 'account_login' %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %} style="width: 25%">
+              {% csrf_token %}
+                {{ form }}
+              {% if redirect_field_value %}
+                  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+              {% endif %}
+              <br>
+              <hr>
+              <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
+              <a href="{% url 'account_password_reset' %}" class="btn btn-link">{% trans "Forgot your password?" %}</a>
+          </form>
+          {% if ACCOUNT_OPEN_SIGNUP %}
+              <p class="login-signup" style="margin-top: 15px">
+                  <small>
+                      {% trans "Don't have an account?" %}  <strong><a href="{% urlnext 'account_signup' %}">{% trans "Sign up" %}</a></strong>
+                  </small>
+              </p>
+          {% endif %}
+        </div>
+
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#id_username').focus();
+            });
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

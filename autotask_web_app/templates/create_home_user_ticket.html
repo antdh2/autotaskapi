@@ -61,7 +61,7 @@ $(document).ready(function () {
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Create New Home User Ticket - {{ account.AccountName }}</span>
+          <span class="caption-subject font-green bold uppercase">Create New Home User Ticket - {{ ataccount.AccountName }}</span>
 
         </div>
       </div>
@@ -70,7 +70,7 @@ $(document).ready(function () {
           <div class="col-md-8">
             <h6 class="card-header primary-color white-text">Create New Ticket</strong></h6>
             <div class="card-block">
-                <form id="create-ticket" action="{% url 'create_home_user_ticket' account.id %}" method="post">
+                <form id="create-ticket" action="{% url 'create_home_user_ticket' ataccount.id %}" method="post">
                   {% csrf_token %}
                   <div class="form-group">
                     <label>Ticket Title</label>

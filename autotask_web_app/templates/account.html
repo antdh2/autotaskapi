@@ -24,7 +24,7 @@
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Account Details - {{ account.AccountName }}</span>
+          <span class="caption-subject font-green bold uppercase">Account Details - {{ ataccount.AccountName }}</span>
         </div>
       </div>
       <div class="portlet-body">
@@ -48,7 +48,7 @@
                              NAME="My Window Name"
                              title=" My title here "
                              onClick=window.open("https://ww4.autotask.net/autotask/views/ServiceDesk/ServiceDeskTicket/service_ticket.aspx?ticketID={{ n.id }}&mode=0","Ratting","width=950,height=770,0,status=0,");>{{ n.TicketNumber }}</a></td>
-                          <td><a href="{% url 'ticket_detail' account.id n.id %}">{{ n.Title }}</a></td>
+                          <td><a href="{% url 'ticket_detail' ataccount.id n.id %}">{{ n.Title }}</a></td>
                           <td>{{ ticket_account_name }}</td>
                           <td>
                             {% for queue_name, queue_id in QUEUE_IDS.items %}

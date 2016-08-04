@@ -81,11 +81,11 @@
               <!-- END RESPONSIVE MENU TOGGLER -->
               <!-- BEGIN PAGE ACTIONS -->
               <!-- DOC: Remove "hide" class to enable the page header actions -->
-              {% if account %}
+              {% if ataccount %}
                 <div class="page-actions">
-                  <span class="caption-subject font-green bold uppercase">Quick Links - {{ account.AccountName }}</span>
+                  <span class="caption-subject font-green bold uppercase">Quick Links - {{ ataccount.AccountName }}</span>
                   <div class="btn-group"  style="margin-left: 25px;">
-                    <a href="{% url 'edit_account' account.id %}" class="btn btn-circle btn-outline green">Edit</a>
+                    <a href="{% url 'edit_ataccount' ataccount.id %}" class="btn btn-circle btn-outline green">Edit</a>
                   </div>
                   <div class="btn-group">
                     <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
@@ -95,7 +95,7 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                       <li>
-                        <a href="{% url 'account' account.id %}">
+                        <a href="{% url 'ataccount' ataccount.id %}">
                               <i class="icon-docs"></i> Tickets </a>
                       </li>
                       <li class="disabled">
@@ -126,15 +126,15 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                       <li>
-                          <a href="{% url 'create_ticket' account.id %}">
+                          <a href="{% url 'create_ticket' ataccount.id %}">
                               <i class="icon-docs"></i> Ticket </a>
                       </li>
                       <li>
-                          <a href="{% url 'create_home_user_ticket' account.id %}">
+                          <a href="{% url 'create_home_user_ticket' ataccount.id %}">
                               <i class="icon-tag"></i> Home User Ticket </a>
                       </li>
                       <li>
-                          <a href="{% url 'create_upsell' account.id %}">
+                          <a href="{% url 'create_upsell' ataccount.id %}">
                               <i class="fa fa-gbp"></i> Upsell </a>
                       </li>
                       <li class="disabled">

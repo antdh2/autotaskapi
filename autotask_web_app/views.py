@@ -13,6 +13,7 @@ import atws.monkeypatch.attributes
 from autotask_api_app import atvar
 import re
 
+
 at = None
 at_username = None
 at_password = None
@@ -69,7 +70,7 @@ RESOURCE_ROLES = {
 
 def create_upsell(request, id):
     account_id = id
-    account = get_account(account_id)
+    ataccount = get_account(account_id)
 
     try:
         if request.method == 'POST':
@@ -135,10 +136,10 @@ def create_upsell(request, id):
 
     except NameError:
         opportunity = None
-        return render(request, 'create_upsell.html', {"account": account, "opportunity": opportunity})
+        return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
     opportunity = None
 
-    return render(request, 'create_upsell.html', {"account": account, "opportunity": opportunity})
+    return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
 
 # For booking in form only
 ticket_account = {}
@@ -161,9 +162,9 @@ def booking_in_form(request):
                 messages.add_message(request, messages.ERROR, 'Account already exists and has been selected. Please continue with the booking in process.')
                 # Then grab that account to continue with the form
                 account_id = resolve_account_id(account_name)
-                account = get_account(account_id)
+                ataccount = get_account(account_id)
                 ticket_account['AccountID'] = account_id
-                ticket_account['AccountObj'] = account
+                ticket_account['AccountObj'] = ataccount
                 # Now we need to find a contact for the account
                 # First we need to find all contacts with an AccountID equal to our account.id object
                 contacts = get_contacts_for_account(account_id)
@@ -183,7 +184,7 @@ def booking_in_form(request):
                 new_account.Phone = request.POST['phone']
                 new_account.AccountType = request.POST['type']
                 new_account.OwnerResourceID = 29683570
-                account = at.create(new_account).fetch_one()
+                ataccount = at.create(new_account).fetch_one()
                 # now create a contact
                 new_contact = at.new('Contact')
                 new_contact.FirstName = request.POST['firstname']
@@ -199,7 +200,7 @@ def booking_in_form(request):
                 new_contact.AccountID = account_id
                 # append account_id to a dict to use for making sure ticket is added to right account
                 ticket_account['AccountID'] = account_id
-                ticket_account['AccountObj'] = account
+                ticket_account['AccountObj'] = ataccount
                 contact = at.create(new_contact).fetch_one()
                 step = 2
                 messages.add_message(request, messages.SUCCESS, 'Successfully created account')
@@ -299,7 +300,7 @@ def index(request):
 def ticket_detail(request, account_id, ticket_id):
     try:
         page = 'ticket_detail'
-        account = get_account(account_id)
+        ataccount = get_account(account_id)
         ticket = get_ticket_from_id(ticket_id)
         assigned_resource_id = ''
         for key, value in ticket:
@@ -315,24 +316,24 @@ def ticket_detail(request, account_id, ticket_id):
             assigned_resource = get_resource_from_id(assigned_resource_id)
         else:
             assigned_resource = "No Resource Set"
-        return render(request, 'ticket.html', {"account": account, "ticket": ticket, "contact": contact, "resource": resource, "assigned_resource": assigned_resource, "TICKET_SOURCES": TICKET_SOURCES, "STATUS": STATUS, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "RESOURCE_ROLES": RESOURCE_ROLES})
+        return render(request, 'ticket.html', {"ataccount": ataccount, "ticket": ticket, "contact": contact, "resource": resource, "assigned_resource": assigned_resource, "TICKET_SOURCES": TICKET_SOURCES, "STATUS": STATUS, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "RESOURCE_ROLES": RESOURCE_ROLES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
-def account(request, id):
+def ataccount(request, id):
     account_id = id
-    account = get_account(account_id)
+    ataccount = get_account(account_id)
     tickets = get_tickets_for_account(account_id)
     ticket_account_name = resolve_account_name_from_id(account_id)
     ticket_info = get_ticket_info(tickets)
-    return render(request, 'account.html', {"account": account, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
+    return render(request, 'account.html', {"ataccount": ataccount, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
 
 
-def edit_account(request, id):
+def edit_ataccount(request, id):
     account_id = id
-    account = get_account(account_id)
+    ataccount = get_account(account_id)
     if request.method == "POST":
         new_account_name = request.POST['account-name']
         new_address_1 = request.POST['address1']
@@ -341,18 +342,18 @@ def edit_account(request, id):
         new_city = request.POST['city']
         new_postalcode = request.POST['postcode']
         new_phone = request.POST['phone']
-        account.AccountName = new_account_name
-        account.Address1 = new_address_1
-        account.Address2 = new_address_2
-        account.State = new_state
-        account.City = new_city
-        account.PostalCode = new_postalcode
-        account.Phone = new_phone
-        account.update()
+        ataccount.AccountName = new_account_name
+        ataccount.Address1 = new_address_1
+        ataccount.Address2 = new_address_2
+        ataccount.State = new_state
+        ataccount.City = new_city
+        ataccount.PostalCode = new_postalcode
+        ataccount.Phone = new_phone
+        ataccount.update()
         messages.add_message(request, messages.SUCCESS, 'Successfully edited.')
 
         return redirect("/account/" + account_id, successMessage="Success!")
-    return render(request, 'edit_account.html', {"account": account, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+    return render(request, 'edit_ataccount.html', {"ataccount": ataccount, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
 def check_account_exists(account_name):
@@ -463,7 +464,7 @@ def get_contact_for_ticket(contact_id):
 
 def create_ticket(request, id):
     account_id = id
-    account = get_account(account_id)
+    ataccount = get_account(account_id)
     if request.method == "POST":
         new_ticket = at.new('Ticket')
         new_ticket.AccountID = account_id
@@ -478,15 +479,15 @@ def create_ticket(request, id):
         # custom validation rules
         if new_ticket.EstimatedHours == '3' and new_ticket.Priority == '3':
             messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
-            return redirect("/account/" + account_id, {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+            return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
         else:
             ticket = at.create(new_ticket).fetch_one()
-    return render(request, 'create_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+    return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
 
 def create_home_user_ticket(request, id):
     account_id = id
-    account = get_account(account_id)
+    ataccount = get_account(account_id)
 
     # Preset fields for home user ticket creation
     title = "Test Home User Ticket"
@@ -507,8 +508,8 @@ def create_home_user_ticket(request, id):
         # custom validation rules
         if new_ticket.Title != title:
             messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
-            return redirect("create_home_user_ticket.html", {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+            return redirect("create_home_user_ticket.html", {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
         else:
             ticket = at.create(new_ticket).fetch_one()
 
-    return render(request, 'create_home_user_ticket.html', {"account": account, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
