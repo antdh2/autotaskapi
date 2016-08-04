@@ -1,5 +1,34 @@
 /* YOUR CUSTOM STYLES */
 
+input#id_email {
+    outline: 0!important;
+    box-shadow: none!important;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    background-color: #fff;
+    border: 1px solid #c2cad8;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    display: block;
+}
+
+.login .content .forget-password {
+    margin-top: 25px;
+    border-top: 1px dotted #ccc;
+}
+
+.login .content .create-account {
+    border-top: 1px dotted #ccc;
+}
+
 #id_password {
   margin-bottom: 15px;
 }
@@ -7,7 +36,7 @@
 input#id_remember {
   margin-left: 10px;
   padding: 10px;
-  margin-top: 1px\9;
+  margin-top: 5px;
   line-height: normal;
 }
 

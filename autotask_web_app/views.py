@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
 import time
 import datetime
 import os
@@ -147,6 +149,7 @@ ticket_contact = {}
 ticket_sheet_obj = {}
 ticket_misc = {}
 # For booking in form only
+@login_required(login_url='/account/login/')
 def booking_in_form(request):
     page = "booking_in_form"
     step = 1
@@ -254,7 +257,7 @@ def booking_in_form(request):
 
     return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 
-
+@login_required(login_url='/account/login/')
 def autotask_login(request):
     page = 'settings'
     # First we must connect to autotask using valid credentials
@@ -277,6 +280,7 @@ def autotask_login_function(username, password):
     return at
 
 # Create your views here.
+@login_required(login_url='/account/login/')
 def index(request):
     try:
         page = 'index'
@@ -297,6 +301,7 @@ def index(request):
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
+@login_required(login_url='/account/login/')
 def ticket_detail(request, account_id, ticket_id):
     try:
         page = 'ticket_detail'
@@ -331,6 +336,7 @@ def ataccount(request, id):
     return render(request, 'account.html', {"ataccount": ataccount, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
 
 
+@login_required(login_url='/account/login/')
 def edit_ataccount(request, id):
     account_id = id
     ataccount = get_account(account_id)
@@ -461,7 +467,7 @@ def get_contact_for_ticket(contact_id):
     contact = at.query(aquery).fetch_one()
     return contact
 
-
+@login_required(login_url='/account/login/')
 def create_ticket(request, id):
     account_id = id
     ataccount = get_account(account_id)
@@ -484,7 +490,7 @@ def create_ticket(request, id):
             ticket = at.create(new_ticket).fetch_one()
     return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
-
+@login_required(login_url='/account/login/')
 def create_home_user_ticket(request, id):
     account_id = id
     ataccount = get_account(account_id)

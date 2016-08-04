@@ -12,6 +12,12 @@
       <!-- BEGIN PAGE HEADER-->
       <!-- END PAGE HEADER-->
 
+      {% user_display request.user %}
+
+      {% if user_display.request.user %}
+        <p>test</p>
+        {% endif %}
+
       {% if messages %}
         {% for message in messages %}
           <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
