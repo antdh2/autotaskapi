@@ -19,14 +19,49 @@ from autotask_api_app import atvar
 import re
 
 import account.views
-
+import account.forms
 import autotask_web_app.forms
 
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+
+from django.contrib.auth.models import User
+
+from .models import Profile
+
+class LoginView(account.views.LoginView):
+
+    form_class = account.forms.LoginEmailForm
+
+
+@receiver(post_save, sender=User)
+def handle_user_save(sender, instance, created, **kwargs):
+    if created:
+        profile = Profile.objects.create(user=instance)
+        # profile.first_name = form.cleaned_data["first_name"]
+        # profile.last_name = form.cleaned_data["last_name"]
+        # profile.save()
 
 class SignupView(account.views.SignupView):
 
    form_class = autotask_web_app.forms.SignupForm
+   #
+   def after_signup(self, form):
+       self.create_profile(form)
+       super(SignupView, self).after_signup(form)
 
+   def create_profile(self, form):
+       profile = self.created_user.profile  # replace with your reverse one-to-one profile attribute
+       profile.first_name = form.cleaned_data["first_name"]
+       profile.last_name = form.cleaned_data["last_name"]
+       profile.email = form.cleaned_data["email"]
+       profile.save()
+
+   def generate_username(self, form):
+        # do something to generate a unique username (required by the
+        # Django User model, unfortunately)
+        username = form.cleaned_data['email']
+        return username
 
 
 

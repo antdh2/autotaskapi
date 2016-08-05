@@ -97,6 +97,7 @@ ROOT_URLCONF = 'autotask.urls'
 
 AUTHENTICATION_BACKENDS = (
     'account.auth_backends.EmailAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
     )
 
 TEMPLATES = [
@@ -130,7 +131,6 @@ DATABASES = {
 }
 
 ACCOUNT_EMAIL_UNIQUE = True
-ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 
 
 # Password validation
