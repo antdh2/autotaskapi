@@ -99,6 +99,8 @@
                             <button type="submit" class="btn grey-salsa btn-outline sbold uppercase"> UPGRADE </button>
                           {% elif customer.current_subscription.amount > plan.price|djdiv:100 %}
                             <button type="submit" class="btn grey-salsa btn-outline sbold uppercase"> DOWNGRADE </button>
+                          {% else %}
+                            <button type="submit" class="btn grey-salsa btn-outline sbold uppercase"> SUBSCRIBE </button>
                           {% endif %}
                         </div>
                     </div>
