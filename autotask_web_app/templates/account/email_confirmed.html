@@ -1,9 +1,23 @@
-
+{% extends 'account/account_base.html' %}
+{% load staticfiles %}
+{% load account_tags %}
 {% load i18n %}
+{% block account_page %}
 
-{% block head_title %}{% trans "Email confirmed" %}{% endblock %}
-
-{% block body %}
-    <h1>{% trans "Email confirmed" %}</h1>
-    <p>{% blocktrans with email=confirmation.email_address.email %}You have confirmed <b>{{ email }}</b>{% endblocktrans %}</p>
+        <!-- END LOGO -->
+        <!-- BEGIN LOGIN -->
+        <div class="content">
+            <!-- BEGIN LOGIN FORM -->
+                <h3 class="form-title">Email Confirmed</h3>
+                <div class="create-account">
+                    <p> {% blocktrans with email=confirmation.email_address.email %}Thank you.<br>
+                      <br>
+                      You have confirmed <b>{{ email }}</b>{% endblocktrans %}.</p>
+                      <hr>
+                        <a href="{{ success_url }}" class="btn grey-salsa btn-outline"> Go Back </a>
+                    </p>
+                </div>
+            <!-- END LOGIN FORM -->
+        </div>
+        <!-- END LOGIN -->
 {% endblock %}

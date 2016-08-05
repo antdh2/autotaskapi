@@ -1,11 +1,25 @@
-
+{% extends 'account/account_base.html' %}
+{% load staticfiles %}
+{% load account_tags %}
 {% load i18n %}
+{% block account_page %}
 
-{% block head_title %}{% trans "Confirm your email address" %}{% endblock %}
-
-{% block body %}
-    <h2>{% trans "Confirm your email address" %}</h2>
-
-    <p>{% blocktrans %}We have sent you an email to <b>{{ email }}</b> for verification. Follow the link provided to finalize the signup process. If you do not receive it within a few minutes, contact us at <a href="mailto:{{ THEME_CONTACT_EMAIL }}">{{ THEME_CONTACT_EMAIL }}</a>.{% endblocktrans %}</p>
-    <p><a href="{{ success_url }}">{% trans "Go back" %}</a></p>
+        <!-- END LOGO -->
+        <!-- BEGIN LOGIN -->
+        <div class="content">
+            <!-- BEGIN LOGIN FORM -->
+                <h3 class="form-title">Confirm your email address</h3>
+                <div class="create-account">
+                    <p>We have sent you an email to <b>{{ email }}</b> for verification. <br>
+                      <br>
+                      Follow the link provided to finalize the signup process. <br>
+                      <br>
+                      If you do not receive it within a few minutes, contact us <a href="mailto:info@studiointhecloud.co.uk">by email</a>.
+                      <hr>
+                        <a href="{{ success_url }}" class="btn grey-salsa btn-outline"> Go Back </a>
+                    </p>
+                </div>
+            <!-- END LOGIN FORM -->
+        </div>
+        <!-- END LOGIN -->
 {% endblock %}

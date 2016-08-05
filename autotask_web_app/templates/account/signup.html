@@ -1,21 +1,9 @@
+{% extends 'account/account_base.html' %}
+{% load staticfiles %}
+{% load account_tags %}
+{% load i18n %}
+{% block account_page %}
 
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#id_username').focus();
-        });
-    </script>
-
-  {% extends 'account/account_base.html' %}
-  {% load staticfiles %}
-  {% load account_tags %}
-  {% load i18n %}
-  {% block account_page %}
-      <body class=" login">
-          <!-- BEGIN LOGO -->
-          <div class="logo">
-              <a href="index.html">
-                  <img src="{% static 'assets/pages/img/logo-big.png' %}" alt="" /> </a>
-          </div>
           <!-- END LOGO -->
           <!-- BEGIN LOGIN -->
           <div class="content">
@@ -40,5 +28,11 @@
               </p>
               <!-- END SIGNUP FORM -->
           </div>
+
+              <script type="text/javascript">
+                  $(document).ready(function() {
+                      $('#id_username').focus();
+                  });
+              </script>
           <!-- END LOGIN -->
   {% endblock %}

@@ -1,3 +1,30 @@
+{% extends 'account/account_base.html' %}
+{% load staticfiles %}
+{% load account_tags %}
+{% load i18n %}
+{% block account_page %}
+
+        <!-- END LOGO -->
+        <!-- BEGIN LOGIN -->
+        <div class="content">
+            <!-- BEGIN LOGIN FORM -->
+                <h3 class="form-title">Confirm Email?</h3>
+                <div class="create-account">
+                  <form class="form-group" method="post" action="{% url "account_confirm_email" key=confirmation.key %}">
+                      <fieldset>
+                          {% csrf_token %}
+                          <p>{% blocktrans with email=confirmation.email_address.email %}Confirm email address <b>{{ email }}</b>?{% endblocktrans %}</p>
+                          <button type="submit" class="btn btn-primary">{% trans "Confirm" %}</button>
+                      </fieldset>
+                  </form>
+                      <hr>
+                        <a href="{{ success_url }}" class="btn grey-salsa btn-outline"> Go Back </a>
+                </div>
+            <!-- END LOGIN FORM -->
+        </div>
+        <!-- END LOGIN -->
+{% endblock %}
+
 
 {% load i18n %}
 
