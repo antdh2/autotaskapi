@@ -45,6 +45,7 @@
         <link href="{% static 'assets/layouts/layout2/css/layout.min.css' %}" rel="stylesheet" type="text/css" />
         <link href="{% static 'assets/layouts/layout2/css/themes/blue.min.css' %}" rel="stylesheet" type="text/css" id="style_color" />
         <link href="{% static 'assets/layouts/layout2/css/custom.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets/pages/css/pricing.min.css' %}" rel="stylesheet" type="text/css" />
         <!-- END THEME LAYOUT STYLES -->
         <link rel="shortcut icon" href="favicon.ico" />
         <script>
@@ -171,7 +172,7 @@
                           <li class="dropdown dropdown-user">
                               <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
                                   <img alt="" class="img-circle" src="{% static 'assets/layouts/layout2/img/avatar3_small.jpg' %}" />
-                                  <span class="username username-hide-on-mobile"> Nick </span>
+                                  <span class="username username-hide-on-mobile"> {{ user.username }} </span>
                                   <i class="fa fa-angle-down"></i>
                               </a>
                               <ul class="dropdown-menu dropdown-menu-default">
@@ -180,8 +181,8 @@
                                           <i class="icon-user"></i> My Profile </a>
                                   </li>
                                   <li>
-                                      <a href="app_calendar.html">
-                                          <i class="icon-calendar"></i> My Calendar </a>
+                                      <a href="{% url 'djstripe:account' %}">
+                                          <i class="fa fa-gbp"></i> Payment Settings </a>
                                   </li>
                                   <li>
                                       <a href="app_inbox.html">
@@ -201,7 +202,7 @@
                                           <i class="icon-lock"></i> Lock Screen </a>
                                   </li>
                                   <li>
-                                      <a href="page_user_login_1.html">
+                                      <a href="{% url 'account_logout' %}">
                                           <i class="icon-key"></i> Log Out </a>
                                   </li>
                               </ul>

@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from . import views
 
@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^edit_ataccount/(?P<id>[0-9]+)/$', views.edit_ataccount, name='edit_ataccount'),
     url(r'^ataccount/(?P<id>[0-9]+)/$', views.ataccount, name='ataccount'),
     url(r'^ataccount/(?P<account_id>[0-9]+)/ticket/(?P<ticket_id>[0-9]+)/$', views.ticket_detail, name='ticket_detail'),
+    url(r"^account/signup/$", views.SignupView.as_view(), name="account_signup"),
+    url(r'^account/', include('account.urls')),
 ]

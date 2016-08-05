@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block page %}
+
+  <!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+    <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+    <!-- BEGIN PAGE HEADER-->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
+            <p>{{ message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <!-- END PAGE HEADER-->
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+          <div class="caption">
+              <i class=" fa fa-search fa-2x font-green"></i>
+              <span class="caption-subject font-green bold uppercase">Purchase History</span>
+          </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="breadcrumb">
+                    <li><a href="{% url 'djstripe:account' %}">Home</a></li>
+                    <li class="active">Payment History</li>
+                </ul>
+                {% include "djstripe/includes/_history_table.html" %}
+            </div>
+        </div>
+
+        <script>
+            $(function() {
+                $.post("{% url 'djstripe:sync_history' %}", function(data) {
+                    $('#history-table').html(data);
+                    $('.in-progress-gif').hide();
+                });
+            });
+        </script>
+      </div>
+
+  </div>
+</div>
+  <!-- END CONTENT BODY -->
+<!-- END CONTENT -->
+{% endblock %}

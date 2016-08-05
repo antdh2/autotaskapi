@@ -18,6 +18,6 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^account/', include('account.urls')),
+    url(r'^payments/', include('djstripe.urls', namespace="djstripe")),
     url(r'^', include('autotask_web_app.urls')),
 ]

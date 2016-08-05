@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block page %}
+
+  <!-- BEGIN CONTENT -->
+<div class="page-content-wrapper">
+    <!-- BEGIN CONTENT BODY -->
+  <div class="page-content">
+    <!-- BEGIN PAGE HEADER-->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
+            <p>{{ message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <!-- END PAGE HEADER-->
+    <div class="portlet light portlet-fit ">
+      <div class="portlet-title">
+          <div class="caption">
+              <i class=" fa fa-search fa-2x font-green"></i>
+              <span class="caption-subject font-green bold uppercase">Cancel Subscription</span>
+          </div>
+      </div>
+      <div class="portlet-body">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="breadcrumb">
+                  <li><a href="{% url 'djstripe:account' %}">Home</a></li>
+                  <li class="active">Cancel Subscription</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Cancel Subscription</h2>
+                {% if not customer.current_subscription %}
+                    <p>You have no subscription on file.</p>
+                    <p>See your <a href="{% url 'djstripe:account' %}">account status</a> or better yet, <a href="{% url 'djstripe:subscribe' %}">subscribe</a>.</p>
+                {% elif customer.current_subscription.status == customer.current_subscription.STATUS_CANCELLED %}
+                    <p>Your subscription has already been canceled.</p>
+                    <p>See your <a href="{% url 'djstripe:account' %}">account status</a> or better yet, get a <a href="{% url 'djstripe:subscribe' %}">fresh subscription</a>.</p>
+                {% elif customer.current_subscription.is_status_temporarily_current %}
+                    <p>Your subscription has already been canceled.</p>
+                    <p>However, you can still use the site for another {{ customer.current_subscription.current_period_end|timeuntil }}.</p>
+                {% else %}
+                    <p class="lead">
+                      Are you sure you want to cancel your subscription?
+                    </p>
+                    {% block cancellation_ramifications %}
+                    <h3>What you lose by cancelling your subscription:</h3>
+                    <ul>
+                      <li>Access to subscription-only content.</li>
+                      <li>Ability to use subscription-only features.</li>
+                    </ul>
+                    {% endblock cancellation_ramifications %}
+
+                    <h3>Are you sure you want to cancel?</h3>
+                    <form action="{% url 'djstripe:cancel_subscription' %}" method="post" id="cancel-form">
+                        {% csrf_token %}
+                        <a href="{% url 'djstripe:account' %}" class="btn btn-primary">I change my mind!</a>
+                        <button class="btn btn-danger">Cancel my subscription!</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+      </div>
+
+  </div>
+</div>
+  <!-- END CONTENT BODY -->
+<!-- END CONTENT -->
+{% endblock %}

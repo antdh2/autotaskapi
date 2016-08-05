@@ -3,6 +3,9 @@ from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+# import the wonderful decorator for stripe
+from djstripe.decorators import subscription_payment_required
+
 
 import time
 import datetime
@@ -15,12 +18,24 @@ import atws.monkeypatch.attributes
 from autotask_api_app import atvar
 import re
 
+import account.views
+
+import autotask_web_app.forms
+
+
+class SignupView(account.views.SignupView):
+
+   form_class = autotask_web_app.forms.SignupForm
+
+
+
 
 at = None
 at_username = None
 at_password = None
 accounts = None
 step = 1
+
 
 def create_picklist(request):
     string = "create_picklist_module --username {} --password {} atvar-test.py".format(at_username, at_password)
@@ -150,6 +165,7 @@ ticket_sheet_obj = {}
 ticket_misc = {}
 # For booking in form only
 @login_required(login_url='/account/login/')
+@subscription_payment_required
 def booking_in_form(request):
     page = "booking_in_form"
     step = 1

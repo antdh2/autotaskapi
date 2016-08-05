@@ -41,7 +41,44 @@ INSTALLED_APPS = [
     'autotask_api_app',
     'autotask_web_app',
     'account',
+    'djstripe',
 ]
+
+# For Stripe
+SITE_ID = 1
+STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "pk_test_XCZPToZADM1m3WEJOKPGYx70")
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "sk_test_Dke5jy8Q1n4uNY88H8x0X7vE")
+DJSTRIPE_INVOICE_FROM_EMAIL = "info@studiointhecloud.co.uk"
+
+DJSTRIPE_PLANS = {
+    "bronze": {
+        "stripe_plan_id": "bronze",
+        "name": "Bronze",
+        "description": "The monthly subscription plan to WebApp",
+        "price": 5,  # £5.00
+        "webprice": 5,
+        "currency": "gbp",
+        "interval": "month"
+    },
+    "silver": {
+        "stripe_plan_id": "silver",
+        "name": "Silver",
+        "description": "The monthly subscription plan to WebApp",
+        "price": 1000,  # £10.00
+        "webprice": 10,
+        "currency": "gbp",
+        "interval": "month"
+    },
+    "gold": {
+        "stripe_plan_id": "gold",
+        "name": "Gold",
+        "description": "The monthly subscription plan to WebApp",
+        "price": 1500,  # £15.00
+        "webprice": 15,
+        "currency": "gbp",
+        "interval": "month"
+    },
+}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
