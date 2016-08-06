@@ -1,5 +1,9 @@
 /* YOUR CUSTOM STYLES */
 
+#messages-content {
+  min-height:0px !important;
+}
+
 input#id_email {
     outline: 0!important;
     box-shadow: none!important;

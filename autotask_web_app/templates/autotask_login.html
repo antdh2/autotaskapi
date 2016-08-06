@@ -14,14 +14,6 @@
           <p>Get started by entering your login details for Autotask below</p>
         </div>
 
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
         <form class="form-horizontal margin-bottom-40" role="form" method="POST">
           {% csrf_token %}
           <div class="form-group form-md-line-input">

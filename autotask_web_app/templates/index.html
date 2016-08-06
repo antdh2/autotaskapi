@@ -10,13 +10,7 @@
         <h1 class="page-title"> Autotask Validator</h1>
         <!-- END PAGE HEADER-->
 
-        {% if messages %}
-          {% for message in messages %}
-            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}"{% endif %}>
-                <p>{{ message }}</p>
-            </div>
-          {% endfor %}
-        {% endif %}
+
         {% if at == None %}
         <div class="note note-danger">
             <h4 class="block">Autotask connection not established</h4>

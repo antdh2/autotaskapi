@@ -24,6 +24,7 @@ import autotask_web_app.forms
 
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from account.signals import user_logged_in
 
 from django.contrib.auth.models import User
 
@@ -38,9 +39,13 @@ class LoginView(account.views.LoginView):
 def handle_user_save(sender, instance, created, **kwargs):
     if created:
         profile = Profile.objects.create(user=instance)
-        # profile.first_name = form.cleaned_data["first_name"]
-        # profile.last_name = form.cleaned_data["last_name"]
-        # profile.save()
+
+@receiver(user_logged_in, sender=User)
+def login_to_autotask(sender, **kwargs):
+    profile = Profile.objects.create(user=sender)
+    autotask_login_function(profile, profile.autotask_username, profile.autotask_password)
+
+
 
 class SignupView(account.views.SignupView):
 
@@ -66,8 +71,6 @@ class SignupView(account.views.SignupView):
 
 
 at = None
-at_username = None
-at_password = None
 accounts = None
 step = 1
 
@@ -119,6 +122,9 @@ RESOURCE_ROLES = {
     "Home User Engineer": 29683586,
     "Sales": 29683582,
 }
+
+def profile(request, id):
+    return render(request, 'account/profile.html', {})
 
 def create_upsell(request, id):
     account_id = id
@@ -315,20 +321,26 @@ def autotask_login(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        autotask_login_function(username, password)
-        messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
+        autotask_login_function(request, username, password)
+        if at:
+            messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
         return render(request, 'index.html', {"page": page, "at": at})
     else:
         return render(request, 'autotask_login.html', {"page": page, "at": at})
 
-def autotask_login_function(username, password):
-    global at
-    global at_username
-    global at_password
-    at = atws.connect(username=username,password=password)
-    at_username = username
-    at_password = password
-    return at
+def autotask_login_function(profile, username, password):
+    try:
+        global at
+        at_username = username
+        at_password = password
+        profile = Profile.objects.get(user=profile.user)
+        profile.autotask_username = username
+        profile.autotask_password = password
+        profile.save()
+        at = atws.connect(username=profile.autotask_username,password=profile.autotask_password)
+        return at
+    except:
+        messages.add_message(request, messages.ERROR, 'Something went wrong')
 
 # Create your views here.
 @login_required(login_url='/account/login/')
