@@ -35,13 +35,6 @@ def handle_user_save(sender, instance, created, **kwargs):
     if created:
         profile = Profile.objects.create(user=instance)
 
-
-
-
-
-
-
-
 ############################################################
 #
 # All views must go inside of here
@@ -79,20 +72,21 @@ def create_upsell(request, id):
             HDD50035 = request.POST.get('HDD50035', False)
             HDD100035 = request.POST.get('HDD100035', False)
             # First we need to create a new opportunity
-            new_opportunity = at.new('Opportunity')
-            new_opportunity.AccountID = account_id
-            new_opportunity.Amount = 5
-            new_opportunity.Cost = 1
-            new_opportunity.CreateDate = time.strftime("%d.%m.%Y")
-            new_opportunity.OwnerResourceID = 29715730 # AH
-            new_opportunity.Probability = 100
-            new_opportunity.ProjectedCloseDate = time.strftime("%d.%m.%Y")
-            new_opportunity.Stage = atvar.Opportunity_Stage_QWOrderReceived
-            new_opportunity.Status = atvar.Opportunity_Status_Active
-            new_opportunity.Title = "Upsell"
-            new_opportunity.UseQuoteTotals = False
-            new_opportunity.LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion
-            opportunity = at.create(new_opportunity).fetch_one()
+            opportunity_create_new(
+                AccountID = account_id,
+                Amount = 5,
+                Cost = 1,
+                CreateDate = time.strftime("%d.%m.%Y"),
+                OwnerResourceID = 29715730, # AH
+                Probability = 100,
+                ProjectedCloseDate = time.strftime("%d.%m.%Y"),
+                Stage = atvar.Opportunity_Stage_QWOrderReceived,
+                Status = atvar.Opportunity_Status_Active,
+                Title = "Upsell",
+                UseQuoteTotals = False,
+                LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
+            )
+
             # Before creating a quote we must have a quote location
             new_quote_location = at.new('QuoteLocation')
             new_quote_location.Address1 = account.Address1
@@ -516,6 +510,25 @@ def autotask_login_function(request, username, password):
         messages.add_message(request, messages.ERROR, 'Something went wrong')
     except ValueError:
         messages.add_message(request, messages.ERROR, 'Autotask username/password incorrect')
+
+
+
+def opportunity_create_new(**kwargs):
+    # First we need to create a new opportunity
+    new_opportunity = at.new('Opportunity')
+    new_opportunity.AccountID = kwargs.get['AccountID', None]
+    new_opportunity.Amount = kwargs.get['Amount', None]
+    new_opportunity.Cost = kwargs.get['Cost', None]
+    new_opportunity.CreateDate = kwargs.get['CreateDate', None]
+    new_opportunity.OwnerResourceID = kwargs.get['OwnerResourceID', None]
+    new_opportunity.Probability = kwargs.get['Probability', None]
+    new_opportunity.ProjectedCloseDate = kwargs.get['ProjectedCloseDate', None]
+    new_opportunity.Stage = kwargs.get['Stage', None]
+    new_opportunity.Status = kwargs.get['Status', None]
+    new_opportunity.Title = kwargs.get['Title', None]
+    new_opportunity.UseQuoteTotals = kwargs.get['UseQuoteTotals', None]
+    new_opportunity.LeadReferral = kwargs.get['LeadReferral', None]
+    opportunity = at.create(new_opportunity).fetch_one()
 
 
 ############################################################
