@@ -356,21 +356,24 @@ def create_home_user_ticket(request, id):
 
     # Grab field values from user input, include predefined fields above
     if request.method == "POST":
-        new_ticket = at.new('Ticket')
-        new_ticket.AccountID = account_id
-        new_ticket.Title = request.POST['title']
-        new_ticket.Description = request.POST['description']
-        new_ticket.DueDateTime = request.POST['duedatetime']
-        new_ticket.EstimatedHours = request.POST['estimatedhours']
-        new_ticket.Priority = request.POST['priority']
-        new_ticket.Status = request.POST['status']
-        new_ticket.QueueID = request.POST['queueid']
         # custom validation rules
-        if new_ticket.Title != title:
+        if request.POST['title'] != title:
             messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
             return redirect("create_home_user_ticket.html", {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
         else:
-            ticket = at.create(new_ticket).fetch_one()
+            new_ticket = ticket_create_new(True,
+                AccountID = account_id,
+                Title = request.POST['title'],
+                Description = request.POST['description'],
+                DueDateTime = request.POST['duedatetime'],
+                EstimatedHours = request.POST['estimatedhours'],
+                Priority = request.POST['priority'],
+                Status = request.POST['status'],
+                QueueID = request.POST['queueid'],
+            )
+            messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
+
+
 
     return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
 
@@ -516,20 +519,32 @@ def autotask_login_function(request, username, password):
 def opportunity_create_new(**kwargs):
     # First we need to create a new opportunity
     new_opportunity = at.new('Opportunity')
-    new_opportunity.AccountID = kwargs.get['AccountID', None]
-    new_opportunity.Amount = kwargs.get['Amount', None]
-    new_opportunity.Cost = kwargs.get['Cost', None]
-    new_opportunity.CreateDate = kwargs.get['CreateDate', None]
-    new_opportunity.OwnerResourceID = kwargs.get['OwnerResourceID', None]
-    new_opportunity.Probability = kwargs.get['Probability', None]
-    new_opportunity.ProjectedCloseDate = kwargs.get['ProjectedCloseDate', None]
-    new_opportunity.Stage = kwargs.get['Stage', None]
-    new_opportunity.Status = kwargs.get['Status', None]
-    new_opportunity.Title = kwargs.get['Title', None]
-    new_opportunity.UseQuoteTotals = kwargs.get['UseQuoteTotals', None]
-    new_opportunity.LeadReferral = kwargs.get['LeadReferral', None]
+    new_opportunity.AccountID = kwargs.get('AccountID', None)
+    new_opportunity.Amount = kwargs.get('Amount', None)
+    new_opportunity.Cost = kwargs.get('Cost', None)
+    new_opportunity.CreateDate = kwargs.get('CreateDate', None)
+    new_opportunity.OwnerResourceID = kwargs.get('OwnerResourceID', None)
+    new_opportunity.Probability = kwargs.get('Probability', None)
+    new_opportunity.ProjectedCloseDate = kwargs.get('ProjectedCloseDate', None)
+    new_opportunity.Stage = kwargs.get('Stage', None)
+    new_opportunity.Status = kwargs.get('Status', None)
+    new_opportunity.Title = kwargs.get('Title', None)
+    new_opportunity.UseQuoteTotals = kwargs.get('UseQuoteTotals', None)
+    new_opportunity.LeadReferral = kwargs.get('LeadReferral', None)
     opportunity = at.create(new_opportunity).fetch_one()
 
+def ticket_create_new(validated, **kwargs):
+    new_ticket = at.new('Ticket')
+    new_ticket.AccountID = kwargs.get('AccountID', None)
+    new_ticket.Title = kwargs.get('Title', None)
+    new_ticket.Description = kwargs.get('Description', None)
+    new_ticket.DueDateTime = kwargs.get('DueDateTime', None)
+    new_ticket.EstimatedHours = kwargs.get('EstimatedHours', None)
+    new_ticket.Priority = kwargs.get('Priority', None)
+    new_ticket.Status = kwargs.get('Status', None)
+    new_ticket.QueueID = kwargs.get('QueueID', None)
+    ticket = at.create(new_ticket).fetch_one()
+    return ticket
 
 ############################################################
 #
