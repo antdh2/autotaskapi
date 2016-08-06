@@ -111,9 +111,6 @@
                               <li>
                                   <a href="#tab_1_3" data-toggle="tab">Change Password</a>
                               </li>
-                              <li>
-                                  <a href="#tab_1_4" data-toggle="tab">Autotask Credentials</a>
-                              </li>
                           </ul>
                       </div>
                       <div class="portlet-body">
@@ -190,38 +187,6 @@
                                   </form>
                               </div>
                               <!-- END CHANGE PASSWORD TAB -->
-                              <!-- PRIVACY SETTINGS TAB -->
-                              <div class="tab-pane" id="tab_1_4">
-                                <form class="form-horizontal margin-bottom-40" role="form" method="POST">
-                                  {% csrf_token %}
-                                  <div class="form-group form-md-line-input">
-                                      <label for="inputEmail12" class="col-md-2 control-label">Username</label>
-                                      <div class="col-md-4">
-                                          <div class="input-icon">
-                                              <input type="email" class="form-control" placeholder="Autotask Username..." id="username" name="username">
-                                              <div class="form-control-focus"> </div>
-                                              <i class="fa fa-envelope-o"></i>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <div class="form-group form-md-line-input">
-                                      <label for="inputPassword1" class="col-md-2 control-label">Password</label>
-                                      <div class="col-md-4">
-                                          <div class="input-icon">
-                                              <input type="password" class="form-control" placeholder="Password" id="password" name="password">
-                                              <div class="form-control-focus"> </div>
-                                              <i class="fa fa-key"></i>
-                                          </div>
-                                      </div>
-                                  </div>
-                                  <div class="form-group">
-                                      <div class="col-md-offset-2 col-md-10">
-                                        <input type="submit" class="btn green" />
-                                      </div>
-                                  </div>
-                              </form>
-                              </div>
-                              <!-- END PRIVACY SETTINGS TAB -->
                           </div>
                       </div>
                   </div>
@@ -241,19 +206,20 @@
                           </div>
                           <ul class="nav nav-tabs">
                               <li class="active">
-                                  <a href="#tab_1_1" data-toggle="tab">Autotask Credentials</a>
+                                  <a href="#tab_2_1" data-toggle="tab">Autotask Credentials</a>
                               </li>
                               <li>
-                                  <a href="#tab_1_2" data-toggle="tab">Picklist Module</a>
+                                  <a href="#tab_2_2" data-toggle="tab">Picklist Module</a>
                               </li>
                           </ul>
                       </div>
                       <div class="portlet-body">
                           <div class="tab-content">
                               <!-- PERSONAL INFO TAB -->
-                              <div class="tab-pane active" id="tab_1_1">
+                              <div class="tab-pane active" id="tab_2_1">
                                 <form class="form-horizontal margin-bottom-40" role="form" method="POST">
                                   {% csrf_token %}
+                                  <input type="hidden" name="autotasklogin" value="autotasklogin">
                                   <div class="form-group form-md-line-input">
                                       <label for="inputEmail12" class="col-md-2 control-label">Username</label>
                                       <div class="col-md-4">
@@ -283,33 +249,8 @@
                               </div>
                               <!-- END PERSONAL INFO TAB -->
                               <!-- CHANGE AVATAR TAB -->
-                              <div class="tab-pane" id="tab_1_2">
-                                  <p> Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
-                                      eiusmod. </p>
-                                  <form action="#" role="form">
-                                      <div class="form-group">
-                                          <div class="fileinput fileinput-new" data-provides="fileinput">
-                                              <div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
-                                                  <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" /> </div>
-                                              <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;"> </div>
-                                              <div>
-                                                  <span class="btn default btn-file">
-                                                      <span class="fileinput-new"> Select image </span>
-                                                      <span class="fileinput-exists"> Change </span>
-                                                      <input type="file" name="..."> </span>
-                                                  <a href="javascript:;" class="btn default fileinput-exists" data-dismiss="fileinput"> Remove </a>
-                                              </div>
-                                          </div>
-                                          <div class="clearfix margin-top-10">
-                                              <span class="label label-danger">NOTE! </span>
-                                              <span>Attached image thumbnail is supported in Latest Firefox, Chrome, Opera, Safari and Internet Explorer 10 only </span>
-                                          </div>
-                                      </div>
-                                      <div class="margin-top-10">
-                                          <a href="javascript:;" class="btn green"> Submit </a>
-                                          <a href="javascript:;" class="btn default"> Cancel </a>
-                                      </div>
-                                  </form>
+                              <div class="tab-pane" id="tab_2_2">
+                                <a class="btn green" href="{% url 'create_picklist' %}">Create Picklist Module</a>
                               </div>
                               <!-- END CHANGE AVATAR TAB -->
                           </div>

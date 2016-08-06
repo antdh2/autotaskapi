@@ -40,6 +40,7 @@ def handle_user_save(sender, instance, created, **kwargs):
     if created:
         profile = Profile.objects.create(user=instance)
 
+# Automatically log in to autotask if credentials are stored in the database
 @receiver(user_logged_in, sender=User)
 def login_to_autotask(sender, **kwargs):
     profile = Profile.objects.create(user=sender)
@@ -79,7 +80,7 @@ def create_picklist(request):
     string = "create_picklist_module --username {} --password {} atvar-test.py".format(at_username, at_password)
     os.system(string)
     messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
-    return render(request, 'autotask_login.html', {})
+    return render(request, 'account/profile.html', {})
 
 def create_picklist_dict(dict_name, index, regex):
     file = open('atvar.py', 'r')
@@ -124,6 +125,19 @@ RESOURCE_ROLES = {
 }
 
 def profile(request, id):
+    page = 'profile'
+    # First we must connect to autotask using valid credentials
+    if request.method == "POST":
+        if request.POST.get('autotasklogin', False):
+            at = None
+            username = request.POST['username']
+            password = request.POST['password']
+            at = autotask_login_function(request, username, password)
+            if at:
+                messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
+                return render(request, 'index.html', {"page": page, "at": at})
+            else:
+                return render(request, 'account/profile.html', {"page": page, "at": at})
     return render(request, 'account/profile.html', {})
 
 def create_upsell(request, id):
@@ -314,33 +328,21 @@ def booking_in_form(request):
 
     return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 
-@login_required(login_url='/account/login/')
-def autotask_login(request):
-    page = 'settings'
-    # First we must connect to autotask using valid credentials
-    if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        autotask_login_function(request, username, password)
-        if at:
-            messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
-        return render(request, 'index.html', {"page": page, "at": at})
-    else:
-        return render(request, 'autotask_login.html', {"page": page, "at": at})
-
-def autotask_login_function(profile, username, password):
+def autotask_login_function(request, username, password):
     try:
         global at
         at_username = username
         at_password = password
-        profile = Profile.objects.get(user=profile.user)
+        profile = Profile.objects.get(user=request.user)
         profile.autotask_username = username
         profile.autotask_password = password
         profile.save()
         at = atws.connect(username=profile.autotask_username,password=profile.autotask_password)
         return at
-    except:
+    except NameError:
         messages.add_message(request, messages.ERROR, 'Something went wrong')
+    except ValueError:
+        messages.add_message(request, messages.ERROR, 'Autotask username/password incorrect')
 
 # Create your views here.
 @login_required(login_url='/account/login/')

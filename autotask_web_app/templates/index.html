@@ -14,7 +14,7 @@
         {% if at == None %}
         <div class="note note-danger">
             <h4 class="block">Autotask connection not established</h4>
-            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
+            <p><a href="{% url 'profile' user.id %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
         </div>
         {% endif %}
         {% if at != None %}
