@@ -7,13 +7,16 @@
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content">
         <!-- BEGIN PAGE HEADER-->
-        <h1 class="page-title"> Autotask Validator</h1>
         <!-- END PAGE HEADER-->
-
 
         {% if at == None %}
         <div class="note note-danger">
             <h4 class="block">Autotask connection not established</h4>
+            <p><strong>Reason: </strong>
+              {% for message in messages %}
+                {{ message }}
+              {% endfor %}</p>
+              <hr>
             <p><a href="{% url 'profile' user.id %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
         </div>
         {% endif %}

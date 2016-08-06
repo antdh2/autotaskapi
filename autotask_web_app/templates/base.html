@@ -273,6 +273,7 @@
           </div>
           <!-- END SIDEBAR -->
         {% if messages %}
+        {% if at %}
         <div class="page-content-wrapper">
           <div class="page-content" id="messages-content">
               {% for message in messages %}
@@ -282,6 +283,7 @@
               {% endfor %}
           </div>
         </div>
+        {% endif %}
         {% endif %}
 
 

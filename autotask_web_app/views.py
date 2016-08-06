@@ -3,36 +3,31 @@ from django.shortcuts import render_to_response
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-# import the wonderful decorator for stripe
-from djstripe.decorators import subscription_payment_required
-
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.core.files import File
 
 import time
 import datetime
 import os
-from django.core.files import File
-
-
+import re
 import atws
 import atws.monkeypatch.attributes
-from autotask_api_app import atvar
-import re
-
 import account.views
 import account.forms
 import autotask_web_app.forms
-
-from django.dispatch import receiver
-from django.db.models.signals import post_save
+# import the wonderful decorator for stripe
+from djstripe.decorators import subscription_payment_required
+from autotask_api_app import atvar
+from .models import Profile
 from account.signals import user_logged_in
 
-from django.contrib.auth.models import User
 
-from .models import Profile
-
-class LoginView(account.views.LoginView):
-
-    form_class = account.forms.LoginEmailForm
+# Constants
+at = None
+accounts = None
+step = 1
 
 
 @receiver(post_save, sender=User)
@@ -40,89 +35,18 @@ def handle_user_save(sender, instance, created, **kwargs):
     if created:
         profile = Profile.objects.create(user=instance)
 
-# Automatically log in to autotask if credentials are stored in the database
-@receiver(user_logged_in, sender=User)
-def login_to_autotask(sender, **kwargs):
-    profile = Profile.objects.create(user=sender)
-    autotask_login_function(profile, profile.autotask_username, profile.autotask_password)
 
 
 
-class SignupView(account.views.SignupView):
-
-   form_class = autotask_web_app.forms.SignupForm
-   #
-   def after_signup(self, form):
-       self.create_profile(form)
-       super(SignupView, self).after_signup(form)
-
-   def create_profile(self, form):
-       profile = self.created_user.profile  # replace with your reverse one-to-one profile attribute
-       profile.first_name = form.cleaned_data["first_name"]
-       profile.last_name = form.cleaned_data["last_name"]
-       profile.email = form.cleaned_data["email"]
-       profile.save()
-
-   def generate_username(self, form):
-        # do something to generate a unique username (required by the
-        # Django User model, unfortunately)
-        username = form.cleaned_data['email']
-        return username
 
 
 
-at = None
-accounts = None
-step = 1
 
-
-def create_picklist(request):
-    string = "create_picklist_module --username {} --password {} atvar-test.py".format(at_username, at_password)
-    os.system(string)
-    messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
-    return render(request, 'account/profile.html', {})
-
-def create_picklist_dict(dict_name, index, regex):
-    file = open('atvar.py', 'r')
-    for line in file.readlines():
-        my_line = line
-        if re.search(regex, line):
-            line_array = line.split()
-            # This splits the left side of the equasion into an array seperated by underscore
-            dict_key_parse = line_array[0].split("_", 3)
-            # Then we grab the specific array we want for key name
-            dict_key = dict_key_parse[index] # we want 2
-            # Now to build the atvar string and we must convert to int for conditions to work
-            dict_value = int(line_array[2])
-            dict_name[dict_key] = dict_value
-    return dict_name
-
-TICKET_SOURCES = {
-}
-create_picklist_dict(TICKET_SOURCES, 2, '^Ticket_Source_')
-
-QUEUE_IDS = {
-}
-create_picklist_dict(QUEUE_IDS, 2, '^Ticket_QueueID_')
-
-PRIORITY = {
-}
-create_picklist_dict(PRIORITY, 2, '^Ticket_Priority_')
-
-STATUS = {
-}
-create_picklist_dict(STATUS, 2, '^Ticket_Status_')
-
-ACCOUNT_TYPES = {
-}
-create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
-
-RESOURCE_ROLES = {
-    "Engineer": 29682834,
-    "Admin": 29683587,
-    "Home User Engineer": 29683586,
-    "Sales": 29683582,
-}
+############################################################
+#
+# All views must go inside of here
+#
+############################################################
 
 def profile(request, id):
     page = 'profile'
@@ -203,9 +127,6 @@ def create_upsell(request, id):
             new_quote_item.UnitDiscount = 0
             new_quote_item.Name = 'Test Item Name'
             quote_item = at.create(new_quote_item).fetch_one()
-
-
-
     except NameError:
         opportunity = None
         return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
@@ -218,7 +139,6 @@ ticket_account = {}
 ticket_contact = {}
 ticket_sheet_obj = {}
 ticket_misc = {}
-# For booking in form only
 @login_required(login_url='/account/login/')
 @subscription_payment_required
 def booking_in_form(request):
@@ -328,28 +248,15 @@ def booking_in_form(request):
 
     return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 
-def autotask_login_function(request, username, password):
-    try:
-        global at
-        at_username = username
-        at_password = password
-        profile = Profile.objects.get(user=request.user)
-        profile.autotask_username = username
-        profile.autotask_password = password
-        profile.save()
-        at = atws.connect(username=profile.autotask_username,password=profile.autotask_password)
-        return at
-    except NameError:
-        messages.add_message(request, messages.ERROR, 'Something went wrong')
-    except ValueError:
-        messages.add_message(request, messages.ERROR, 'Autotask username/password incorrect')
 
-# Create your views here.
 @login_required(login_url='/account/login/')
 def index(request):
     try:
         page = 'index'
         accounts = None
+        at = None
+        if request.user:
+            at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
         # Once an account name/id is entered
         if request.method == "POST":
             # map account_id to the inputted value
@@ -392,15 +299,6 @@ def ticket_detail(request, account_id, ticket_id):
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
-def ataccount(request, id):
-    account_id = id
-    ataccount = get_account(account_id)
-    tickets = get_tickets_for_account(account_id)
-    ticket_account_name = resolve_account_name_from_id(account_id)
-    ticket_info = get_ticket_info(tickets)
-    return render(request, 'account.html', {"ataccount": ataccount, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
-
-
 @login_required(login_url='/account/login/')
 def edit_ataccount(request, id):
     account_id = id
@@ -425,6 +323,77 @@ def edit_ataccount(request, id):
 
         return redirect("/account/" + account_id, successMessage="Success!")
     return render(request, 'edit_ataccount.html', {"ataccount": ataccount, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+
+
+
+
+@login_required(login_url='/account/login/')
+def create_ticket(request, id):
+    account_id = id
+    ataccount = get_account(account_id)
+    if request.method == "POST":
+        new_ticket = at.new('Ticket')
+        new_ticket.AccountID = account_id
+        new_ticket.Title = request.POST['title']
+        new_ticket.Description = request.POST['description']
+        new_ticket.DueDateTime = request.POST['duedatetime']
+        new_ticket.EstimatedHours = request.POST['estimatedhours']
+        new_ticket.Priority = request.POST['priority']
+        new_ticket.Status = request.POST['status']
+        new_ticket.QueueID = request.POST['queueid']
+
+        # custom validation rules
+        if new_ticket.EstimatedHours == '3' and new_ticket.Priority == '3':
+            messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
+            return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+        else:
+            ticket = at.create(new_ticket).fetch_one()
+    return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+
+@login_required(login_url='/account/login/')
+def create_home_user_ticket(request, id):
+    account_id = id
+    ataccount = get_account(account_id)
+
+    # Preset fields for home user ticket creation
+    title = "Test Home User Ticket"
+    description = "Test Home User Description"
+    status = atvar.Ticket_Status_New
+
+    # Grab field values from user input, include predefined fields above
+    if request.method == "POST":
+        new_ticket = at.new('Ticket')
+        new_ticket.AccountID = account_id
+        new_ticket.Title = request.POST['title']
+        new_ticket.Description = request.POST['description']
+        new_ticket.DueDateTime = request.POST['duedatetime']
+        new_ticket.EstimatedHours = request.POST['estimatedhours']
+        new_ticket.Priority = request.POST['priority']
+        new_ticket.Status = request.POST['status']
+        new_ticket.QueueID = request.POST['queueid']
+        # custom validation rules
+        if new_ticket.Title != title:
+            messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
+            return redirect("create_home_user_ticket.html", {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+        else:
+            ticket = at.create(new_ticket).fetch_one()
+
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+
+
+############################################################
+#
+# All custom methods in here (NO VIEWS)
+#
+############################################################
+
+def ataccount(request, id):
+    account_id = id
+    ataccount = get_account(account_id)
+    tickets = get_tickets_for_account(account_id)
+    ticket_account_name = resolve_account_name_from_id(account_id)
+    ticket_info = get_ticket_info(tickets)
+    return render(request, 'account.html', {"ataccount": ataccount, "tickets": tickets, "ticket_account_name": ticket_account_name, "ACCOUNT_TYPES": ACCOUNT_TYPES, "QUEUE_IDS": QUEUE_IDS, "TICKET_SOURCES": TICKET_SOURCES})
 
 
 def check_account_exists(account_name):
@@ -532,55 +501,109 @@ def get_contact_for_ticket(contact_id):
     contact = at.query(aquery).fetch_one()
     return contact
 
-@login_required(login_url='/account/login/')
-def create_ticket(request, id):
-    account_id = id
-    ataccount = get_account(account_id)
-    if request.method == "POST":
-        new_ticket = at.new('Ticket')
-        new_ticket.AccountID = account_id
-        new_ticket.Title = request.POST['title']
-        new_ticket.Description = request.POST['description']
-        new_ticket.DueDateTime = request.POST['duedatetime']
-        new_ticket.EstimatedHours = request.POST['estimatedhours']
-        new_ticket.Priority = request.POST['priority']
-        new_ticket.Status = request.POST['status']
-        new_ticket.QueueID = request.POST['queueid']
+def autotask_login_function(request, username, password):
+    try:
+        global at
+        at_username = username
+        at_password = password
+        profile = Profile.objects.get(user=request.user)
+        profile.autotask_username = username
+        profile.autotask_password = password
+        profile.save()
+        at = atws.connect(username=profile.autotask_username,password=profile.autotask_password)
+        return at
+    except NameError:
+        messages.add_message(request, messages.ERROR, 'Something went wrong')
+    except ValueError:
+        messages.add_message(request, messages.ERROR, 'Autotask username/password incorrect')
 
-        # custom validation rules
-        if new_ticket.EstimatedHours == '3' and new_ticket.Priority == '3':
-            messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
-            return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
-        else:
-            ticket = at.create(new_ticket).fetch_one()
-    return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
-@login_required(login_url='/account/login/')
-def create_home_user_ticket(request, id):
-    account_id = id
-    ataccount = get_account(account_id)
+############################################################
+#
+# This is for the picklist module
+#
+############################################################
 
-    # Preset fields for home user ticket creation
-    title = "Test Home User Ticket"
-    description = "Test Home User Description"
-    status = atvar.Ticket_Status_New
+def create_picklist(request):
+    string = "create_picklist_module --username {} --password {} atvar-test.py".format(at_username, at_password)
+    os.system(string)
+    messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
+    return render(request, 'account/profile.html', {})
 
-    # Grab field values from user input, include predefined fields above
-    if request.method == "POST":
-        new_ticket = at.new('Ticket')
-        new_ticket.AccountID = account_id
-        new_ticket.Title = request.POST['title']
-        new_ticket.Description = request.POST['description']
-        new_ticket.DueDateTime = request.POST['duedatetime']
-        new_ticket.EstimatedHours = request.POST['estimatedhours']
-        new_ticket.Priority = request.POST['priority']
-        new_ticket.Status = request.POST['status']
-        new_ticket.QueueID = request.POST['queueid']
-        # custom validation rules
-        if new_ticket.Title != title:
-            messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
-            return redirect("create_home_user_ticket.html", {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
-        else:
-            ticket = at.create(new_ticket).fetch_one()
+def create_picklist_dict(dict_name, index, regex):
+    file = open('atvar.py', 'r')
+    for line in file.readlines():
+        my_line = line
+        if re.search(regex, line):
+            line_array = line.split()
+            # This splits the left side of the equasion into an array seperated by underscore
+            dict_key_parse = line_array[0].split("_", 3)
+            # Then we grab the specific array we want for key name
+            dict_key = dict_key_parse[index] # we want 2
+            # Now to build the atvar string and we must convert to int for conditions to work
+            dict_value = int(line_array[2])
+            dict_name[dict_key] = dict_value
+    return dict_name
 
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+
+TICKET_SOURCES = {
+}
+create_picklist_dict(TICKET_SOURCES, 2, '^Ticket_Source_')
+
+QUEUE_IDS = {
+}
+create_picklist_dict(QUEUE_IDS, 2, '^Ticket_QueueID_')
+
+PRIORITY = {
+}
+create_picklist_dict(PRIORITY, 2, '^Ticket_Priority_')
+
+STATUS = {
+}
+create_picklist_dict(STATUS, 2, '^Ticket_Status_')
+
+ACCOUNT_TYPES = {
+}
+create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
+
+RESOURCE_ROLES = {
+    "Engineer": 29682834,
+    "Admin": 29683587,
+    "Home User Engineer": 29683586,
+    "Sales": 29683582,
+}
+
+
+
+
+############################################################
+#
+# This is for overriding default user signup behaviour
+#
+############################################################
+
+class LoginView(account.views.LoginView):
+
+    form_class = account.forms.LoginEmailForm
+
+
+class SignupView(account.views.SignupView):
+
+   form_class = autotask_web_app.forms.SignupForm
+   #
+   def after_signup(self, form):
+       self.create_profile(form)
+       super(SignupView, self).after_signup(form)
+
+   def create_profile(self, form):
+       profile = self.created_user.profile  # replace with your reverse one-to-one profile attribute
+       profile.first_name = form.cleaned_data["first_name"]
+       profile.last_name = form.cleaned_data["last_name"]
+       profile.email = form.cleaned_data["email"]
+       profile.save()
+
+   def generate_username(self, form):
+        # do something to generate a unique username (required by the
+        # Django User model, unfortunately)
+        username = form.cleaned_data['email']
+        return username
