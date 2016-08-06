@@ -163,60 +163,64 @@ def booking_in_form(request):
             else:
                 # else process the form and create a new account
                 # then need to create a new contact for that account
-                new_account = at.new('Account')
-                new_account.AccountName = request.POST['account-name']
-                new_account.Address1 = request.POST['address1']
-                new_account.Address2 = request.POST['address2']
-                new_account.City = request.POST['city']
-                new_account.PostalCode = request.POST['postcode']
-                new_account.Phone = request.POST['phone']
-                new_account.AccountType = request.POST['type']
-                new_account.OwnerResourceID = 29683570
-                ataccount = at.create(new_account).fetch_one()
-                # now create a contact
-                new_contact = at.new('Contact')
-                new_contact.FirstName = request.POST['firstname']
-                new_contact.LastName = request.POST['surname']
-                new_contact.EMailAddress = request.POST['email']
-                new_contact.AddressLine = request.POST['address1']
-                new_contact.AddressLine1 = request.POST['address2']
-                new_contact.City = request.POST['city']
-                new_contact.ZipCode = request.POST['postcode']
-                new_contact.Phone = request.POST['phone']
-                new_contact.Active = 1
+                new_account = account_create_new(True,
+                    AccountName = request.POST['account-name'],
+                    Address1 = request.POST['address1'],
+                    Address2 = request.POST['address2'],
+                    City = request.POST['city'],
+                    PostalCode = request.POST['postcode'],
+                    Phone = request.POST['phone'],
+                    AccountType = request.POST['type'],
+                    OwnerResourceID = 29683570
+                )
+
+                # now create a contact, first we must get and pass in the account ID
                 account_id = resolve_account_id(account_name)
-                new_contact.AccountID = account_id
+                new_contact = contact_create_new(True,
+                    FirstName = request.POST['firstname'],
+                    LastName = request.POST['surname'],
+                    EMailAddress = request.POST['email'],
+                    AddressLine = request.POST['address1'],
+                    AddressLine1 = request.POST['address2'],
+                    City = request.POST['city'],
+                    ZipCode = request.POST['postcode'],
+                    Phone = request.POST['phone'],
+                    Active = 1,
+                    AccountID = account_id
+                )
+
                 # append account_id to a dict to use for making sure ticket is added to right account
                 ticket_account['AccountID'] = account_id
-                ticket_account['AccountObj'] = ataccount
-                contact = at.create(new_contact).fetch_one()
+                ticket_account['AccountObj'] = new_account
                 step = 2
                 messages.add_message(request, messages.SUCCESS, 'Successfully created account')
 
                 # update contact info to add contacts to ticket creation
-                ticket_contact['ContactID'] = contact.id
-                ticket_contact['ContactObj'] = contact
+                ticket_contact['ContactID'] = new_contact.id
+                ticket_contact['ContactObj'] = new_contact
         if request.POST.get('step2', False):
             # first grab account from step 1
             # then create a new autotask ticket from form fields
-            new_ticket = at.new('Ticket')
-            new_ticket.AccountID = ticket_account['AccountID']
+            new_ticket = ticket_create_new(True,
+                AccountID = ticket_account['AccountID'],
+                ContactID = ticket_contact['ContactID'],
+                Title = request.POST['description'],
+                Description = request.POST['description'],
+                DueDateTime = request.POST['duedatetime'],
+                EstimatedHours = request.POST['estimatedhours'],
+                Priority = request.POST['priority'],
+                Status = request.POST['status'],
+                QueueID = request.POST['queueid'],
+                Source = atvar.Ticket_Source_InPersonatSupportCentre
+            )
+
             # this is for list of contacts displayed
             if not ticket_contact['ContactID']:
                 ticket_contact['ContactID'] = request.POST['contact']
-            new_ticket.ContactID = ticket_contact['ContactID']
-            new_ticket.Title = request.POST['title']
-            new_ticket.Description = request.POST['description']
-            new_ticket.DueDateTime = request.POST['duedatetime']
-            new_ticket.EstimatedHours = request.POST['estimatedhours']
-            new_ticket.Priority = request.POST['priority']
-            new_ticket.Status = request.POST['status']
-            new_ticket.QueueID = request.POST['queueid']
-            new_ticket.Source = atvar.Ticket_Source_InPersonatSupportCentre
-            ticket = at.create(new_ticket).fetch_one()
             step = 3
-            ticket_sheet_obj['Ticket'] = ticket
+            ticket_sheet_obj['Ticket'] = new_ticket
         if request.POST.get('step3', False):
+            # Now to grab all input from user for additional fields
             ticket_misc['software_collected'] = request.POST['software-collected']
             ticket_misc['chargers_collected'] = request.POST['chargers-collected']
             ticket_misc['cables_collected'] = request.POST['cables-collected']
@@ -238,8 +242,6 @@ def booking_in_form(request):
             ticket_misc['other'] = request.POST['other']
             step = 4
             messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
-
-
     return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
 
 
@@ -298,24 +300,17 @@ def edit_ataccount(request, id):
     account_id = id
     ataccount = get_account(account_id)
     if request.method == "POST":
-        new_account_name = request.POST['account-name']
-        new_address_1 = request.POST['address1']
-        new_address_2 = request.POST['address2']
-        new_state = request.POST['state']
-        new_city = request.POST['city']
-        new_postalcode = request.POST['postcode']
-        new_phone = request.POST['phone']
-        ataccount.AccountName = new_account_name
-        ataccount.Address1 = new_address_1
-        ataccount.Address2 = new_address_2
-        ataccount.State = new_state
-        ataccount.City = new_city
-        ataccount.PostalCode = new_postalcode
-        ataccount.Phone = new_phone
-        ataccount.update()
-        messages.add_message(request, messages.SUCCESS, 'Successfully edited.')
-
-        return redirect("/account/" + account_id, successMessage="Success!")
+        updated_account = account_update(ataccount,
+            AccountName = request.POST['account-name'],
+            Address1 = request.POST['address1'],
+            Address2 = request.POST['address2'],
+            State = request.POST['state'],
+            City = request.POST['city'],
+            PostalCode = request.POST['postcode'],
+            Phone = request.POST['phone'],
+        )
+        messages.add_message(request, messages.SUCCESS, 'Successfully edited account.')
+        return redirect("/ataccount/" + account_id)
     return render(request, 'edit_ataccount.html', {"ataccount": ataccount, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
@@ -326,34 +321,32 @@ def create_ticket(request, id):
     account_id = id
     ataccount = get_account(account_id)
     if request.method == "POST":
-        new_ticket = at.new('Ticket')
-        new_ticket.AccountID = account_id
-        new_ticket.Title = request.POST['title']
-        new_ticket.Description = request.POST['description']
-        new_ticket.DueDateTime = request.POST['duedatetime']
-        new_ticket.EstimatedHours = request.POST['estimatedhours']
-        new_ticket.Priority = request.POST['priority']
-        new_ticket.Status = request.POST['status']
-        new_ticket.QueueID = request.POST['queueid']
-
         # custom validation rules
-        if new_ticket.EstimatedHours == '3' and new_ticket.Priority == '3':
+        if request.POST['estimatedhours'] == '3' and request.POST['priority'] == '3':
             messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
             return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
         else:
-            ticket = at.create(new_ticket).fetch_one()
+            new_ticket = ticket_create_new(True,
+                AccountID = account_id,
+                Title = request.POST['title'],
+                Description = request.POST['description'],
+                DueDateTime = request.POST['duedatetime'],
+                EstimatedHours = request.POST['estimatedhours'],
+                Priority = request.POST['priority'],
+                Status = request.POST['status'],
+                QueueID = request.POST['queueid'],
+            )
+            messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
     return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
 @login_required(login_url='/account/login/')
 def create_home_user_ticket(request, id):
     account_id = id
     ataccount = get_account(account_id)
-
     # Preset fields for home user ticket creation
     title = "Test Home User Ticket"
     description = "Test Home User Description"
     status = atvar.Ticket_Status_New
-
     # Grab field values from user input, include predefined fields above
     if request.method == "POST":
         # custom validation rules
@@ -372,9 +365,6 @@ def create_home_user_ticket(request, id):
                 QueueID = request.POST['queueid'],
             )
             messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-
-
-
     return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
 
 
@@ -545,6 +535,43 @@ def ticket_create_new(validated, **kwargs):
     new_ticket.QueueID = kwargs.get('QueueID', None)
     ticket = at.create(new_ticket).fetch_one()
     return ticket
+
+def account_create_new(validated, **kwargs):
+    new_account = at.new('Account')
+    new_account.AccountName = kwargs.get('AccountName', None)
+    new_account.Address1 = kwargs.get('Address1', None)
+    new_account.Address2 = kwargs.get('Address2', None)
+    new_account.City = kwargs.get('City', None)
+    new_account.PostalCode = kwargs.get('PostalCode', None)
+    new_account.Phone = kwargs.get('Phone', None)
+    new_account.AccountType = kwargs.get('AccountType', None)
+    new_account.OwnerResourceID = 29683570
+    ataccount = at.create(new_account).fetch_one()
+    return ataccount
+
+def account_update(ataccount, **kwargs):
+    ataccount.AccountName = kwargs.get('AccountName', None)
+    ataccount.Address1 = kwargs.get('Address1', None)
+    ataccount.Address2 = kwargs.get('Address2', None)
+    ataccount.State = kwargs.get('State', None)
+    ataccount.City = kwargs.get('City', None)
+    ataccount.PostalCode = kwargs.get('PostalCode', None)
+    ataccount.Phone = kwargs.get('Phone', None)
+    ataccount.update()
+
+def contact_create_new(validated, **kwargs):
+    new_contact = at.new('Contact')
+    new_contact.FirstName = kwargs.get('FirstName', None)
+    new_contact.LastName = kwargs.get('LastName', None)
+    new_contact.EMailAddress = kwargs.get('EMailAddress', None)
+    new_contact.AddressLine = kwargs.get('AddressLine', None)
+    new_contact.AddressLine1 = kwargs.get('AddressLine1', None)
+    new_contact.City = kwargs.get('City', None)
+    new_contact.ZipCode = kwargs.get('ZipCode', None)
+    new_contact.Phone = kwargs.get('Phone', None)
+    new_contact.Active = 1
+    account_id = resolve_account_id(account_name)
+    new_contact.AccountID = account_id
 
 ############################################################
 #

@@ -7,132 +7,52 @@
   <!-- BEGIN CONTENT BODY -->
   <div class="page-content">
       <!-- BEGIN PAGE HEADER-->
-      <h1 class="page-title">Edit Account Autotask Validator</h1>
       <!-- END PAGE HEADER-->
-      <div class="note note-info">
-          <p> Welcome to the Autotask Validator, get started by following the instructions below.</p>
-      </div>
-
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert{% if message.tags == 'error' %} alert-danger {% elif message.tags %} alert-{{ message.tags }}"{% endif %}>
-            <ul class="messages">
-              <p>{{ message }}</p>
-            </ul>
-          </div>
-        {% endfor %}
-      {% endif %}
-
     <div class="portlet light portlet-fit ">
       <div class="portlet-title">
         <div class="caption">
           <i class=" icon-layers font-green"></i>
-          <span class="caption-subject font-green bold uppercase">Account Details - {{ account.AccountName }}</span>
-          <div class="btn-group"  style="margin-left: 25px;">
-            <a href="{% url 'edit_account' account.id %}" class="btn btn-circle btn-outline green">Edit</a>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
-                <i class="fa fa-search"></i>&nbsp;
-                <span class="hidden-sm hidden-xs">View&nbsp;</span>&nbsp;
-                <i class="fa fa-angle-down"></i>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              <li>
-                <a href="{% url 'account' account.id %}">
-                      <i class="icon-docs"></i> Tickets </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-tag"></i> To Do's </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-share"></i> Account Notes </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-flag"></i> Opportunities
-                  </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-users"></i> Contacts
-                  </a>
-              </li>
-            </ul>
-          </div>
-          <div class="btn-group">
-            <button type="button" class="btn btn-circle btn-outline green dropdown-toggle" data-toggle="dropdown">
-                <i class="fa fa-plus"></i>&nbsp;
-                <span class="hidden-sm hidden-xs">New&nbsp;</span>&nbsp;
-                <i class="fa fa-angle-down"></i>
-            </button>
-            <ul class="dropdown-menu" role="menu">
-              <li>
-                  <a href="{% url 'create_ticket' account.id %}">
-                      <i class="icon-docs"></i> Ticket </a>
-              </li>
-              <li>
-                  <a href="{% url 'create_home_user_ticket' account.id %}">
-                      <i class="icon-tag"></i> Home User Ticket </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-share"></i> Account Note </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-flag"></i> Opportunity
-                  </a>
-              </li>
-              <li class="disabled">
-                  <a href="javascript:;">
-                      <i class="icon-users"></i> Contact
-                  </a>
-              </li>
-            </ul>
-          </div>
+          <span class="caption-subject font-green bold uppercase">Account Details - {{ ataccount.AccountName }}</span>
         </div>
       </div>
       <div class="portlet-body">
-          <form action="{% url 'edit_account' account.id %}" method="post" style="width: 66.67%">
+          <form action="{% url 'edit_ataccount' ataccount.id %}" method="post" style="width: 66.67%">
             {% csrf_token %}
             <div class="form-group">
               <label for="account-name">Edit Account Name: </label>
-              <input class="form-control" type="text" name="account-name" id="account-name" value="{{ account.AccountName }}"/>
+              <input class="form-control" type="text" name="account-name" id="account-name" value="{{ ataccount.AccountName }}"/>
             </div>
             <div class="form-group">
               <label for="address1">Edit Address 1: </label>
-              <input class="form-control" type="text" name="address1" id="address1" value="{{ account.Address1 }}"/>
+              <input class="form-control" type="text" name="address1" id="address1" value="{{ ataccount.Address1 }}"/>
             </div>
             <div class="form-group">
               <label for="">Edit Address 2: </label>
-              <input class="form-control" type="text" name="address2" id="address2" value="{{ account.Address2 }}"/>
+              <input class="form-control" type="text" name="address2" id="address2" value="{{ ataccount.Address2 }}"/>
             </div>
             <div class="form-group">
               <label for="">Edit State: </label>
-              <input class="form-control" type="text" name="state" id="state" value="{{ account.State }}" placeholder="Enter a state"/>
+              <input class="form-control" type="text" name="state" id="state" value="{{ ataccount.State }}" placeholder="Enter a state"/>
             </div>
             <div class="form-group">
               <label for="">Edit City: </label>
-              <input class="form-control" type="text" name="city" id="city" value="{{ account.City }}"/>
+              <input class="form-control" type="text" name="city" id="city" value="{{ ataccount.City }}"/>
             </div>
             <div class="form-group">
               <label for="">Edit Postcode: </label>
-              <input class="form-control" type="text" name="postcode" id="postcode" value="{{ account.PostalCode }}"/>
+              <input class="form-control" type="text" name="postcode" id="postcode" value="{{ ataccount.PostalCode }}"/>
             </div>
             <div class="form-group">
               <label for="">Edit Phone: </label>
-              <input class="form-control" type="text" name="phone" id="phone" value="{{ account.Phone }}"/>
+              <input class="form-control" type="text" name="phone" id="phone" value="{{ ataccount.Phone }}"/>
             </div>
             <label>Account Type</label>
             <select class="form-control">
               {% for field, value in ACCOUNT_TYPES.items %}
-                {% if value == account.AccountType %}
+                {% if value == ataccount.AccountType %}
                   <option value="{{ value }}" selected>{{ field }}</option>
                 {% endif %}
-                {% if value != account.AccountType %}
+                {% if value != ataccount.AccountType %}
                   <option value="{{ value }}">{{ field }}</option>
                 {% endif %}
               {% endfor %}

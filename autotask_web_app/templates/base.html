@@ -277,9 +277,9 @@
         <div class="page-content-wrapper">
           <div class="page-content" id="messages-content">
               {% for message in messages %}
-                <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}{% endif %}">
-                    <p>{{ message }}</p>
-                </div>
+              <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags == 'success' %} note-success {% endif %}">
+                  <p>{{ message }}</p>
+              </div>
               {% endfor %}
           </div>
         </div>
