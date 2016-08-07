@@ -72,7 +72,7 @@ def create_upsell(request, id):
             HDD50035 = request.POST.get('HDD50035', False)
             HDD100035 = request.POST.get('HDD100035', False)
             # First we need to create a new opportunity
-            opportunity_create_new(
+            opportunity = opportunity_create_new(
                 AccountID = account_id,
                 Amount = 5,
                 Cost = 1,
@@ -86,41 +86,21 @@ def create_upsell(request, id):
                 UseQuoteTotals = False,
                 LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
             )
-
-            # Before creating a quote we must have a quote location
-            new_quote_location = at.new('QuoteLocation')
-            new_quote_location.Address1 = account.Address1
-            new_quote_location.Address2 = account.Address2
-            new_quote_location.City = account.City
-            new_quote_location.PostalCode = account.PostalCode
-            quote_location = at.create(new_quote_location).fetch_one()
+            # Before creating a quote we must have a quote location (handled in function)
             # Then we need to create a quote with the items in
-            new_quote = at.new('Quote')
-            new_quote.AccountID = account_id
-            new_quote.BillToLocationID = quote_location.id
-            # Need to grab a contact to extract the id
-            contact = get_contact_for_account(account_id)
-            new_quote.ContactID = contact.id
-            new_quote.EffectiveDate = time.strftime("%d.%m.%Y")
-            new_quote.ExpirationDate = '14.08.2016'
-            new_quote.Name = "New Upsell Quote"
-            new_quote.OpportunityID = opportunity.id
-            new_quote.ShipToLocationID = quote_location.id
-            new_quote.SoldToLocationID = quote_location.id
-            quote = at.create(new_quote).fetch_one()
+            quote = quote_create_new(ataccount, opportunity, '15.08.2016', 'Test Quote Name')
             # Now we need to add in the items that are not defined as False at post method
-            new_quote_item = at.new('QuoteItem')
-            new_quote_item.IsOptional = False
-            new_quote_item.LineDiscount = 0
-            new_quote_item.PercentageDiscount = 0
-            new_quote_item.Quantity = 1
-            new_quote_item.QuoteID = quote.id
-            new_quote_item.ProductID = 29729474
-            new_quote_item.PeriodType = atvar.QuoteItem_PeriodType_OneTime
-            new_quote_item.Type = atvar.QuoteItem_Type_Product
-            new_quote_item.UnitDiscount = 0
-            new_quote_item.Name = 'Test Item Name'
-            quote_item = at.create(new_quote_item).fetch_one()
+            new_quote_item = quote_item_create_new(quote,
+                IsOptional = False,
+                LineDiscount = 0,
+                PercentageDiscount = 0,
+                Quantity = 1,
+                ProductID = 29729474,
+                PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                Type = atvar.QuoteItem_Type_Product,
+                UnitDiscount = 0,
+                Name = 'Test Item Name',
+            )
     except NameError:
         opportunity = None
         return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
@@ -522,6 +502,7 @@ def opportunity_create_new(**kwargs):
     new_opportunity.UseQuoteTotals = kwargs.get('UseQuoteTotals', None)
     new_opportunity.LeadReferral = kwargs.get('LeadReferral', None)
     opportunity = at.create(new_opportunity).fetch_one()
+    return opportunity
 
 def ticket_create_new(validated, **kwargs):
     new_ticket = at.new('Ticket')
@@ -572,6 +553,47 @@ def contact_create_new(validated, **kwargs):
     new_contact.Active = 1
     account_id = resolve_account_id(account_name)
     new_contact.AccountID = account_id
+    contact = at.create(new_contact).fetch_one()
+    return contact
+
+def quote_create_new(account, opportunity, expirydate, name, **kwargs):
+    # First we must create a quote location
+    new_quote_location = at.new('QuoteLocation')
+    new_quote_location.Address1 = account.Address1
+    new_quote_location.Address2 = account.Address2
+    new_quote_location.City = account.City
+    new_quote_location.PostalCode = account.PostalCode
+    quote_location = at.create(new_quote_location).fetch_one()
+    # Then we need to create a quote
+    new_quote = at.new('Quote')
+    new_quote.AccountID = account.id
+    new_quote.BillToLocationID = quote_location.id
+    # Need to grab a contact to extract the id
+    contact = get_contact_for_account(account.id)
+    new_quote.ContactID = contact.id
+    new_quote.EffectiveDate = time.strftime("%d.%m.%Y")
+    new_quote.ExpirationDate = expirydate
+    new_quote.Name = name
+    new_quote.OpportunityID = opportunity.id
+    new_quote.ShipToLocationID = quote_location.id
+    new_quote.SoldToLocationID = quote_location.id
+    quote = at.create(new_quote).fetch_one()
+    return quote
+
+def quote_item_create_new(quote, **kwargs):
+    new_quote_item = at.new('QuoteItem')
+    new_quote_item.IsOptional = kwargs.get('IsOptional', None)
+    new_quote_item.LineDiscount = kwargs.get('LineDiscount', None)
+    new_quote_item.PercentageDiscount = kwargs.get('PercentageDiscount', None)
+    new_quote_item.Quantity = kwargs.get('Quantity', None)
+    new_quote_item.QuoteID = quote.id
+    new_quote_item.ProductID = kwargs.get('ProductID', None)
+    new_quote_item.PeriodType = kwargs.get('PeriodType', None)
+    new_quote_item.Type = kwargs.get('Type', None)
+    new_quote_item.UnitDiscount = kwargs.get('UnitDiscount', None)
+    new_quote_item.Name = kwargs.get('Name', None)
+    quote_item = at.create(new_quote_item).fetch_one()
+    return quote_item
 
 ############################################################
 #
