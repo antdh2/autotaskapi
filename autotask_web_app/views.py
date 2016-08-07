@@ -20,7 +20,7 @@ import autotask_web_app.forms
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile
+from .models import Profile, BookingInDetails
 from account.signals import user_logged_in
 
 
@@ -118,6 +118,7 @@ ticket_misc = {}
 def booking_in_form(request):
     page = "booking_in_form"
     step = 1
+    bookingindetails = None
     if request.method == 'POST':
         if request.POST.get('step1', False):
             # first we need to check this account doesn't already exist
@@ -179,6 +180,8 @@ def booking_in_form(request):
                 ticket_contact['ContactID'] = new_contact.id
                 ticket_contact['ContactObj'] = new_contact
         if request.POST.get('step2', False):
+            # this is for list of contacts displayed
+            ticket_contact['ContactID'] = request.POST['contact']
             # first grab account from step 1
             # then create a new autotask ticket from form fields
             new_ticket = ticket_create_new(True,
@@ -193,36 +196,38 @@ def booking_in_form(request):
                 QueueID = request.POST['queueid'],
                 Source = atvar.Ticket_Source_InPersonatSupportCentre
             )
-
-            # this is for list of contacts displayed
-            if not ticket_contact['ContactID']:
-                ticket_contact['ContactID'] = request.POST['contact']
             step = 3
             ticket_sheet_obj['Ticket'] = new_ticket
         if request.POST.get('step3', False):
             # Now to grab all input from user for additional fields
-            ticket_misc['software_collected'] = request.POST['software-collected']
-            ticket_misc['chargers_collected'] = request.POST['chargers-collected']
-            ticket_misc['cables_collected'] = request.POST['cables-collected']
-            ticket_misc['item'] = request.POST['item']
-            ticket_misc['passwords'] = request.POST['passwords']
-            ticket_misc['action_required'] = request.POST['action-required']
-            ticket_misc['software_legitimacy'] = request.POST['software-legitimacy']
-            ticket_misc['condition'] = request.POST['condition']
-            ticket_misc['ifotheraction'] = request.POST['ifotheraction']
-            ticket_misc['damaged'] = request.POST['damaged']
-            ticket_misc['front'] = request.POST['front']
-            ticket_misc['lside'] = request.POST['lside']
-            ticket_misc['rside'] = request.POST['rside']
-            ticket_misc['top'] = request.POST['top']
-            ticket_misc['bottom'] = request.POST['bottom']
-            ticket_misc['screen'] = request.POST['screen']
-            ticket_misc['cables'] = request.POST['cables']
-            ticket_misc['keyboard'] = request.POST['keyboard']
-            ticket_misc['other'] = request.POST['other']
+            # But first we must create a BookingInDetails object to store data in the DB
+            bookingindetails = BookingInDetails.objects.create(profile=request.user.profile)
+            bookingindetails.account_id = ticket_account['AccountID']
+            ticket = ticket_sheet_obj['Ticket']
+            bookingindetails.ticket_id = ticket.TicketNumber
+            bookingindetails.software_collected = request.POST['software-collected']
+            bookingindetails.chargers_collected = request.POST['chargers-collected']
+            bookingindetails.cables_collected = request.POST['cables-collected']
+            bookingindetails.item = request.POST['item']
+            bookingindetails.passwords = request.POST['passwords']
+            bookingindetails.action_required = request.POST['action-required']
+            bookingindetails.software_legitimacy = request.POST['software-legitimacy']
+            bookingindetails.condition = request.POST['condition']
+            bookingindetails.ifotheraction = request.POST['ifotheraction']
+            bookingindetails.damaged = request.POST['damaged']
+            bookingindetails.front = request.POST['front']
+            bookingindetails.lside = request.POST['lside']
+            bookingindetails.rside = request.POST['rside']
+            bookingindetails.top = request.POST['top']
+            bookingindetails.bottom = request.POST['bottom']
+            bookingindetails.screen = request.POST['screen']
+            bookingindetails.cables = request.POST['cables']
+            bookingindetails.keyboard = request.POST['keyboard']
+            bookingindetails.other = request.POST['other']
+            bookingindetails.save()
             step = 4
             messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
-    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
+    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc, "bookingindetails": bookingindetails})
 
 
 @login_required(login_url='/account/login/')
@@ -550,9 +555,8 @@ def contact_create_new(validated, **kwargs):
     new_contact.City = kwargs.get('City', None)
     new_contact.ZipCode = kwargs.get('ZipCode', None)
     new_contact.Phone = kwargs.get('Phone', None)
+    new_contact.AccountID = kwargs.get('AccountID', None)
     new_contact.Active = 1
-    account_id = resolve_account_id(account_name)
-    new_contact.AccountID = account_id
     contact = at.create(new_contact).fetch_one()
     return contact
 

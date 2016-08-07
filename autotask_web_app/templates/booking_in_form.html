@@ -7,21 +7,13 @@
     <!-- BEGIN CONTENT BODY -->
     <div class="page-content">
         <!-- BEGIN PAGE HEADER-->
-        {% if messages %}
-          {% for message in messages %}
-            <div class="note{% if message.tags == 'error' %} note-danger {% elif message.tags %} note-{{ message.tags }}{% endif %}">
-                <p>{{ message }}</p>
-            </div>
-          {% endfor %}
-        {% endif %}
-
         <h1 class="page-title"> Autotask Validator</h1>
         <!-- END PAGE HEADER-->
 
         {% if at == None %}
         <div class="note note-danger">
             <h4 class="block">Autotask connection not established</h4>
-            <p><a href="{% url 'autotask_login' %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
+            <p><a href="{% url 'profile' user.id %}">Please login to Autotask using your credentials, this will allow you to start searching for accounts.</p></a>
         </div>
         {% endif %}
 
@@ -124,7 +116,7 @@
             <input type="hidden" name="step2" value="step2">
             <div class="form-group">
               {% if contacts %}
-              <label>Account Type</label>
+              <label>Select a Contact</label>
               <select id="contact" name="contact" class="form-control">
                 {% for contact in contacts %}
                     <option  value="{{ contact.id }}">{{ contact.FirstName }} {{ contact.LastName }}</option>
@@ -392,15 +384,15 @@
                   <table class="table table-hover" style="width: 75%;">
                     <tr>
                       <td><strong>Software</strong></td>
-                      <td>{{ ticket_misc.software_collected }}</td>
+                      <td>{{ bookingindetails.software_collected }}</td>
                     </tr>
                     <tr>
                       <td><strong>Cables</strong></td>
-                      <td>{{ ticket_misc.cables_collected }}</td>
+                      <td>{{ bookingindetails.cables_collected }}</td>
                     </tr>
                     <tr>
                       <td><strong>Chargers</strong></td>
-                      <td>{{ ticket_misc.chargers_collected }}</td>
+                      <td>{{ bookingindetails.chargers_collected }}</td>
                     </tr>
                   </table>
             		</div>
@@ -408,29 +400,29 @@
                   <table class="table table-hover" style="width: 75%;">
                     <tr>
                       <td><strong>Product Type</strong></td>
-                      <td>{{ ticket_misc.item }}</td>
+                      <td>{{ bookingindetails.item }}</td>
                     </tr>
                     <tr>
                       <td><strong>Password(s)</strong></td>
-                      <td>{{ ticket_misc.passwords }}</td>
+                      <td>{{ bookingindetails.passwords }}</td>
                     </tr>
                     <tr>
                       <td><strong>Fault/Action Required</strong></td>
-                      <td>{{ ticket_misc.action_required }}</td>
+                      <td>{{ bookingindetails.action_required }}</td>
                     </tr>
                     <tr>
                       <td><strong>Software Legitimacy</strong></td>
-                      <td>{{ ticket_misc.software_legitimacy }}</td>
+                      <td>{{ bookingindetails.software_legitimacy }}</td>
                     </tr>
                     <tr>
                       <td><strong>Condition</strong></td>
-                      <td>{{ ticket_misc.condition }}</td>
+                      <td>{{ bookingindetails.condition }}</td>
                     </tr>
                   </table>
                   <table class="table table-hover" style="width: 75%;">
                     <tr>
                       <td><strong>Any Damage/Marks?</strong></td>
-                      <td>{{ ticket_misc.damaged }}</td>
+                      <td>{{ bookingindetails.damaged }}</td>
                     </tr>
                   </table>
                   <table class="table table-hover" style="width: 75%;">
@@ -438,39 +430,39 @@
                     <br><br>
                     <tr>
                       <td><strong>Front</strong></td>
-                      <td>{{ ticket_misc.front }}</td>
+                      <td>{{ bookingindetails.front }}</td>
                     </tr>
                     <tr>
                       <td><strong>L Side</strong></td>
-                      <td>{{ ticket_misc.lside }}</td>
+                      <td>{{ bookingindetails.lside }}</td>
                     </tr>
                     <tr>
                       <td><strong>R Side</strong></td>
-                      <td>{{ ticket_misc.rside }}</td>
+                      <td>{{ bookingindetails.rside }}</td>
                     </tr>
                     <tr>
                       <td><strong>Top</strong></td>
-                      <td>{{ ticket_misc.top }}</td>
+                      <td>{{ bookingindetails.top }}</td>
                     </tr>
                     <tr>
                       <td><strong>Bottom</strong></td>
-                      <td>{{ ticket_misc.bottom }}</td>
+                      <td>{{ bookingindetails.bottom }}</td>
                     </tr>
                     <tr>
                       <td><strong>Screen</strong></td>
-                      <td>{{ ticket_misc.screen }}</td>
+                      <td>{{ bookingindetails.screen }}</td>
                     </tr>
                     <tr>
                       <td><strong>Cables</strong></td>
-                      <td>{{ ticket_misc.cables }}</td>
+                      <td>{{ bookingindetails.cables }}</td>
                     </tr>
                     <tr>
                       <td><strong>Keyboard</strong></td>
-                      <td>{{ ticket_misc.keyboard }}</td>
+                      <td>{{ bookingindetails.keyboard }}</td>
                     </tr>
                     <tr>
                       <td><strong>Other</strong></td>
-                      <td>{{ ticket_misc.other }}</td>
+                      <td>{{ bookingindetails.other }}</td>
                     </tr>
                   </table>
             		</div>
