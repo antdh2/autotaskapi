@@ -315,7 +315,8 @@ ticket_misc = {}
 @login_required(login_url='/account/login/')
 @subscription_payment_required
 def booking_in_form(request):
-    page = "booking_in_form"
+    module = "customerservices"
+    page = "booking-in-form"
     step = 1
     bookingindetails = None
     if request.method == 'POST':
@@ -339,7 +340,7 @@ def booking_in_form(request):
                 # Then we need to loop through each of these and display them to the user to select the appropriate contact. This is done on frontend
                 # Then update our contact arrays
                 step = 2
-                return render(request, 'booking_in_form.html', {"contacts": contacts, "page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
+                return render(request, 'booking_in_form.html', {"contacts": contacts, "page": page, "module": module, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc})
             else:
                 # else process the form and create a new account
                 # then need to create a new contact for that account
@@ -426,13 +427,14 @@ def booking_in_form(request):
             bookingindetails.save()
             step = 4
             messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
-    return render(request, 'booking_in_form.html', {"page": page, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc, "bookingindetails": bookingindetails})
+    return render(request, 'booking_in_form.html', {"page": page, "module": module, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc, "bookingindetails": bookingindetails})
 
 
 @login_required(login_url='/account/login/')
 def index(request):
     try:
-        page = 'index'
+        module = 'crm'
+        page = 'search-for-account'
         accounts = None
         at = None
         if request.user:
@@ -447,7 +449,7 @@ def index(request):
         else:
             accounts = None
 
-        return render(request, 'index.html', {"accounts": accounts, "page": page, "at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
+        return render(request, 'index.html', {"accounts": accounts, "page": page, "module": module, "at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
     except AttributeError:
         messages.add_message(request, messages.ERROR, 'Lost connection with Autotask.')
         return render(request, 'index.html', {"at": at, "ACCOUNT_TYPES": ACCOUNT_TYPES})
