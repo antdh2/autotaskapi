@@ -10,6 +10,8 @@ from django.core.files import File
 
 import time
 import datetime
+from datetime import datetime
+from datetime import timedelta
 import os
 import re
 import atws
@@ -87,32 +89,7 @@ def create_upsell(request, id):
     test = None
     try:
         if request.method == 'POST':
-            if request.POST.get('AVG', False) != False:
-                sold_products['AVG'] = request.POST['AVG-PRICE']
-                upsell_create_new(request.user.profile, sold_products, account_id, 29729474, 5.50)
-            if request.POST.get('SSD128', False) != False:
-                sold_products['SSD128'] = request.POST['SSD128-PRICE']
-                Upsell.objects.create(profile=request.user.profile,
-                                      product_name="SSD128",
-                                      account_id=account_id,
-                                      product_id='29730653',
-                                      product_cost=40,
-                                      product_price=sold_products['SSD128'])
-            if request.POST.get('SSD256', False) != False:
-                sold_products['SSD256'] = request.POST['SSD256-PRICE']
-            if request.POST.get('SSD512', False) != False:
-                sold_products['SSD512'] = request.POST['SSD512-PRICE']
-            if request.POST.get('HDD50025', False) != False:
-                sold_products['HDD50025'] = request.POST['HDD50025-PRICE']
-            if request.POST.get('HDD100025', False) != False:
-                sold_products['HDD100025'] = request.POST['HDD100025-PRICE']
-            if request.POST.get('HDD50035', False) != False:
-                sold_products['HDD50035'] = request.POST['HDD50035-PRICE']
-            if request.POST.get('HDD100035', False) != False:
-                sold_products['HDD100035'] = request.POST['HDD100035-PRICE']
-
-            test = sold_products['AVG']
-            # First we need to create a new opportunity
+            # First we need to create a new opportunity for our quote items (we can validate front end for name to stop a NULL post request)
             opportunity = opportunity_create_new(
                 AccountID = account_id,
                 Amount = 5,
@@ -123,25 +100,206 @@ def create_upsell(request, id):
                 ProjectedCloseDate = time.strftime("%d.%m.%Y"),
                 Stage = atvar.Opportunity_Stage_QWOrderReceived,
                 Status = atvar.Opportunity_Status_Active,
-                Title = "Upsell",
-                UseQuoteTotals = False,
+                Title = request.POST['opportunity-name'],
+                UseQuoteTotals = True,
                 LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
             )
             # Before creating a quote we must have a quote location (handled in function)
-            # Then we need to create a quote with the items in
-            quote = quote_create_new(ataccount, opportunity, '15.08.2016', 'Test Quote Name')
-            # Now we need to add in the items that are not defined as False at post method
-            new_quote_item = quote_item_create_new(quote,
-                IsOptional = False,
-                LineDiscount = 0,
-                PercentageDiscount = 0,
-                Quantity = 1,
-                ProductID = 29729474,
-                PeriodType = atvar.QuoteItem_PeriodType_OneTime,
-                Type = atvar.QuoteItem_Type_Product,
-                UnitDiscount = 0,
-                Name = 'Test Item Name',
-            )
+            # Then we need to create a quote with the items in, all done with below function
+            quote = quote_create_new(ataccount, opportunity, datetime.now() + timedelta(days=14), opportunity.Title)
+            if request.POST.get('AVG', False) != False:
+                sold_products['AVG'] = request.POST['AVG-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="AVG",
+                                      account_id=account_id,
+                                      product_id='29729474',
+                                      product_cost=5.50,
+                                      product_price=float(sold_products['AVG'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29729474,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = "AVG Internet Security 2016",
+                  UnitCost = 5.50,
+                  UnitPrice = float(sold_products['AVG'])/1.2,
+                )
+            if request.POST.get('SSD128', False) != False:
+                sold_products['SSD128'] = request.POST['SSD128-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="SSD128",
+                                      account_id=account_id,
+                                      product_id='29730653',
+                                      product_cost=41.25,
+                                      product_price=float(sold_products['SSD128'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730653,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = "128GB SSD",
+                  UnitCost = 41.25,
+                  UnitPrice = float(sold_products['SSD128'])/1.2,
+                )
+            if request.POST.get('SSD256', False) != False:
+                sold_products['SSD256'] = request.POST['SSD256-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="SSD256",
+                                      account_id=account_id,
+                                      product_id='29730661',
+                                      product_cost=56.65,
+                                      product_price=float(sold_products['SSD256'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730661,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = "256GB SSD",
+                  UnitCost = 56.65,
+                  UnitPrice = float(sold_products['SSD256'])/1.2,
+                )
+            if request.POST.get('SSD512', False) != False:
+                sold_products['SSD512'] = request.POST['SSD512-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="SSD512",
+                                      account_id=account_id,
+                                      product_id='29730506',
+                                      product_cost=125.36,
+                                      product_price=float(sold_products['SSD512'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730506,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = "512GB SSD",
+                  UnitCost = 125.36,
+                  UnitPrice = float(sold_products['SSD512'])/1.2,
+                )
+            if request.POST.get('HDD50025', False) != False:
+                sold_products['HDD50025'] = request.POST['HDD50025-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="HDD50025",
+                                      account_id=account_id,
+                                      product_id='29730662',
+                                      product_cost=35.40,
+                                      product_price=float(sold_products['HDD50025'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730662,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = '2.5" 500GB HDD',
+                  UnitCost = 35.40,
+                  UnitPrice = float(sold_products['HDD50025'])/1.2,
+                )
+            if request.POST.get('HDD100025', False) != False:
+                sold_products['HDD100025'] = request.POST['HDD100025-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="HDD100025",
+                                      account_id=account_id,
+                                      product_id='29730663',
+                                      product_cost=36.24,
+                                      product_price=float(sold_products['HDD100025'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730663,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = '2.5" 1TB HDD',
+                  UnitCost = 36.24,
+                  UnitPrice = float(sold_products['HDD100025'])/1.2,
+                )
+            if request.POST.get('HDD50035', False) != False:
+                sold_products['HDD50035'] = request.POST['HDD50035-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="HDD50035",
+                                      account_id=account_id,
+                                      product_id='29730037',
+                                      product_cost=35.82,
+                                      product_price=float(sold_products['HDD50035'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730037,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = '3.5" 500GB HDD',
+                  UnitCost = 35.82,
+                  UnitPrice = float(sold_products['HDD50035'])/1.2,
+                )
+            if request.POST.get('HDD100035', False) != False:
+                sold_products['HDD100035'] = request.POST['HDD100035-PRICE']
+                # Save information to our own DB
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="HDD100035",
+                                      account_id=account_id,
+                                      product_id='29730664',
+                                      product_cost=36.24,
+                                      product_price=float(sold_products['HDD100035'])/1.2,
+                                      opportunity_id=opportunity.id)
+                # Now to add item onto quote
+                new_quote_item = quote_item_create_new(quote,
+                  IsOptional = False,
+                  LineDiscount = 0,
+                  PercentageDiscount = 0,
+                  Quantity = 1,
+                  ProductID = 29730664,
+                  PeriodType = atvar.QuoteItem_PeriodType_OneTime,
+                  Type = atvar.QuoteItem_Type_Product,
+                  UnitDiscount = 0,
+                  Name = '3.5" 1TB HDD',
+                  UnitCost = 36.24,
+                  UnitPrice = float(sold_products['HDD100035'])/1.2,
+                )
+
     except NameError:
         opportunity = None
         return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
@@ -640,6 +798,9 @@ def quote_item_create_new(quote, **kwargs):
     new_quote_item.Type = kwargs.get('Type', None)
     new_quote_item.UnitDiscount = kwargs.get('UnitDiscount', None)
     new_quote_item.Name = kwargs.get('Name', None)
+    new_quote_item.Description = kwargs.get('Description', None)
+    new_quote_item.UnitCost = kwargs.get('UnitCost', None)
+    new_quote_item.UnitPrice = kwargs.get('UnitPrice', None)
     quote_item = at.create(new_quote_item).fetch_one()
     return quote_item
 

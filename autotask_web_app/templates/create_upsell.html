@@ -68,67 +68,68 @@ $(document).ready(function () {
         </div>
       </div>
       <div class="portlet-body">
-        <div class="row">
+        <div class="row container">
             <div class="card-block">
-              <h4>Which items did you sell?</h4>
               <form id="create-upsell" action="{% url 'create_upsell' ataccount.id %}" method="post">
                 {% csrf_token %}
                   <div class="form-group">
+                    <div class="input-group input-large">
+                      <input name="opportunity-name" type="text" class="form-control" placeholder="Enter Opportunity Name">
+                    </div>
+                    <br>
+                    <br>
+                    <h5>Which items did you sell?</54>
+                    <hr>
                     <h5>Software</h5>
-                      <div class="input-group input-large">
+                      <div class="input-group ">
                         <span class="input-group-addon">
-                            <input name="AVG" type="checkbox"> AVG</span>
-                        <input name="AVG-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                            <input name="AVG" type="checkbox"> AVG (RRP: £40)</span>
+                        <input name="AVG-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
                       <hr width="320">
                       <h5>SSD's</h5>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="SSD128" type="checkbox"> 128GB SSD</span>
-                        <input name="SSD128-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group">
+                        <span class="input-group-addon" style="min-width: 195px; text-align: left;">
+                            <input name="SSD128" type="checkbox"> 128GB SSD (RRP: £80)</span>
+                        <input name="SSD128-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="SSD256" type="checkbox"> 256GB SSD</span>
-                        <input name="SSD256-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group ">
+                        <span class="input-group-addon" style="min-width: 195px; text-align: left;">
+                            <input name="SSD256" type="checkbox"> 256GB SSD (RRP: £109)</span>
+                        <input name="SSD256-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="SSD512" type="checkbox"> 512GB SSD</span>
-                        <input name="SSD512-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group ">
+                        <span class="input-group-addon" style="min-width: 195px; text-align: left;">
+                            <input name="SSD512" type="checkbox"> 512GB SSD (RRP: £199)</span>
+                        <input name="SSD512-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
                       <hr width="320">
                       <h5>Hard Drives</h5>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="HDD50025" type="checkbox"> 2.5" 500GB HDD</span>
-                        <input name="HDD50025-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group">
+                        <span class="input-group-addon" style="min-width: 220px; text-align: left;">
+                            <input name="HDD50025" type="checkbox"> 2.5" 500GB HDD (RRP: £66)</span>
+                        <input name="HDD50025-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="HDD100025" type="checkbox"> 2.5" 1TB HDD</span>
-                        <input name="HDD100025-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group">
+                        <span class="input-group-addon" style="min-width: 220px; text-align: left;">
+                            <input name="HDD100025" type="checkbox"> 2.5" 1TB HDD (RRP: £79)</span>
+                        <input name="HDD100025-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="HDD50035" type="checkbox"> 3.5" 500GB HDD</span>
-                        <input name="HDD50035-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group">
+                        <span class="input-group-addon" style="min-width: 220px; text-align: left;">
+                            <input name="HDD50035" type="checkbox"> 3.5" 500GB HDD (RRP: £69)</span>
+                        <input name="HDD50035-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
-                      <div class="input-group input-large">
-                        <span class="input-group-addon">
-                            <input name="HDD100035" type="checkbox"> 3.5" 1TB HDD</span>
-                        <input name="HDD100035-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)">
+                      <div class="input-group">
+                        <span class="input-group-addon" style="min-width: 220px; text-align: left;">
+                            <input name="HDD100035" type="checkbox"> 3.5" 1TB HDD (RRP: £84)</span>
+                        <input name="HDD100035-PRICE" type="text" class="form-control" placeholder="Enter sale price (£)" style="width: 150px;">
                       </div>
                   </div>
               </div>
           </div>
-          <input type="submit" style="margin-top: 10px;" />
+          <input type="submit" style="margin-top: 10px;" class="btn green"/>
         </form>
-        {% for key, value in sold_products.items %}
-            {{ key }}: {{ value }}
-        {% endfor %}
-
-        {{ test }}
       </div>
   </div>
 </div>

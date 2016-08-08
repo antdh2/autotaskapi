@@ -49,4 +49,5 @@ class Upsell(models.Model):
     product_cost = models.FloatField()
     product_id = models.IntegerField()
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    opportunity_id = models.CharField(max_length=254)
     created_at = models.DateTimeField(auto_now_add=True)
