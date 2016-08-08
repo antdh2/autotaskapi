@@ -50,7 +50,7 @@
         <link href="{% static 'assets/pages/css/pricing.min.css' %}" rel="stylesheet" type="text/css" />
         <link href="{% static 'assets/pages/css/profile.min.css' %}" rel="stylesheet" type="text/css" />
         <!-- END THEME LAYOUT STYLES -->
-        <link rel="shortcut icon" href="favicon.ico" />
+        <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" />
         <script>
         function printDiv(divName) {
               var printContents = document.getElementById(divName).innerHTML;
@@ -187,23 +187,19 @@
                                       <a href="{% url 'djstripe:account' %}">
                                           <i class="fa fa-gbp"></i> Payment Settings </a>
                                   </li>
-                                  <li>
-                                      <a href="app_inbox.html">
+                                  <li class="disabled">
+                                      <a href="#">
                                           <i class="icon-envelope-open"></i> My Inbox
                                           <span class="badge badge-danger"> 3 </span>
                                       </a>
                                   </li>
-                                  <li>
-                                      <a href="app_todo_2.html">
+                                  <li class="disabled">
+                                      <a href="#">
                                           <i class="icon-rocket"></i> My Tasks
                                           <span class="badge badge-success"> 7 </span>
                                       </a>
                                   </li>
                                   <li class="divider"> </li>
-                                  <li>
-                                      <a href="page_user_lock_1.html">
-                                          <i class="icon-lock"></i> Lock Screen </a>
-                                  </li>
                                   <li>
                                       <a href="{% url 'account_logout' %}">
                                           <i class="icon-key"></i> Log Out </a>
@@ -269,7 +265,7 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item {% if module == 'customerservices' %} active open{% endif %} ">
+                    <li class="nav-item {% if module == 'servicedesk' %} active open{% endif %} ">
                         <a href="javascript:;" class="nav-link nav-toggle">
                             <i class="fa fa-wheelchair fa-2x"></i>
                             <span class="title">Service Desk</span>
@@ -277,7 +273,7 @@
                             <span class="selected"></span>
                         </a>
                         <ul class="sub-menu">
-                          <li class="nav-item {% if page == 'create-ticket' %} active {% endif %}">
+                          <li class="nav-item {% if page == 'view-tickets' %} active {% endif %}">
                               <a href="{% url 'index' %}" class="nav-link ">
                                   <i class="icon-docs"></i> <span class="title">View All Tickets</span>
                               </a>
@@ -289,7 +285,7 @@
                           </li>
                         </ul>
                     </li>
-                    <li class="nav-item {% if page == 'settings' %} active open{% endif %} ">
+                    <li class="nav-item {% if module == 'sales' %} active open{% endif %} ">
                         <a href="javascript:;" class="nav-link nav-toggle">
                             <i class="fa fa-line-chart fa-2x"></i>
                             <span class="title">Sales</span>
@@ -302,9 +298,14 @@
                                   <i class="fa fa-gbp"></i> <span class="title">Create Upsell</span>
                               </a>
                           </li>
+                          <li class="nav-item {% if page == 'products' %} active {% endif %}">
+                              <a href="{% url 'index' %}" class="nav-link ">
+                                  <i class="fa fa-shopping-cart"></i> <span class="title">Product Database</span>
+                              </a>
+                          </li>
                         </ul>
                     </li>
-                    <li class="nav-item {% if page == 'settings' %} active open{% endif %} ">
+                    <li class="nav-item {% if module == 'billing' %} active open{% endif %} ">
                         <a href="javascript:;" class="nav-link nav-toggle">
                             <i class="fa fa-money fa-2x"></i>
                             <span class="title">Billing</span>
@@ -312,9 +313,9 @@
                             <span class="selected"></span>
                         </a>
                         <ul class="sub-menu">
-                          <li class="nav-item  ">
-                              <a href="{% url 'profile' user.id %}" class="nav-link ">
-                                  <span class="title">Autotask Login</span>
+                          <li class="nav-item {% if page == 'mysubscription' %} active {% endif %} ">
+                              <a href="{% url 'djstripe:account' %}" class="nav-link ">
+                                    <i class="fa fa-credit-card"></i> <span class="title">My Subscription</span>
                               </a>
                           </li>
                         </ul>
