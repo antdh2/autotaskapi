@@ -20,7 +20,7 @@ import autotask_web_app.forms
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile, BookingInDetails
+from .models import Profile, BookingInDetails, Upsell
 from account.signals import user_logged_in
 
 
@@ -55,22 +55,63 @@ def profile(request, id):
                 return render(request, 'index.html', {"page": page, "at": at})
             else:
                 return render(request, 'account/profile.html', {"page": page, "at": at})
-    return render(request, 'account/profile.html', {})
+
+    # Now figure out sales figures
+    upsells = Upsell.objects.filter(profile=request.user.profile)
+    total_revenue = 0
+    total_profit = 0
+    for upsell in upsells:
+        total_revenue += upsell.product_price
+        x = upsell.product_price - upsell.product_cost
+        total_profit += x
+    return render(request, 'account/profile.html', {"total_revenue": round(total_revenue,2), "upsells": upsells.count, "total_profit": round(total_profit,2)})
+
+def profile_overview(request, id):
+    page = 'profile_overview'
+    # Work out revenue for user
+    upsells = Upsell.objects.filter(profile=request.user.profile)
+    total_revenue = 0
+    total_profit = 0
+    for upsell in upsells:
+        total_revenue += upsell.product_price
+        x = upsell.product_price - upsell.product_cost
+        total_profit += x
+
+
+    return render(request, 'account/profile_overview.html', {"total_revenue": round(total_revenue,2), "upsells": upsells.count, "total_profit": round(total_profit,2)})
 
 def create_upsell(request, id):
     account_id = id
     ataccount = get_account(account_id)
-
+    sold_products = {}
+    test = None
     try:
         if request.method == 'POST':
-            AVG = request.POST.get('AVG', False)
-            SSD128 = request.POST.get('SSD128', False)
-            SSD256 = request.POST.get('SSD256', False)
-            SSD512 = request.POST.get('SSD512', False)
-            HDD50025 = request.POST.get('HDD50025', False)
-            HDD100025 = request.POST.get('HDD100025', False)
-            HDD50035 = request.POST.get('HDD50035', False)
-            HDD100035 = request.POST.get('HDD100035', False)
+            if request.POST.get('AVG', False) != False:
+                sold_products['AVG'] = request.POST['AVG-PRICE']
+                upsell_create_new(request.user.profile, sold_products, account_id, 29729474, 5.50)
+            if request.POST.get('SSD128', False) != False:
+                sold_products['SSD128'] = request.POST['SSD128-PRICE']
+                Upsell.objects.create(profile=request.user.profile,
+                                      product_name="SSD128",
+                                      account_id=account_id,
+                                      product_id='29730653',
+                                      product_cost=40,
+                                      product_price=sold_products['SSD128'])
+            if request.POST.get('SSD256', False) != False:
+                sold_products['SSD256'] = request.POST['SSD256-PRICE']
+            if request.POST.get('SSD512', False) != False:
+                sold_products['SSD512'] = request.POST['SSD512-PRICE']
+            if request.POST.get('HDD50025', False) != False:
+                sold_products['HDD50025'] = request.POST['HDD50025-PRICE']
+            if request.POST.get('HDD100025', False) != False:
+                sold_products['HDD100025'] = request.POST['HDD100025-PRICE']
+            if request.POST.get('HDD50035', False) != False:
+                sold_products['HDD50035'] = request.POST['HDD50035-PRICE']
+            if request.POST.get('HDD100035', False) != False:
+                sold_products['HDD100035'] = request.POST['HDD100035-PRICE']
+
+            test = sold_products['AVG']
             # First we need to create a new opportunity
             opportunity = opportunity_create_new(
                 AccountID = account_id,
@@ -106,7 +147,7 @@ def create_upsell(request, id):
         return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
     opportunity = None
 
-    return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity})
+    return render(request, 'create_upsell.html', {"ataccount": ataccount, "opportunity": opportunity, "sold_products": sold_products, "test": test})
 
 # For booking in form only
 ticket_account = {}
@@ -564,7 +605,10 @@ def quote_create_new(account, opportunity, expirydate, name, **kwargs):
     # First we must create a quote location
     new_quote_location = at.new('QuoteLocation')
     new_quote_location.Address1 = account.Address1
-    new_quote_location.Address2 = account.Address2
+    try:
+        new_quote_location.Address2 = account.Address2
+    except AttributeError:
+        new_quote_location.Address2 = ''
     new_quote_location.City = account.City
     new_quote_location.PostalCode = account.PostalCode
     quote_location = at.create(new_quote_location).fetch_one()
@@ -598,6 +642,17 @@ def quote_item_create_new(quote, **kwargs):
     new_quote_item.Name = kwargs.get('Name', None)
     quote_item = at.create(new_quote_item).fetch_one()
     return quote_item
+
+def upsell_create_new(profile, sold, account_id, product_id, cost, **kwargs):
+    # Now save info to DB
+    for key, value in sold.items():
+        Upsell.objects.create(profile=profile,
+                              product_name=key,
+                              account_id=account_id,
+                              product_id=product_id,
+                              product_cost=cost,
+                              product_price=value,)
+
 
 ############################################################
 #

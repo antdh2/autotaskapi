@@ -13,6 +13,8 @@ class Profile(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 class BookingInDetails(models.Model):
     account_id = models.CharField(max_length=254)
@@ -38,3 +40,13 @@ class BookingInDetails(models.Model):
     other = models.CharField(max_length=254)
     rside = models.CharField(max_length=254)
     rside = models.CharField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Upsell(models.Model):
+    product_name = models.CharField(max_length=254)
+    account_id = models.CharField(max_length=254)
+    product_price = models.FloatField()
+    product_cost = models.FloatField()
+    product_id = models.IntegerField()
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
