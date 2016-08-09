@@ -455,6 +455,10 @@ def index(request):
             # map account_id to the inputted value
             account_name = request.POST['account-name']
             accounts = resolve_account_name(account_name)
+            ticket = get_ticket_from_id(57353)
+            opportunity = get_opportunity_from_id(29736290)
+            ticket.OpportunityId = opportunity.id
+            ticket.update()
             #account_id = resolve_account_id(account_name)
             # then get autotask account using that ID
         else:
@@ -621,6 +625,12 @@ def get_ticket_from_id(ticket_id):
     tquery.WHERE('id',tquery.Equals,ticket_id)
     ticket = at.query(tquery).fetch_one()
     return ticket
+
+def get_opportunity_from_id(opportunity_id):
+    tquery = atws.Query('Opportunity')
+    tquery.WHERE('id',tquery.Equals,opportunity_id)
+    opportunity = at.query(tquery).fetch_one()
+    return opportunity
 
 
 def get_ticket_info(tickets):
