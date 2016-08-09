@@ -47,6 +47,13 @@ def profile(request, id):
     page = 'profile'
     # First we must connect to autotask using valid credentials
     if request.method == "POST":
+        if request.POST.get('editprofile', False):
+            profile = Profile.objects.filter(user_id=id)
+            profile.first_name = request.POST['profile-firstname']
+            profile.last_name = request.POST['profile-lastname']
+            profile.about = request.POST['profile-about']
+            profile.update()
+            return render(request, 'account/profile.html', {"page": page, "profile": profile})
         if request.POST.get('autotasklogin', False):
             at = None
             username = request.POST['username']
@@ -56,7 +63,7 @@ def profile(request, id):
                 messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
                 return render(request, 'index.html', {"page": page, "at": at})
             else:
-                return render(request, 'account/profile.html', {"page": page, "at": at})
+                return render(request, 'account/profile.html', {"page": page, "at": at, "profile": profile})
 
     # Now figure out sales figures
     upsells = Upsell.objects.filter(profile=request.user.profile)
@@ -87,6 +94,8 @@ def create_upsell(request, id):
     ataccount = get_account(account_id)
     sold_products = {}
     test = None
+    module = "sales"
+    page = "create-upsell"
     try:
         if request.method == 'POST':
             # First we need to create a new opportunity for our quote items (we can validate front end for name to stop a NULL post request)
@@ -319,6 +328,8 @@ def booking_in_form(request):
     page = "booking-in-form"
     step = 1
     bookingindetails = None
+    if request.user:
+        at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     if request.method == 'POST':
         if request.POST.get('step1', False):
             # first we need to check this account doesn't already exist
@@ -500,8 +511,6 @@ def edit_ataccount(request, id):
     return render(request, 'edit_ataccount.html', {"ataccount": ataccount, "ACCOUNT_TYPES": ACCOUNT_TYPES})
 
 
-
-
 @login_required(login_url='/account/login/')
 def create_ticket(request, id):
     account_id = id
@@ -524,6 +533,7 @@ def create_ticket(request, id):
             )
             messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
     return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+
 
 @login_required(login_url='/account/login/')
 def create_home_user_ticket(request, id):
