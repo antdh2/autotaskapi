@@ -321,6 +321,8 @@ ticket_account = {}
 ticket_contact = {}
 ticket_sheet_obj = {}
 ticket_misc = {}
+opportunity_obj = {}
+bookingin_obj = {}
 @login_required(login_url='/account/login/')
 @subscription_payment_required
 def booking_in_form(request):
@@ -328,6 +330,7 @@ def booking_in_form(request):
     page = "booking-in-form"
     step = 1
     bookingindetails = None
+    contacts = None
     if request.user:
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     if request.method == 'POST':
@@ -391,31 +394,10 @@ def booking_in_form(request):
                 ticket_contact['ContactID'] = new_contact.id
                 ticket_contact['ContactObj'] = new_contact
         if request.POST.get('step2', False):
-            # this is for list of contacts displayed
-            ticket_contact['ContactID'] = request.POST['contact']
-            # first grab account from step 1
-            # then create a new autotask ticket from form fields
-            new_ticket = ticket_create_new(True,
-                AccountID = ticket_account['AccountID'],
-                ContactID = ticket_contact['ContactID'],
-                Title = request.POST['description'],
-                Description = request.POST['description'],
-                DueDateTime = request.POST['duedatetime'],
-                EstimatedHours = request.POST['estimatedhours'],
-                Priority = request.POST['priority'],
-                Status = request.POST['status'],
-                QueueID = request.POST['queueid'],
-                Source = atvar.Ticket_Source_InPersonatSupportCentre
-            )
-            step = 3
-            ticket_sheet_obj['Ticket'] = new_ticket
-        if request.POST.get('step3', False):
             # Now to grab all input from user for additional fields
             # But first we must create a BookingInDetails object to store data in the DB
             bookingindetails = BookingInDetails.objects.create(profile=request.user.profile)
             bookingindetails.account_id = ticket_account['AccountID']
-            ticket = ticket_sheet_obj['Ticket']
-            bookingindetails.ticket_id = ticket.TicketNumber
             bookingindetails.software_collected = request.POST['software-collected']
             bookingindetails.chargers_collected = request.POST['chargers-collected']
             bookingindetails.cables_collected = request.POST['cables-collected']
@@ -436,9 +418,152 @@ def booking_in_form(request):
             bookingindetails.keyboard = request.POST['keyboard']
             bookingindetails.other = request.POST['other']
             bookingindetails.save()
-            step = 4
+            bookingin_obj['id'] = bookingindetails.id
+            # If booking in an MOT then create the opportunity and quote
+            if request.POST['action-required'] == "MOT":
+                opportunity = opportunity_create_new(
+                    AccountID = ticket_account['AccountID'],
+                    Amount = 5,
+                    Cost = 1,
+                    CreateDate = time.strftime("%d.%m.%Y"),
+                    OwnerResourceID = 29715730, # AH
+                    Probability = 100,
+                    ProjectedCloseDate = time.strftime("%d.%m.%Y"),
+                    Stage = atvar.Opportunity_Stage_QWOrderReceived,
+                    Status = atvar.Opportunity_Status_Active,
+                    Title = request.POST['action-required'],
+                    UseQuoteTotals = True,
+                    LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
+                )
+                # Save information for upsell to our own DB
+                upsell = Upsell.objects.create(profile=request.user.profile,
+                                      product_name="MOT",
+                                      account_id=ticket_account['AccountID'],
+                                      product_id='29690896',
+                                      product_cost=0,
+                                      product_price=float(49)/1.2,
+                                      opportunity_id=opportunity.id)
+                ticket_misc['allocationcodeid'] = upsell.product_id
+                opportunity_obj['OpportunityId'] = opportunity.id
+                opportunity_obj['Opportunity'] = opportunity
+                # Before creating a quote we must have a quote location (handled in function)
+                # Then we need to create a quote with the items in, all done with below function
+                quote = quote_create_new(ticket_account['AccountObj'], opportunity, datetime.now() + timedelta(days=14), opportunity.Title)
+            # If booking in an Diagnostic then create the opportunity and quote
+            if request.POST['action-required'] == "Diagnostic":
+                opportunity = opportunity_create_new(
+                    AccountID = ticket_account['AccountID'],
+                    Amount = 5,
+                    Cost = 1,
+                    CreateDate = time.strftime("%d.%m.%Y"),
+                    OwnerResourceID = 29715730, # AH
+                    Probability = 100,
+                    ProjectedCloseDate = time.strftime("%d.%m.%Y"),
+                    Stage = atvar.Opportunity_Stage_QWOrderReceived,
+                    Status = atvar.Opportunity_Status_Active,
+                    Title = request.POST['action-required'],
+                    UseQuoteTotals = True,
+                    LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
+                )
+                # Save information for upsell to our own DB
+                upsell = Upsell.objects.create(profile=request.user.profile,
+                                      product_name="Diagnostic",
+                                      account_id=ticket_account['AccountID'],
+                                      product_id='29690897',
+                                      product_cost=0,
+                                      product_price=float(25)/1.2,
+                                      opportunity_id=opportunity.id)
+                ticket_misc['allocationcodeid'] = upsell.product_id
+                opportunity_obj['OpportunityId'] = opportunity.id
+                opportunity_obj['Opportunity'] = opportunity
+                # Before creating a quote we must have a quote location (handled in function)
+                # Then we need to create a quote with the items in, all done with below function
+                quote = quote_create_new(ticket_account['AccountObj'], opportunity, datetime.now() + timedelta(days=14), opportunity.Title)
+            # If booking in a Reload then create the opportunity and quote
+            if request.POST['action-required'] == "Reload":
+                opportunity = opportunity_create_new(
+                    AccountID = ticket_account['AccountID'],
+                    Amount = 5,
+                    Cost = 1,
+                    CreateDate = time.strftime("%d.%m.%Y"),
+                    OwnerResourceID = 29715730, # AH
+                    Probability = 100,
+                    ProjectedCloseDate = time.strftime("%d.%m.%Y"),
+                    Stage = atvar.Opportunity_Stage_QWOrderReceived,
+                    Status = atvar.Opportunity_Status_Active,
+                    Title = request.POST['action-required'],
+                    UseQuoteTotals = True,
+                    LeadReferral = atvar.Opportunity_LeadReferral_SalesOfficeSuggestion,
+                )
+                # Save information for upsell to our own DB
+                upsell = Upsell.objects.create(profile=request.user.profile,
+                                              product_name="Reload",
+                                              account_id=ticket_account['AccountID'],
+                                              product_id='29690898',
+                                              product_cost=0,
+                                              product_price=float(90)/1.2,
+                                              opportunity_id=opportunity.id)
+                ticket_misc['allocationcodeid'] = upsell.product_id
+                opportunity_obj['OpportunityId'] = opportunity.id
+                opportunity_obj['Opportunity'] = opportunity
+                # Before creating a quote we must have a quote location (handled in function)
+                # Then we need to create a quote with the items in, all done with below function
+                quote = quote_create_new(ticket_account['AccountObj'], opportunity, datetime.now() + timedelta(days=14), opportunity.Title)
+            # Set which option was selected to a dict so we can access it in step 3 for ticket cost item
+            ticket_misc['action-required'] = request.POST['action-required']
+            # Now we need to find a contact for the account
+            # First we need to find all contacts with an AccountID equal to our account.id object
+            contacts = get_contacts_for_account(ticket_account['AccountID'])
+            step = 3
             messages.add_message(request, messages.SUCCESS, 'Successfully gathered customer information')
-    return render(request, 'booking_in_form.html', {"page": page, "module": module, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc, "bookingindetails": bookingindetails})
+        if request.POST.get('step3', False):
+            # this is for list of contacts displayed
+            ticket_contact['ContactID'] = request.POST['contact']
+            # first grab account from step 1
+            # then create a new autotask ticket from form fields
+            new_ticket = ticket_create_new(True,
+                AccountID = ticket_account['AccountID'],
+                ContactID = ticket_contact['ContactID'],
+                Title = request.POST['title'],
+                Description = request.POST['description'],
+                DueDateTime = request.POST['duedatetime'],
+                EstimatedHours = request.POST['estimatedhours'],
+                Priority = request.POST['priority'],
+                Status = request.POST['status'],
+                QueueID = request.POST['queueid'],
+                Source = atvar.Ticket_Source_InPersonatSupportCentre,
+                OpportunityId = opportunity_obj['OpportunityId']
+            )
+            step = 4
+            # Update DB entry with ticket information
+            ticket_sheet_obj['Ticket'] = new_ticket
+            bookingindetail_to_update = BookingInDetails.objects.get(id=bookingin_obj['id'])
+            bookingindetail_to_update.ticket_id = new_ticket.TicketNumber
+            bookingindetail_to_update.save()
+            # Now we add the relevent charge onto the ticket.
+            if ticket_misc['action-required'] == "MOT":
+                ticket_cost_item = ticket_cost_item_create_new(new_ticket,
+                    Name = "PC MOT Service Charge",
+                    AllocationCodeID = int(ticket_misc['allocationcodeid']),
+                    CostType = 1,
+                    DatePurchased = time.strftime("%d.%m.%Y"),
+                    UnitQuantity = 1)
+            if ticket_misc['action-required'] == "Diagnostic":
+                ticket_cost_item = ticket_cost_item_create_new(new_ticket,
+                    Name = "PC Diagnostic Service Charge",
+                    AllocationCodeID = int(ticket_misc['allocationcodeid']),
+                    CostType = 1,
+                    DatePurchased = time.strftime("%d.%m.%Y"),
+                    UnitQuantity = 1)
+            if ticket_misc['action-required'] == "Reload":
+                ticket_cost_item = ticket_cost_item_create_new(new_ticket,
+                    Name = "PC Reload Service Charge",
+                    AllocationCodeID = int(ticket_misc['allocationcodeid']),
+                    CostType = 1,
+                    DatePurchased = time.strftime("%d.%m.%Y"),
+                    UnitQuantity = 1)
+
+    return render(request, 'booking_in_form.html', {"page": page, "module": module, "at": at, "step": step, "ACCOUNT_TYPES": ACCOUNT_TYPES, "PRIORITY": PRIORITY, "STATUS": STATUS, "QUEUE_IDS": QUEUE_IDS, "ticket_account": ticket_account, "ticket_contact": ticket_contact, "ticket_sheet_obj": ticket_sheet_obj, "ticket_misc": ticket_misc, "bookingindetails": bookingindetails, "contacts": contacts, "opportunity_obj": opportunity_obj, "bookingin_obj": bookingin_obj})
 
 
 @login_required(login_url='/account/login/')
@@ -733,6 +858,7 @@ def opportunity_create_new(**kwargs):
 def ticket_create_new(validated, **kwargs):
     new_ticket = at.new('Ticket')
     new_ticket.AccountID = kwargs.get('AccountID', None)
+    new_ticket.ContactID = kwargs.get('ContactID', None)
     new_ticket.Title = kwargs.get('Title', None)
     new_ticket.Description = kwargs.get('Description', None)
     new_ticket.DueDateTime = kwargs.get('DueDateTime', None)
@@ -740,6 +866,7 @@ def ticket_create_new(validated, **kwargs):
     new_ticket.Priority = kwargs.get('Priority', None)
     new_ticket.Status = kwargs.get('Status', None)
     new_ticket.QueueID = kwargs.get('QueueID', None)
+    new_ticket.OpportunityId = kwargs.get('OpportunityId', None)
     ticket = at.create(new_ticket).fetch_one()
     return ticket
 
@@ -825,6 +952,18 @@ def quote_item_create_new(quote, **kwargs):
     new_quote_item.UnitPrice = kwargs.get('UnitPrice', None)
     quote_item = at.create(new_quote_item).fetch_one()
     return quote_item
+
+
+def ticket_cost_item_create_new(ticket, **kwargs):
+    new_ticket_cost = at.new('TicketCost')
+    new_ticket_cost.AllocationCodeID = kwargs.get('AllocationCodeID', None)
+    new_ticket_cost.Name = kwargs.get('Name', None)
+    new_ticket_cost.CostType = kwargs.get('CostType', None)
+    new_ticket_cost.DatePurchased = kwargs.get('DatePurchased', None)
+    new_ticket_cost.TicketID = ticket.id
+    new_ticket_cost.UnitQuantity = kwargs.get('UnitQuantity', None)
+    ticket_cost = at.create(new_ticket_cost).fetch_one()
+    return ticket_cost
 
 def upsell_create_new(profile, sold, account_id, product_id, cost, **kwargs):
     # Now save info to DB
