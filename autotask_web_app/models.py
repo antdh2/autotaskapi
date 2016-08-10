@@ -52,3 +52,8 @@ class Upsell(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     opportunity_id = models.CharField(max_length=254)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Picklist(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    key = models.CharField(max_length=254)
+    value = models.CharField(max_length=254)

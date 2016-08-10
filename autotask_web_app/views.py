@@ -22,7 +22,7 @@ import autotask_web_app.forms
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile, BookingInDetails, Upsell
+from .models import Profile, BookingInDetails, Upsell, Picklist
 from account.signals import user_logged_in
 
 
@@ -988,6 +988,21 @@ def create_picklist(request):
     messages.add_message(request, messages.SUCCESS, 'Creating picklist...this can take a while depending on the size of your database.')
     return render(request, 'account/profile.html', {})
 
+
+def create_picklist_database(request):
+    file = open('atvar.py', 'r')
+    for line in file.readlines():
+        # Split the line by whitespace giving ['Account_TerritoryID_Local', '=', '29682778']
+        line_array = line.split()
+        # Set the key to array index 0
+        db_key = line_array[0]
+        # Now to build the atvar string and we must convert to int for conditions to work
+        db_value = line_array[2]
+        print(db_key + ": " + str(db_value))
+        Picklist.objects.create(profile=request.user.profile, key=db_key, value=db_value)
+    messages.add_message(request, messages.SUCCESS, 'Added all picklist entities to database')
+    return render(request, 'account/profile.html', {})
+
 def create_picklist_dict(dict_name, index, regex):
     file = open('atvar.py', 'r')
     for line in file.readlines():
@@ -1004,24 +1019,19 @@ def create_picklist_dict(dict_name, index, regex):
     return dict_name
 
 
-TICKET_SOURCES = {
-}
+TICKET_SOURCES = {}
 create_picklist_dict(TICKET_SOURCES, 2, '^Ticket_Source_')
 
-QUEUE_IDS = {
-}
+QUEUE_IDS = {}
 create_picklist_dict(QUEUE_IDS, 2, '^Ticket_QueueID_')
 
-PRIORITY = {
-}
+PRIORITY = {}
 create_picklist_dict(PRIORITY, 2, '^Ticket_Priority_')
 
-STATUS = {
-}
+STATUS = {}
 create_picklist_dict(STATUS, 2, '^Ticket_Status_')
 
-ACCOUNT_TYPES = {
-}
+ACCOUNT_TYPES = {}
 create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
 
 RESOURCE_ROLES = {
