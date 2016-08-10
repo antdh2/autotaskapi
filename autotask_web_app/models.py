@@ -57,3 +57,10 @@ class Picklist(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     key = models.CharField(max_length=254)
     value = models.CharField(max_length=254)
+
+class Validation(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    entity = models.CharField(max_length=254)
+    key = models.CharField(max_length=254)
+    operator = models.CharField(max_length=254)
+    value = models.CharField(max_length=254)

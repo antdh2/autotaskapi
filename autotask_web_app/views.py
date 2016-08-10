@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.core.files import File
+from django.utils.safestring import mark_safe
 
 import time
 import datetime
@@ -22,7 +23,7 @@ import autotask_web_app.forms
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile, BookingInDetails, Upsell, Picklist
+from .models import Profile, BookingInDetails, Upsell, Picklist, Validation
 from account.signals import user_logged_in
 
 
@@ -42,6 +43,28 @@ def handle_user_save(sender, instance, created, **kwargs):
 # All views must go inside of here
 #
 ############################################################
+key = {}
+def input_validation(request, id):
+    if request.user:
+        at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
+    existing_validations = Validation.objects.filter(profile=request.user.profile)
+    ticket = at.new('Ticket')
+    if request.method == "POST":
+        if request.POST.get('keyselect', False):
+            key = request.POST['key']
+            selected_key = key
+            values = Picklist.objects.filter(profile=request.user.profile, key__icontains="ticket_" + key)
+            return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "values": values, "selected_key": selected_key, "existing_validations": existing_validations})
+        if request.POST.get('savevalidation', False):
+            key = request.POST['selected_key']
+            value = request.POST['value']
+            operator = request.POST['operator']
+            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=request.POST['entity'])
+            return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "existing_validations": existing_validations})
+        if request.POST.get('existing_validations_delete', False):
+            validation_to_delete = Validation.objects.get(id=request.POST['existing_validations_delete'])
+            validation_to_delete.delete()
+    return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "existing_validations": existing_validations})
 
 def profile(request, id):
     page = 'profile'
@@ -662,31 +685,31 @@ def create_ticket(request, id):
 
 @login_required(login_url='/account/login/')
 def create_home_user_ticket(request, id):
+    if request.user:
+        at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     account_id = id
     ataccount = get_account(account_id)
-    # Preset fields for home user ticket creation
-    title = "Test Home User Ticket"
-    description = "Test Home User Description"
-    status = atvar.Ticket_Status_New
+    # Get all validation objects for ticket
+    ticket_validations = Validation.objects.filter(entity="Ticket")
     # Grab field values from user input, include predefined fields above
     if request.method == "POST":
         # custom validation rules
-        if request.POST['title'] != title:
-            messages.add_message(request, messages.ERROR, ('Cannot specify title other than ' + title))
-            return redirect("create_home_user_ticket.html", {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
-        else:
-            new_ticket = ticket_create_new(True,
-                AccountID = account_id,
-                Title = request.POST['title'],
-                Description = request.POST['description'],
-                DueDateTime = request.POST['duedatetime'],
-                EstimatedHours = request.POST['estimatedhours'],
-                Priority = request.POST['priority'],
-                Status = request.POST['status'],
-                QueueID = request.POST['queueid'],
-            )
-            messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "title": title, "description": description})
+        for validation in ticket_validations:
+            if request.POST[validation.key] != validation.value:
+                messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid. <br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+        return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+        new_ticket = ticket_create_new(True,
+            AccountID = account_id,
+            Title = request.POST['title'],
+            Description = request.POST['description'],
+            DueDateTime = request.POST['duedatetime'],
+            EstimatedHours = request.POST['estimatedhours'],
+            Priority = request.POST['priority'],
+            Status = request.POST['status'],
+            QueueID = request.POST['queueid'],
+        )
+        messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
 
 ############################################################
@@ -1029,6 +1052,17 @@ create_picklist_dict(STATUS, 2, '^Ticket_Status_')
 
 ACCOUNT_TYPES = {}
 create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
+
+OPERATORS = {
+    "Plus": '+',
+    "Minus": '-',
+    "Equal To": '==',
+    "Not Equal To": '!=',
+    "Greater Than": '>',
+    "Less Than": '<',
+    "Greater Than Or Equal To": '>=',
+    "Less Than Or Equal To": '<=',
+}
 
 RESOURCE_ROLES = {
     "Engineer": 29682834,

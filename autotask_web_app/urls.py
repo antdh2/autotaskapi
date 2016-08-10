@@ -3,6 +3,7 @@ from django.conf.urls import url, include
 from . import views
 
 urlpatterns = [
+    url(r'^account/profile/(?P<id>[0-9]+)/input_validation/$', views.input_validation, name='input_validation'),
     url(r'^account/profile/(?P<id>[0-9]+)/$', views.profile, name='profile'),
     url(r'^account/profile_overview/(?P<id>[0-9]+)/$', views.profile_overview, name='profile_overview'),
     url(r'^booking_in_form/$', views.booking_in_form, name='booking_in_form'),
