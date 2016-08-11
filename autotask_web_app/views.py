@@ -60,7 +60,10 @@ def input_validation(request, id):
             key = request.POST['selected_key']
             value = request.POST['value']
             operator = request.POST['operator']
-            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=request.POST['entity'])
+            # We have to find the picklist from atvar to associate the right number to the validation
+            # Validation object "value" should match the result of Picklist "key". ie. (atvar.)Ticket_Status_New on Validation should equal 1 on Picklist
+            picklist = Picklist.objects.get(key=value)
+            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=request.POST['entity'], picklist_number=picklist.value)
             return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "existing_validations": existing_validations})
         if request.POST.get('existing_validations_delete', False):
             validation_to_delete = Validation.objects.get(id=request.POST['existing_validations_delete'])
@@ -690,23 +693,11 @@ def create_home_user_ticket(request, id):
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     account_id = id
     ataccount = get_account(account_id)
-    # Get all validation objects for ticket
-    ticket_validations = Validation.objects.filter(entity="Ticket")
-    # Grab field values from user input, include predefined fields above
     if request.method == "POST":
-        # custom validation rules
-        validated = True
-        for validation in ticket_validations:
-            if validation.picklist_number == -100:
-                if not OPERATORS[validation.operator](request.POST[validation.key.lower()], validation.value):
-                    validated = False
-                    messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
-            elif validation.picklist_number != -100:
-                if not OPERATORS[validation.operator](int(request.POST[validation.key.lower()]), validation.picklist_number):
-                    validated = False
-                    messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+        # Check that we are validated for input
+        validated = validate_input(request, "Ticket")
         if not validated:
-            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "ticket_validations": ticket_validations, })
+            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
         new_ticket = ticket_create_new(True,
             AccountID = account_id,
             Title = request.POST['title'],
@@ -718,7 +709,7 @@ def create_home_user_ticket(request, id):
             QueueID = request.POST['queueid'],
         )
         messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "ticket_validations": ticket_validations, })
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
 
 ############################################################
@@ -726,6 +717,24 @@ def create_home_user_ticket(request, id):
 # All custom methods in here (NO VIEWS)
 #
 ############################################################
+
+
+def validate_input(request, entitytype):
+    ticket_validations = Validation.objects.filter(entity=entitytype)
+    # custom validation rules
+    validated = True
+    for validation in ticket_validations:
+        if validation.picklist_number == -100:
+            if not OPERATORS[validation.operator](request.POST[validation.key.lower()], validation.value):
+                validated = False
+                messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+        elif validation.picklist_number != -100:
+            if not OPERATORS[validation.operator](int(request.POST[validation.key.lower()]), validation.picklist_number):
+                validated = False
+                messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+    return validated
+
+
 
 def ataccount(request, id):
     account_id = id
@@ -1004,6 +1013,8 @@ def upsell_create_new(profile, sold, account_id, product_id, cost, **kwargs):
                               product_price=value,)
 
 
+
+
 ############################################################
 #
 # This is for the picklist module
@@ -1022,11 +1033,10 @@ def create_picklist_database(request):
     for line in file.readlines():
         # Split the line by whitespace giving ['Account_TerritoryID_Local', '=', '29682778']
         line_array = line.split()
-        # Set the key to array index 0
+        # Set the key to array index 0 to get left side of string, ie. Account_TerritoryID_Local
         db_key = line_array[0]
-        # Now to build the atvar string and we must convert to int for conditions to work
+        # Now select third element in index 2, ie. 29682778
         db_value = line_array[2]
-        print(db_key + ": " + str(db_value))
         Picklist.objects.create(profile=request.user.profile, key=db_key, value=db_value)
     messages.add_message(request, messages.SUCCESS, 'Added all picklist entities to database')
     return render(request, 'account/profile.html', {})

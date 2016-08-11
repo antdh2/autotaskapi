@@ -34,12 +34,11 @@
                                   <input type="hidden" name="keyselect" value="keyselect">
                                   <label for="key">Attribute</label>
                                   <select name="key" class="form-control" onchange="ticketkey.submit();">
+                                    {% if selected_key %}
+                                      <option value="{{ selected_key }}">{{ selected_key }}</option>
+                                    {% endif %}
                                     {% for key, value in ticket %}
-                                      {% if selected_key %}
-                                        <option value="{{ selected_key }}">{{ selected_key }}</option>
-                                      {% else %}
                                         <option value="{{ key }}">{{ key }}</option>
-                                      {% endif %}
                                     {% endfor %}
                                   </select>
                                 </form>
@@ -52,8 +51,8 @@
                                 {% csrf_token %}
                                 <label for="operator">Operator</label>
                                 <select name="operator" class="form-control">
-                                  {% for field, value in OPERATORS.items %}
-                                      <option value="{{ value }}">{{ value }}</option>
+                                  {% for key, value in OPERATORS.items %}
+                                      <option value="{{ key }}">{{ key }}</option>
                                   {% endfor %}
                                 </select>
                             </div>
