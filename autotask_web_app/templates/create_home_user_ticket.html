@@ -44,8 +44,6 @@ $(document).ready(function () {
 <div class="page-content-wrapper">
   <!-- BEGIN CONTENT BODY -->
   <div class="page-content">
-
-
     <div class="portlet light portlet-fit ">
       <div class="portlet-title">
         <div class="caption">
@@ -63,12 +61,12 @@ $(document).ready(function () {
                   {% csrf_token %}
                   <div class="form-group">
                     <label>Ticket Title</label>
-                        <input type="text" class="form-control" placeholder="Ticket Title" name="Title" id="title" {% if title %} value="{{ title }}">{% endif %}
+                        <input type="text" class="form-control" placeholder="Ticket Title" name="title" id="title" {% if title %} value="{{ title }}">{% endif %}
                   </div>
                   <br>
                   <div class="form-group">
                     <label>Ticket Description</label>
-                    <textarea class="form-control" rows="3" placeholder="Enter Ticket Description" name="Description" id="description">{% if description %} {{ description }} {% endif %}</textarea>
+                    <textarea class="form-control" rows="3" placeholder="Enter Ticket Description" name="description" id="description">{% if description %} {{ description }} {% endif %}</textarea>
                   </div>
 
                   <label>Ticket Due Date</label>
@@ -79,7 +77,7 @@ $(document).ready(function () {
                   <br>
                   <div class="form-group">
                     <label>Ticket Estimated Hours</label>
-                        <input type="text" class="form-control" placeholder="Estimated Hours" name="EstimatedHours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" {% endif %}></input>
+                        <input type="text" class="form-control" placeholder="Estimated Hours" name="estimatedhours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" {% endif %}></input>
                   <br>
                   <label>Ticket Priority</label>
                   <select class="form-control priority" name="priority" id="priority">
@@ -89,7 +87,7 @@ $(document).ready(function () {
                   </select>
                   <br>
                   <label>Ticket Status</label>
-                  <select class="form-control" name="Status" id="status">
+                  <select class="form-control" name="status" id="status">
                     {% for field, value in STATUS.items %}
                         <option value="{{ value }}">{{ field }}</option>
                     {% endfor %}

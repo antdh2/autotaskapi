@@ -63,4 +63,5 @@ class Validation(models.Model):
     entity = models.CharField(max_length=254)
     key = models.CharField(max_length=254)
     operator = models.CharField(max_length=254)
+    picklist_number = models.IntegerField()
     value = models.CharField(max_length=254)

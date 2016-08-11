@@ -20,6 +20,7 @@ import atws.monkeypatch.attributes
 import account.views
 import account.forms
 import autotask_web_app.forms
+import operator
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
@@ -694,10 +695,18 @@ def create_home_user_ticket(request, id):
     # Grab field values from user input, include predefined fields above
     if request.method == "POST":
         # custom validation rules
+        validated = True
         for validation in ticket_validations:
-            if request.POST[validation.key] != validation.value:
-                messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid. <br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
-        return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+            if validation.picklist_number == -100:
+                if not OPERATORS[validation.operator](request.POST[validation.key.lower()], validation.value):
+                    validated = False
+                    messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+            elif validation.picklist_number != -100:
+                if not OPERATORS[validation.operator](int(request.POST[validation.key.lower()]), validation.picklist_number):
+                    validated = False
+                    messages.add_message(request, messages.ERROR, mark_safe(validation.key + " not valid.<br><small>" + validation.key + " must be " + validation.operator + " " + validation.value + "</small>"))
+        if not validated:
+            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "ticket_validations": ticket_validations, })
         new_ticket = ticket_create_new(True,
             AccountID = account_id,
             Title = request.POST['title'],
@@ -709,7 +718,7 @@ def create_home_user_ticket(request, id):
             QueueID = request.POST['queueid'],
         )
         messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "ticket_validations": ticket_validations, })
 
 
 ############################################################
@@ -1054,15 +1063,17 @@ ACCOUNT_TYPES = {}
 create_picklist_dict(ACCOUNT_TYPES, 2, '^Account_AccountType_')
 
 OPERATORS = {
-    "Plus": '+',
-    "Minus": '-',
-    "Equal To": '==',
-    "Not Equal To": '!=',
-    "Greater Than": '>',
-    "Less Than": '<',
-    "Greater Than Or Equal To": '>=',
-    "Less Than Or Equal To": '<=',
+    "+": operator.add,
+    "-": operator.sub,
+    "==": operator.eq,
+    "!=": operator.ne,
+    ">": operator.gt,
+    "<": operator.lt,
+    ">=": operator.ge,
+    "<=": operator.le,
 }
+
+
 
 RESOURCE_ROLES = {
     "Engineer": 29682834,
