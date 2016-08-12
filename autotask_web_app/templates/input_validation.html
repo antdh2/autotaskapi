@@ -2,11 +2,12 @@
 {% load staticfiles %}
 {% block page %}
 
+
 <!-- BEGIN CONTENT -->
 <div class="page-content-wrapper">
   <div class="page-content">
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="portlet light ">
                 <div class="portlet-title tabbable-line">
                     <div class="caption caption-md">
@@ -23,128 +24,217 @@
                     </ul>
                 </div>
                 <div class="portlet-body">
-                    <div class="tab-content">
+                    <div class="tab-content" >
                         <!-- PERSONAL INFO TAB -->
                         <div class="tab-pane active" id="tab_2_1">
-                          <p>Configure the following parameters for ticket validation</p>
-                          <div class="row">
-                            <div class="col-md-5">
-                                <form method="POST", name="ticketkey">
-                                  {% csrf_token %}
-                                  <input type="hidden" name="keyselect" value="keyselect">
-                                  <label for="key">Attribute</label>
-                                  <select name="key" class="form-control" onchange="ticketkey.submit();">
-                                    {% if selected_key %}
-                                      <option value="{{ selected_key }}">{{ selected_key }}</option>
+                            <div class="portlet light portlet-fit ">
+                                <div class="portlet-body">
+                                    <div class="mt-element-step">
+                                        <div class="row step-line">
+                                            <div class="col-md-4 mt-step-col first {% if step == 1 %} active {% else %} done {% endif %}">
+                                              <div class="mt-step-number bg-white font-grey">1</div>
+                                              <div class="mt-step-title uppercase font-grey-cascade">Validation Rule Details</div>
+                                              <div class="mt-step-content font-grey-cascade">Create a rule and specify entity</div>
+                                          </div>
+                                            <div class="col-md-4 mt-step-col  {% if step == 1 %} {% elif step == 2 %} active {% else %} done {% endif %}">
+                                                <div class="mt-step-number bg-white font-grey">2</div>
+                                                <div class="mt-step-title uppercase font-grey-cascade">Validation Details</div>
+                                                <div class="mt-step-content font-grey-cascade">Create custom validations</div>
+                                            </div>
+                                            <div class="col-md-4 mt-step-col last {% if step == 1 %} {% elif step == 2 %} {% elif step == 3 %} active {% else %} done {% endif %}">
+                                                  <div class="mt-step-number bg-white font-grey">3</div>
+                                                  <div class="mt-step-title uppercase font-grey-cascade">Review</div>
+                                                  <div class="mt-step-content font-grey-cascade">Make sure you're happy</div>
+                                              </div>
+                                        </div>
+                                    </div>
+                                    <!-- Start Step 1 Form -->
+                                    {% if step == 1 %}
+                                    <div class="portlet-body" align="center">
+                                        <form action="{% url 'input_validation' user.id %}" method="post" style="width: 22.67%">
+                                          {% csrf_token %}
+                                          <input type="hidden" name="step1" value="step1">
+                                          <div class="form-group">
+                                            <input class="form-control" type="text" name="validation-rule-name" placeholder="Validation Rule Name"/>
+                                          </div>
+                                          <select name="entitytype" class="form-control">
+                                            {% for entity in entitytypes %}
+                                                <option  value="{{ entity.name }}">{{ entity.name }}</option>
+                                            {% endfor %}
+                                          </select>
+                                          <br>
+                                          <input type="submit" style="margin-top: 10px;" />
+                                        </form>
+                                    </div>
+                                  {% endif %}
+                                </div>
+                        <!-- End Step 1 Form -->
+                        <!-- Start Step 2 Form -->
+                        {% if step == 2 %}
+                        <div class="portlet-body" align="center">
+                              <div class="form-group">
+                                <div class="row">
+                                  <div class="col-md-4">
+                                      <form action="{% url 'input_validation' user.id %}" method="POST" name="entityattributes">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="step2-keyselect" value="step2-keyselect">
+                                        <label for="key">Attribute</label>
+                                        <select name="key" class="form-control" onchange="entityattributes.submit();">
+                                          {% if selected_key %}
+                                            <option value="{{ selected_key }}">{{ selected_key }}</option>
+                                          {% endif %}
+                                          {{ entity_attributes }}
+                                          {% for key, value in entity_attributes %}
+                                              <option value="{{ key }}">{{ key }}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </form>
+                                  </div>
+                                  <div class="col-md-4">
+                                    <form action="{% url 'input_validation' user.id %}" method="post" style="width: 22.67%" name="">
+                                      {% csrf_token %}
+                                      <input type="hidden" name="step2" value="step2">
+                                      <input type="hidden" name="selected_key" value="{{ selected_key }}">
+                                      {% csrf_token %}
+                                      <label for="operator">Operator</label>
+                                      <select name="operator" class="form-control">
+                                        {% for key, value in OPERATORS.items %}
+                                            <option value="{{ key }}">{{ key }}</option>
+                                        {% endfor %}
+                                      </select>
+                                  </div>
+                                  <div class="col-md-4">
+                                    {% if values %}
+                                    <label for="value">Value</label>
+                                    <select name="value" class="form-control">
+                                      {% for value in values %}
+                                          <option value="{{ value.key }}">{{ value.key }}</option>
+                                      {% endfor %}
+                                    </select>
+                                    {% else %}
+                                      <label for="value">Value</label>
+                                      <input class="form-control" type="text" name="value" placeholder="No picklist entity for this field. Enter manual value"/><br>
                                     {% endif %}
-                                    {% for key, value in ticket %}
-                                        <option value="{{ key }}">{{ key }}</option>
-                                    {% endfor %}
-                                  </select>
-                                </form>
-                            </div>
-                            <div class="col-md-1">
-                              <form method="POST">
-                                <input type="hidden" name="savevalidation" value="savevalidation">
-                                <input type="hidden" name="selected_key" value="{{ selected_key }}">
-                                <input type="hidden" name="entity" value="Ticket">
-                                {% csrf_token %}
-                                <label for="operator">Operator</label>
-                                <select name="operator" class="form-control">
-                                  {% for key, value in OPERATORS.items %}
-                                      <option value="{{ key }}">{{ key }}</option>
-                                  {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                              {% if values %}
-                              <label for="value">Value</label>
-                              <select name="value" class="form-control">
-                                {% for value in values %}
-                                    <option value="{{ value.key }}">{{ value.key }}</option>
-                                {% endfor %}
-                              </select>
-                              {% else %}
-                                <label for="value">Value</label>
-                                <input class="form-control" type="text" name="value" placeholder="No picklist entity for this field. Enter manual value"/><br>
+                                  </div>
+                                </div>
+                              </div>
+                              <br>
+                              <input type="submit" style="margin-top: 10px;" />
+                            </form>
+                        </div>
+                      {% endif %}
+                    </div>
+            <!-- End Step 2 Form -->
+            <!-- Start Step 3 Form -->
+            {% if step == 3 %}
+            <div class="portlet-body" align="center">
+                  <div class="form-group">
+                    <div class="row">
+                      <div class="col-md-4">
+                          <form action="{% url 'input_validation' user.id %}" method="POST" name="entityattributes">
+                            {% csrf_token %}
+                            <input type="hidden" name="step2-keyselect" value="step2-keyselect">
+                            <label for="key">Attribute</label>
+                            <select name="key" class="form-control" onchange="entityattributes.submit();">
+                              {% if selected_key %}
+                                <option value="{{ selected_key }}">{{ selected_key }}</option>
                               {% endif %}
-                            </div>
-                            <input type="submit" style="margin-top: 10px;" />
+                              {{ entity_attributes }}
+                              {% for key, value in entity_attributes %}
+                                  <option value="{{ key }}">{{ key }}</option>
+                              {% endfor %}
+                            </select>
                           </form>
-                          </div>
+                      </div>
+                      <div class="col-md-4">
+                        <form action="{% url 'input_validation' user.id %}" method="post" style="width: 22.67%" name="">
+                          {% csrf_token %}
+                          <input type="hidden" name="step2" value="step2">
+                          <input type="hidden" name="selected_key" value="{{ selected_key }}">
+                          {% csrf_token %}
+                          <label for="operator">Operator</label>
+                          <select name="operator" class="form-control">
+                            {% for key, value in OPERATORS.items %}
+                                <option value="{{ key }}">{{ key }}</option>
+                            {% endfor %}
+                          </select>
+                      </div>
+                      <div class="col-md-4">
+                        {% if values %}
+                        <label for="value">Value</label>
+                        <select name="value" class="form-control">
+                          {% for value in values %}
+                              <option value="{{ value.key }}">{{ value.key }}</option>
+                          {% endfor %}
+                        </select>
+                        {% else %}
+                          <label for="value">Value</label>
+                          <input class="form-control" type="text" name="value" placeholder="No picklist entity for this field. Enter manual value"/><br>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  <br>
+                  <input type="submit" style="margin-top: 10px;" />
+                </form>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="portlet light ">
+                        <div class="portlet-title tabbable-line">
+                            <div class="caption caption-md">
+                                <i class="icon-globe theme-font hide"></i>
+                                <span class="caption-subject font-blue-madison bold uppercase">Existing Validations In Rule - {{ input_validation_dict.ValidationRule.name }}</span>
+                            </div>
                         </div>
-                        <!-- END PERSONAL INFO TAB -->
-                        <!-- CHANGE AVATAR TAB -->
-                        <div class="tab-pane" id="tab_2_2">
-                          <a class="btn green" href="{% url 'create_picklist_database' %}">Create Picklist Module</a>
+                        <div class="portlet-body">
+                            <div class="tab-content">
+                                <!-- PERSONAL INFO TAB -->
+                                <div class="tab-pane active" id="tab_3_1">
+                                      <div class="table-scrollable">
+                                          <table class="table table-striped table-bordered table-advance table-hover">
+                                              <thead>
+                                                  <tr>
+                                                      <th>Entity</th>
+                                                      <th class="hidden-xs">Attribute</th>
+                                                      <th>Operator</th>
+                                                      <th>Value</th>
+                                                      <th>Actions</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody>
+                                                {% for validation in existing_validations %}
+                                                  <tr>
+                                                      <td class="highlight">{{ validation.entity.name }}</td>
+                                                      <td class="hidden-xs">{{ validation.key }}</td>
+                                                      <td>{{ validation.operator }}</td>
+                                                      <td>{{ validation.value }}</td>
+                                                      <td>
+                                                          <!-- <a href="javascript:;" class="btn btn-outline btn-circle btn-sm green">
+                                                              <i class="fa fa-edit"></i> Edit </a> -->
+                                                          <form method="POST", name="existing_validations_delete_form", id="existing_validations_delete_form">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="existing_validations_delete" value="{{ validation.id }}">
+                                                            <a onclick="document.forms['existing_validations_delete_form'].submit();" class="btn btn-outline btn-circle red btn-sm black">
+                                                              <i class="fa fa-trash-o"></i> Delete </a>
+                                                          </form>
+                                                      </td>
+                                                  </tr>
+                                                  {% endfor %}
+                                              </tbody>
+                                          </table>
+                                      </div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- END CHANGE AVATAR TAB -->
                     </div>
                 </div>
             </div>
+          {% endif %}
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-8">
-            <div class="portlet light ">
-                <div class="portlet-title tabbable-line">
-                    <div class="caption caption-md">
-                        <i class="icon-globe theme-font hide"></i>
-                        <span class="caption-subject font-blue-madison bold uppercase">Existing Validations</span>
-                    </div>
-                    <ul class="nav nav-tabs">
-                        <li class="active">
-                            <a href="#tab_3_1" data-toggle="tab">Tickets</a>
-                        </li>
-                        <li>
-                            <a href="#tab_3_2" data-toggle="tab">Opportunities</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="portlet-body">
-                    <div class="tab-content">
-                        <!-- PERSONAL INFO TAB -->
-                        <div class="tab-pane active" id="tab_3_1">
-                              <div class="table-scrollable">
-                                  <table class="table table-striped table-bordered table-advance table-hover">
-                                      <thead>
-                                          <tr>
-                                              <th>Entity</th>
-                                              <th class="hidden-xs">Attribute</th>
-                                              <th>Operator</th>
-                                              <th>Value</th>
-                                              <th>Actions</th>
-                                          </tr>
-                                      </thead>
-                                      <tbody>
-                                        {% for validation in existing_validations %}
-                                          <tr>
-                                              <td class="highlight">{{ validation.entity }}</td>
-                                              <td class="hidden-xs">{{ validation.key }}</td>
-                                              <td>{{ validation.operator }}</td>
-                                              <td>{{ validation.value }}</td>
-                                              <td>
-                                                  <!-- <a href="javascript:;" class="btn btn-outline btn-circle btn-sm green">
-                                                      <i class="fa fa-edit"></i> Edit </a> -->
-                                                  <form method="POST", name="existing_validations_delete_form", id="existing_validations_delete_form">
-                                                    {% csrf_token %}
-                                                    <input type="hidden" name="existing_validations_delete" value="{{ validation.id }}">
-                                                    <a onclick="document.forms['existing_validations_delete_form'].submit();" class="btn btn-outline btn-circle red btn-sm black">
-                                                      <i class="fa fa-trash-o"></i> Delete </a>
-                                                  </form>
-                                              </td>
-                                          </tr>
-                                          {% endfor %}
-                                      </tbody>
-                                  </table>
-                              </div>
+        <!-- End Step 3 Form -->
+
                         </div>
-                        <!-- END PERSONAL INFO TAB -->
-                        <!-- CHANGE AVATAR TAB -->
-                        <div class="tab-pane" id="tab_3_2">
-                          <a class="btn green" href="{% url 'create_picklist_database' %}">Create Picklist Module</a>
-                        </div>
-                        <!-- END CHANGE AVATAR TAB -->
                     </div>
                 </div>
             </div>

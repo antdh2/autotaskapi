@@ -10,14 +10,14 @@ var FormWizard = function () {
 
             function format(state) {
                 if (!state.id) return state.text; // optgroup
-                return "<img class='flag' src='../../assets/global/img/flags/" + state.id.toLowerCase() + ".png'/>&nbsp;&nbsp;" + state.text;
+                return "<img class='flag' src='{% static 'assets/global/img/flags/' %}'" + state.id.toLowerCase() + ".png'/>&nbsp;&nbsp;" + state.text;
             }
 
             $("#country_list").select2({
                 placeholder: "Select",
                 allowClear: true,
                 formatResult: format,
-                width: 'auto', 
+                width: 'auto',
                 formatSelection: format,
                 escapeMarkup: function (m) {
                     return m;
@@ -34,21 +34,11 @@ var FormWizard = function () {
                 errorClass: 'help-block help-block-error', // default input error message class
                 focusInvalid: false, // do not focus the last invalid input
                 rules: {
-                    //account
-                    username: {
-                        minlength: 5,
+                    //step 1
+                    rulename: {
                         required: true
                     },
-                    password: {
-                        minlength: 5,
-                        required: true
-                    },
-                    rpassword: {
-                        minlength: 5,
-                        required: true,
-                        equalTo: "#submit_form_password"
-                    },
-                    //profile
+                    //step 2
                     fullname: {
                         required: true
                     },
@@ -112,7 +102,7 @@ var FormWizard = function () {
                     }
                 },
 
-                invalidHandler: function (event, validator) { //display error alert on form submit   
+                invalidHandler: function (event, validator) { //display error alert on form submit
                     success.hide();
                     error.show();
                     App.scrollTo(error, -200);
@@ -163,7 +153,7 @@ var FormWizard = function () {
                         $(this).html(input.attr("data-title"));
                     } else if ($(this).attr("data-display") == 'payment[]') {
                         var payment = [];
-                        $('[name="payment[]"]:checked', form).each(function(){ 
+                        $('[name="payment[]"]:checked', form).each(function(){
                             payment.push($(this).attr('data-title'));
                         });
                         $(this).html(payment.join("<br>"));
@@ -206,13 +196,13 @@ var FormWizard = function () {
                 'previousSelector': '.button-previous',
                 onTabClick: function (tab, navigation, index, clickedIndex) {
                     return false;
-                    
+
                     success.hide();
                     error.hide();
                     if (form.valid() == false) {
                         return false;
                     }
-                    
+
                     handleTitle(tab, navigation, clickedIndex);
                 },
                 onNext: function (tab, navigation, index) {

@@ -24,7 +24,7 @@ import operator
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile, BookingInDetails, Upsell, Picklist, Validation
+from .models import Profile, BookingInDetails, Upsell, Picklist, Validation, ValidationRule, Entity
 from account.signals import user_logged_in
 
 
@@ -44,31 +44,55 @@ def handle_user_save(sender, instance, created, **kwargs):
 # All views must go inside of here
 #
 ############################################################
-key = {}
+input_validation_dict = {}
 def input_validation(request, id):
+    step = 1
     if request.user:
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
-    existing_validations = Validation.objects.filter(profile=request.user.profile)
-    ticket = at.new('Ticket')
+    try:
+        existing_validations = Validation.objects.filter(profile=request.user.profile, validation_rule=input_validation_dict['ValidationRuleId'])
+    except:
+        existing_validations = None
+    entitytypes = Entity.objects.all
+    try:
+        entity_attributes = at.new(input_validation_dict['EntityName'])
+    except:
+        entity_attributes = None
+    entity = None
+    values = None
+    selected_key = None
     if request.method == "POST":
-        if request.POST.get('keyselect', False):
+        if request.POST.get('step1', False):
+            step = 2
+            entity = Entity.objects.get(name=request.POST['entitytype'])
+            input_validation_dict['Entity'] = entity
+            input_validation_dict['EntityName'] = request.POST['entitytype']
+            validation_rule = ValidationRule.objects.create(profile=request.user.profile, name=request.POST['validation-rule-name'], entity=entity)
+            input_validation_dict['ValidationRuleId'] = validation_rule.id
+            input_validation_dict['ValidationRule'] = validation_rule
+            entity_attributes = at.new(input_validation_dict['EntityName'])
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+        if request.POST.get('step2-keyselect', False):
+            step = 3
             key = request.POST['key']
             selected_key = key
-            values = Picklist.objects.filter(profile=request.user.profile, key__icontains="ticket_" + key)
-            return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "values": values, "selected_key": selected_key, "existing_validations": existing_validations})
-        if request.POST.get('savevalidation', False):
+            values = Picklist.objects.filter(profile=request.user.profile, key__icontains=input_validation_dict['EntityName'] + "_" + key)
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+        if request.POST.get('step2', False):
+            step = 3
             key = request.POST['selected_key']
             value = request.POST['value']
             operator = request.POST['operator']
             # We have to find the picklist from atvar to associate the right number to the validation
             # Validation object "value" should match the result of Picklist "key". ie. (atvar.)Ticket_Status_New on Validation should equal 1 on Picklist
             picklist = Picklist.objects.get(key=value)
-            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=request.POST['entity'], picklist_number=picklist.value)
-            return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "existing_validations": existing_validations})
+            entity = Entity.objects.get(name="Ticket")
+            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=entity, picklist_number=picklist.value, validation_rule=input_validation_dict['ValidationRule'])
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
         if request.POST.get('existing_validations_delete', False):
             validation_to_delete = Validation.objects.get(id=request.POST['existing_validations_delete'])
             validation_to_delete.delete()
-    return render(request, 'input_validation.html', {"ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "ticket": ticket, "existing_validations": existing_validations})
+    return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
 
 def profile(request, id):
     page = 'profile'
@@ -693,11 +717,12 @@ def create_home_user_ticket(request, id):
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     account_id = id
     ataccount = get_account(account_id)
+    validation_rules = ValidationRule.objects.filter(profile=request.user.profile)
     if request.method == "POST":
         # Check that we are validated for input
-        validated = validate_input(request, "Ticket")
+        validated = validate_input(request, request.POST['validation-rule-name'])
         if not validated:
-            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_rules": validation_rules})
         new_ticket = ticket_create_new(True,
             AccountID = account_id,
             Title = request.POST['title'],
@@ -709,7 +734,7 @@ def create_home_user_ticket(request, id):
             QueueID = request.POST['queueid'],
         )
         messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_rules": validation_rules})
 
 
 ############################################################
@@ -719,8 +744,9 @@ def create_home_user_ticket(request, id):
 ############################################################
 
 
-def validate_input(request, entitytype):
-    ticket_validations = Validation.objects.filter(entity=entitytype)
+def validate_input(request, validation_rule_id):
+    validation_rule = ValidationRule.objects.get(id=validation_rule_id)
+    ticket_validations = Validation.objects.filter(validation_rule=validation_rule_id)
     # custom validation rules
     validated = True
     for validation in ticket_validations:
