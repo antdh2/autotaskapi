@@ -58,9 +58,9 @@ $(document).ready(function () {
                 <form id="create-ticket" action="{% url 'create_home_user_ticket' ataccount.id %}" method="post">
                   {% csrf_token %}
                   <h6 class="card-header primary-color white-text">Apply validation rule?</strong></h6>
-                  <select class="form-control" name="validation-rule-name">
-                    {% for validation_rule in validation_rules%}
-                        <option value="{{ validation_rule.id }}">{{ validation_rule.name }}</option>
+                  <select class="form-control" name="validation-group-name">
+                    {% for validation_group in validation_groups %}
+                        <option value="{{ validation_group.id }}">{{ validation_group.name }}</option>
                     {% endfor %}
                   </select>
                   <hr>

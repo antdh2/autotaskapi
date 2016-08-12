@@ -24,7 +24,7 @@ import operator
 # import the wonderful decorator for stripe
 from djstripe.decorators import subscription_payment_required
 from autotask_api_app import atvar
-from .models import Profile, BookingInDetails, Upsell, Picklist, Validation, ValidationRule, Entity
+from .models import Profile, BookingInDetails, Upsell, Picklist, Validation, ValidationGroup, Entity
 from account.signals import user_logged_in
 
 
@@ -50,7 +50,7 @@ def input_validation(request, id):
     if request.user:
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     try:
-        existing_validations = Validation.objects.filter(profile=request.user.profile, validation_rule=input_validation_dict['ValidationRuleId'])
+        existing_validations = Validation.objects.filter(profile=request.user.profile, validation_group=input_validation_dict['ValidationGroupId'])
     except:
         existing_validations = None
     entitytypes = Entity.objects.all
@@ -67,9 +67,9 @@ def input_validation(request, id):
             entity = Entity.objects.get(name=request.POST['entitytype'])
             input_validation_dict['Entity'] = entity
             input_validation_dict['EntityName'] = request.POST['entitytype']
-            validation_rule = ValidationRule.objects.create(profile=request.user.profile, name=request.POST['validation-rule-name'], entity=entity)
-            input_validation_dict['ValidationRuleId'] = validation_rule.id
-            input_validation_dict['ValidationRule'] = validation_rule
+            validation_group = ValidationGroup.objects.create(profile=request.user.profile, name=request.POST['validation-group-name'], entity=entity)
+            input_validation_dict['ValidationGroupId'] = validation_group.id
+            input_validation_dict['ValidationGroup'] = validation_group
             entity_attributes = at.new(input_validation_dict['EntityName'])
             return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
         if request.POST.get('step2-keyselect', False):
@@ -85,9 +85,13 @@ def input_validation(request, id):
             operator = request.POST['operator']
             # We have to find the picklist from atvar to associate the right number to the validation
             # Validation object "value" should match the result of Picklist "key". ie. (atvar.)Ticket_Status_New on Validation should equal 1 on Picklist
-            picklist = Picklist.objects.get(key=value)
+            try:
+                picklist_object = Picklist.objects.get(key=value)
+                picklist = picklist_object.value
+            except:
+                picklist = -100
             entity = Entity.objects.get(name="Ticket")
-            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=entity, picklist_number=picklist.value, validation_rule=input_validation_dict['ValidationRule'])
+            validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=entity, picklist_number=picklist, validation_group=input_validation_dict['ValidationGroup'])
             return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
         if request.POST.get('existing_validations_delete', False):
             validation_to_delete = Validation.objects.get(id=request.POST['existing_validations_delete'])
@@ -692,7 +696,7 @@ def create_ticket(request, id):
     account_id = id
     ataccount = get_account(account_id)
     if request.method == "POST":
-        # custom validation rules
+        # custom validation groups
         if request.POST['estimatedhours'] == '3' and request.POST['priority'] == '3':
             messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
             return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
@@ -710,19 +714,21 @@ def create_ticket(request, id):
             messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
     return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
 
-
+create_home_user_ticket_dict = {}
 @login_required(login_url='/account/login/')
 def create_home_user_ticket(request, id):
     if request.user:
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     account_id = id
     ataccount = get_account(account_id)
-    validation_rules = ValidationRule.objects.filter(profile=request.user.profile)
+    validation_groups = ValidationGroup.objects.filter(profile=request.user.profile)
+    selected_validation_group = None
     if request.method == "POST":
         # Check that we are validated for input
-        validated = validate_input(request, request.POST['validation-rule-name'])
+        selected_validation_group = request.POST['validation-group-name']
+        validated = validate_input(request, selected_validation_group)
         if not validated:
-            return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_rules": validation_rules})
+            return render(request, 'create_home_user_ticket.html', {"selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
         new_ticket = ticket_create_new(True,
             AccountID = account_id,
             Title = request.POST['title'],
@@ -734,7 +740,7 @@ def create_home_user_ticket(request, id):
             QueueID = request.POST['queueid'],
         )
         messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_home_user_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_rules": validation_rules})
+    return render(request, 'create_home_user_ticket.html', {"selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
 
 
 ############################################################
@@ -744,10 +750,10 @@ def create_home_user_ticket(request, id):
 ############################################################
 
 
-def validate_input(request, validation_rule_id):
-    validation_rule = ValidationRule.objects.get(id=validation_rule_id)
-    ticket_validations = Validation.objects.filter(validation_rule=validation_rule_id)
-    # custom validation rules
+def validate_input(request, validation_group_id):
+    validation_group = ValidationGroup.objects.get(id=validation_group_id)
+    ticket_validations = Validation.objects.filter(validation_group=validation_group_id)
+    # custom validation groups
     validated = True
     for validation in ticket_validations:
         if validation.picklist_number == -100:

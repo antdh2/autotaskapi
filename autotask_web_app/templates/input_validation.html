@@ -55,7 +55,7 @@
                                           {% csrf_token %}
                                           <input type="hidden" name="step1" value="step1">
                                           <div class="form-group">
-                                            <input class="form-control" type="text" name="validation-rule-name" placeholder="Validation Rule Name"/>
+                                            <input class="form-control" type="text" name="validation-group-name" placeholder="Validation Group Name"/>
                                           </div>
                                           <select name="entitytype" class="form-control">
                                             {% for entity in entitytypes %}
@@ -184,7 +184,7 @@
                         <div class="portlet-title tabbable-line">
                             <div class="caption caption-md">
                                 <i class="icon-globe theme-font hide"></i>
-                                <span class="caption-subject font-blue-madison bold uppercase">Existing Validations In Rule - {{ input_validation_dict.ValidationRule.name }}</span>
+                                <span class="caption-subject font-blue-madison bold uppercase">Existing Validations In Rule - {{ input_validation_dict.ValidationGroup.name }}</span>
                             </div>
                         </div>
                         <div class="portlet-body">

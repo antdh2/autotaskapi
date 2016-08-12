@@ -61,7 +61,7 @@ class Picklist(models.Model):
 class Entity(models.Model):
     name = models.CharField(max_length=254)
 
-class ValidationRule(models.Model):
+class ValidationGroup(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     name = models.CharField(max_length=254)
     entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
@@ -73,4 +73,4 @@ class Validation(models.Model):
     operator = models.CharField(max_length=254)
     picklist_number = models.IntegerField()
     value = models.CharField(max_length=254)
-    validation_rule = models.ForeignKey(ValidationRule, on_delete=models.CASCADE)
+    validation_group = models.ForeignKey(ValidationGroup, on_delete=models.CASCADE)
