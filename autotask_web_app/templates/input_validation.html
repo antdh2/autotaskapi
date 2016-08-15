@@ -178,13 +178,15 @@
                   <input type="submit" style="margin-top: 10px;" />
                 </form>
             </div>
+            {% endif %}
+            {% if existing_validation_groups %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet light ">
                         <div class="portlet-title tabbable-line">
                             <div class="caption caption-md">
                                 <i class="icon-globe theme-font hide"></i>
-                                <span class="caption-subject font-blue-madison bold uppercase">Existing Validations In Rule - {{ input_validation_dict.ValidationGroup.name }}</span>
+                                <span class="caption-subject font-blue-madison bold uppercase">Existing Validation Groups</span>
                             </div>
                         </div>
                         <div class="portlet-body">
@@ -196,20 +198,28 @@
                                               <thead>
                                                   <tr>
                                                       <th>Entity</th>
-                                                      <th class="hidden-xs">Attribute</th>
-                                                      <th>Operator</th>
-                                                      <th>Value</th>
+                                                      <th class="hidden-xs">Name</th>
+                                                      {% if existing_validations %}
+                                                      <th>Rules</th>
+                                                      {% endif %}
                                                       <th>Actions</th>
                                                   </tr>
                                               </thead>
                                               <tbody>
-                                                {% for validation in existing_validations %}
+                                                {% for validation_group in existing_validation_groups %}
                                                   <tr>
-                                                      <td class="highlight">{{ validation.entity.name }}</td>
-                                                      <td class="hidden-xs">{{ validation.key }}</td>
-                                                      <td>{{ validation.operator }}</td>
-                                                      <td>{{ validation.value }}</td>
+                                                      <td class="">{{ validation_group.entity.name }}</td>
+                                                      <td class="">{{ validation_group.name }}</td>
+                                                      {% if existing_validations %}
                                                       <td>
+                                                      {% for validation in existing_validations %}
+                                                        {% if validation.validation_group_id == validation_group.id %}
+                                                          {{ validation.key }} {{ validation.operator }} {{ validation.value }}<br>
+                                                        {% endif %}
+                                                      {% endfor %}
+                                                      {% endif %}
+                                                      </td>
+                                                      <td style="display: flex">
                                                           <!-- <a href="javascript:;" class="btn btn-outline btn-circle btn-sm green">
                                                               <i class="fa fa-edit"></i> Edit </a> -->
                                                           <form method="POST", name="existing_validations_delete_form", id="existing_validations_delete_form">
@@ -230,7 +240,7 @@
                     </div>
                 </div>
             </div>
-          {% endif %}
+            {% endif %}
         </div>
         <!-- End Step 3 Form -->
 

@@ -50,9 +50,11 @@ def input_validation(request, id):
     if request.user:
         at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     try:
-        existing_validations = Validation.objects.filter(profile=request.user.profile, validation_group=input_validation_dict['ValidationGroupId'])
+        existing_validations = Validation.objects.filter(profile=request.user.profile)
+        existing_validation_groups = ValidationGroup.objects.filter(profile=request.user.profile)
     except:
         existing_validations = None
+        existing_validation_groups = None
     entitytypes = Entity.objects.all
     try:
         entity_attributes = at.new(input_validation_dict['EntityName'])
@@ -71,13 +73,13 @@ def input_validation(request, id):
             input_validation_dict['ValidationGroupId'] = validation_group.id
             input_validation_dict['ValidationGroup'] = validation_group
             entity_attributes = at.new(input_validation_dict['EntityName'])
-            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict, "existing_validation_groups": existing_validation_groups})
         if request.POST.get('step2-keyselect', False):
             step = 3
             key = request.POST['key']
             selected_key = key
             values = Picklist.objects.filter(profile=request.user.profile, key__icontains=input_validation_dict['EntityName'] + "_" + key)
-            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "values": values, "selected_key": selected_key, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict, "existing_validation_groups": existing_validation_groups})
         if request.POST.get('step2', False):
             step = 3
             key = request.POST['selected_key']
@@ -92,11 +94,11 @@ def input_validation(request, id):
                 picklist = -100
             entity = Entity.objects.get(name="Ticket")
             validation = Validation.objects.create(profile=request.user.profile, key=key, value=value, operator=operator, entity=entity, picklist_number=picklist, validation_group=input_validation_dict['ValidationGroup'])
-            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+            return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict, "existing_validation_groups": existing_validation_groups})
         if request.POST.get('existing_validations_delete', False):
             validation_to_delete = Validation.objects.get(id=request.POST['existing_validations_delete'])
             validation_to_delete.delete()
-    return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict})
+    return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict, "existing_validation_groups": existing_validation_groups})
 
 def profile(request, id):
     page = 'profile'
@@ -693,26 +695,89 @@ def edit_ataccount(request, id):
 
 @login_required(login_url='/account/login/')
 def create_ticket(request, id):
+    # First we must check we have a logged in user then ensure we're connected to AT
+    if request.user:
+        at = autotask_login_function(request, request.user.profile.autotask_username, request.user.profile.autotask_password)
     account_id = id
     ataccount = get_account(account_id)
+    # Get all picklist objects
+    ticket_types = get_ticket_type_picklist()
+    issue_types = get_issue_type_picklist()
+    sub_issue_types = get_sub_issue_type_picklist()
+    slas = get_sla_picklist()
+    account_types = get_account_types_picklist()
+    statuses = get_status_picklist()
+    priorities = get_priority_picklist()
+    queue_ids = get_queueid_picklist()
+    ticket_sources = get_ticket_source_picklist()
+    resources = get_resources()
+    roles = get_roles()
+    services = get_contract_services(account_id)
+    allocation_codes = get_allocation_codes()
+    contracts = get_contracts(account_id)
+    # Grab all validation groups for this user
+    validation_groups = ValidationGroup.objects.filter(profile=request.user.profile)
+    selected_validation_group = None
     if request.method == "POST":
-        # custom validation groups
-        if request.POST['estimatedhours'] == '3' and request.POST['priority'] == '3':
-            messages.add_message(request, messages.ERROR, 'Cannot have Estimated Hours and Priority set to 3 at the same time.')
-            return redirect("/ataccount/" + account_id, {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
-        else:
-            new_ticket = ticket_create_new(True,
-                AccountID = account_id,
-                Title = request.POST['title'],
-                Description = request.POST['description'],
-                DueDateTime = request.POST['duedatetime'],
-                EstimatedHours = request.POST['estimatedhours'],
-                Priority = request.POST['priority'],
-                Status = request.POST['status'],
-                QueueID = request.POST['queueid'],
-            )
-            messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_ticket.html', {"ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS})
+        # Grab the selected validation group from form then check to see if we are validated
+        selected_validation_group = request.POST['validation-group-name']
+        validated = validate_input(request, selected_validation_group)
+        # if validation fails then return to webpage with an error message (this is handled by function call)
+        if not validated:
+            return render(request, 'create_ticket.html', {"services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
+        # if we pass validation, previous line of code is not run and a ticket is created
+        new_ticket = ticket_create_new(True,
+            AccountID = account_id,
+            AEMAlertID = request.POST['AEMAlertID'],
+            AllocationCodeID = request.POST['AllocationCodeID'],
+            AssignedResourceID = request.POST['AssignedResourceID'],
+            AssignedResourceRoleID = request.POST['AssignedResourceRoleID'],
+            ChangeApprovalBoard = request.POST['ChangeApprovalBoard'],
+            ChangeApprovalStatus = request.POST['ChangeApprovalStatus'],
+            ChangeApprovalType = request.POST['ChangeApprovalType'],
+            ChangeInfoField1 = request.POST['ChangeInfoField1'],
+            ChangeInfoField2 = request.POST['ChangeInfoField2'],
+            ChangeInfoField3 = request.POST['ChangeInfoField3'],
+            ChangeInfoField4 = request.POST['ChangeInfoField4'],
+            ChangeInfoField5 = request.POST['ChangeInfoField5'],
+            CompletedDate = request.POST['CompletedDate'],
+            ContactID = request.POST['ContactID'],
+            ContractID = request.POST['ContractID'],
+            CreatorResourceID = request.POST['CreatorResourceID'],
+            Description = request.POST['description'],
+            DueDateTime = request.POST['duedatetime'],
+            EstimatedHours = request.POST['estimatedhours'],
+            FirstResponseDateTime = request.POST['FirstResponseDateTime'],
+            FirstResponseDueDateTime = request.POST['FirstResponseDueDateTime'],
+            HoursToBeScheduled = request.POST['HoursToBeScheduled'],
+            InstalledProductID = request.POST['InstalledProductID'],
+            IssueType = request.POST['IssueType'],
+            LastActivityDate = request.POST['LastActivityDate'],
+            LastCustomerNotificationDateTime = request.POST['LastCustomerNotificationDateTime'],
+            LastCustomerVisibleActivityDateTime = request.POST['LastCustomerVisibleActivityDateTime'],
+            MonitorID = request.POST['MonitorID'],
+            MonitorTypeID = request.POST['MonitorTypeID'],
+            OpportunityId = request.POST['OpportunityId'],
+            Priority = request.POST['priority'],
+            ProblemTicketId = request.POST['ProblemTicketId'],
+            PurchaseOrderNumber = request.POST['PurchaseOrderNumber'],
+            QueueID = request.POST['queueid'],
+            Resolution = request.POST['Resolution'],
+            ResolutionPlanDateTime = request.POST['ResolutionPlanDateTime'],
+            ResolutionPlanDueDateTime = request.POST['ResolutionPlanDueDateTime'],
+            ResolvedDateTime = request.POST['ResolvedDateTime'],
+            ResolvedDueDateTime = request.POST['ResolvedDueDateTime'],
+            ServiceLevelAgreementHasBeenMet = request.POST['ServiceLevelAgreementHasBeenMet'],
+            ServiceLevelAgreementID = request.POST['ServiceLevelAgreementID'],
+            Source = request.POST['Source'],
+            Status = request.POST['status'],
+            SubIssueType = request.POST['SubIssueType'],
+            TicketNumber = request.POST['TicketNumber'],
+            TicketType = request.POST['TicketType'],
+            Title = request.POST['title'],
+        )
+        messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
+    return render(request, 'create_ticket.html', {"services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
 
 create_home_user_ticket_dict = {}
 @login_required(login_url='/account/login/')
@@ -927,15 +992,52 @@ def opportunity_create_new(**kwargs):
 def ticket_create_new(validated, **kwargs):
     new_ticket = at.new('Ticket')
     new_ticket.AccountID = kwargs.get('AccountID', None)
+    new_ticket.AEMAlertID = kwargs.get('AEMAlertID', None)
+    new_ticket.AllocationCodeID = kwargs.get('AllocationCodeID', None)
+    new_ticket.AssignedResourceID = kwargs.get('AssignedResourceID', None)
+    new_ticket.AssignedResourceRoleID = kwargs.get('AssignedResourceRoleID', None)
+    new_ticket.ChangeApprovalBoard = kwargs.get('ChangeApprovalBoard', None)
+    new_ticket.ChangeApprovalStatus = kwargs.get('ChangeApprovalStatus', None)
+    new_ticket.ChangeApprovalType = kwargs.get('ChangeApprovalType', None)
+    new_ticket.ChangeInfoField1 = kwargs.get('ChangeInfoField1', None)
+    new_ticket.ChangeInfoField2 = kwargs.get('ChangeInfoField2', None)
+    new_ticket.ChangeInfoField3 = kwargs.get('ChangeInfoField3', None)
+    new_ticket.ChangeInfoField4 = kwargs.get('ChangeInfoField4', None)
+    new_ticket.ChangeInfoField5 = kwargs.get('ChangeInfoField5', None)
+    new_ticket.CompletedDate = kwargs.get('CompletedDate', None)
     new_ticket.ContactID = kwargs.get('ContactID', None)
-    new_ticket.Title = kwargs.get('Title', None)
+    new_ticket.ContractID = kwargs.get('ContractID', None)
+    new_ticket.CreatorResourceID = kwargs.get('CreatorResourceID', None)
     new_ticket.Description = kwargs.get('Description', None)
     new_ticket.DueDateTime = kwargs.get('DueDateTime', None)
-    new_ticket.EstimatedHours = kwargs.get('EstimatedHours', None)
-    new_ticket.Priority = kwargs.get('Priority', None)
-    new_ticket.Status = kwargs.get('Status', None)
-    new_ticket.QueueID = kwargs.get('QueueID', None)
+    new_ticket.FirstResponseDateTime = kwargs.get('FirstResponseDateTime', None)
+    new_ticket.FirstResponseDueDateTime = kwargs.get('FirstResponseDueDateTime', None)
+    new_ticket.HoursToBeScheduled = kwargs.get('HoursToBeScheduled', None)
+    new_ticket.InstalledProductID = kwargs.get('InstalledProductID', None)
+    new_ticket.IssueType = kwargs.get('IssueType', None)
+    new_ticket.LastActivityDate = kwargs.get('LastActivityDate', None)
+    new_ticket.LastCustomerNotificationDateTime = kwargs.get('LastCustomerNotificationDateTime', None)
+    new_ticket.LastCustomerVisibleActivityDateTime = kwargs.get('LastCustomerVisibleActivityDateTime', None)
+    new_ticket.MonitorID = kwargs.get('MonitorID', None)
+    new_ticket.MonitorTypeID = kwargs.get('MonitorTypeID', None)
     new_ticket.OpportunityId = kwargs.get('OpportunityId', None)
+    new_ticket.Priority = kwargs.get('Priority', None)
+    new_ticket.ProblemTicketId = kwargs.get('ProblemTicketId', None)
+    new_ticket.PurchaseOrderNumber = kwargs.get('PurchaseOrderNumber', None)
+    new_ticket.QueueID = kwargs.get('QueueID', None)
+    new_ticket.Resolution = kwargs.get('Resolution', None)
+    new_ticket.ResolutionPlanDateTime = kwargs.get('ResolutionPlanDateTime', None)
+    new_ticket.ResolutionPlanDueDateTime = kwargs.get('ResolutionPlanDueDateTime', None)
+    new_ticket.ResolvedDateTime = kwargs.get('ResolvedDateTime', None)
+    new_ticket.ResolvedDueDateTime = kwargs.get('ResolvedDueDateTime', None)
+    new_ticket.ServiceLevelAgreementHasBeenMet = kwargs.get('ServiceLevelAgreementHasBeenMet', None)
+    new_ticket.ServiceLevelAgreementID = kwargs.get('ServiceLevelAgreementID', None)
+    new_ticket.Source = kwargs.get('Source', None)
+    new_ticket.Status = kwargs.get('Status', None)
+    new_ticket.SubIssueType = kwargs.get('SubIssueType', None)
+    new_ticket.TicketNumber = kwargs.get('TicketNumber', None)
+    new_ticket.TicketType = kwargs.get('TicketType', None)
+    new_ticket.Title = kwargs.get('Title', None)
     ticket = at.create(new_ticket).fetch_one()
     return ticket
 
@@ -1045,7 +1147,73 @@ def upsell_create_new(profile, sold, account_id, product_id, cost, **kwargs):
                               product_price=value,)
 
 
+def get_resources():
+    aquery = atws.Query('Resource')
+    aquery.WHERE('id',aquery.GreaterThan,0)
+    resources = at.query(aquery).fetch_all()
+    return resources
 
+def get_roles():
+    aquery = atws.Query('Role')
+    aquery.WHERE('id',aquery.GreaterThan,0)
+    roles = at.query(aquery).fetch_all()
+    return roles
+
+def get_contracts(account_id):
+    aquery = atws.Query('Contract')
+    aquery.WHERE('id',aquery.Equals,account_id)
+    contracts = at.query(aquery).fetch_all()
+    return contracts
+
+def get_allocation_codes():
+    aquery = atws.Query('AllocationCode')
+    aquery.WHERE('UseType',aquery.Equals,1)
+    allocation_codes = at.query(aquery).fetch_all()
+    return allocation_codes
+
+def get_contract_services(account_id):
+    aquery = atws.Query('ContractService')
+    aquery.WHERE('id',aquery.Equals,account_id)
+    services = at.query(aquery).fetch_all()
+    return services
+
+
+
+def get_ticket_type_picklist():
+    ticket_types = Picklist.objects.filter(key__icontains="Ticket_TicketType")
+    return ticket_types
+
+def get_issue_type_picklist():
+    issue_types = Picklist.objects.filter(key__icontains="Ticket_IssueType")
+    return issue_types
+
+def get_sub_issue_type_picklist():
+    sub_issue_types = Picklist.objects.filter(key__icontains="Ticket_SubIssueType")
+    return sub_issue_types
+
+def get_sla_picklist():
+    slas = Picklist.objects.filter(key__icontains="Ticket_ServiceLevelAgreementID")
+    return slas
+
+def get_ticket_source_picklist():
+    ticket_sources = Picklist.objects.filter(key__icontains="Ticket_Source")
+    return ticket_sources
+
+def get_queueid_picklist():
+    queue_ids = Picklist.objects.filter(key__icontains="Ticket_QueueID")
+    return queue_ids
+
+def get_priority_picklist():
+    priorities = Picklist.objects.filter(key__icontains="Ticket_Priority")
+    return priorities
+
+def get_status_picklist():
+    statuses = Picklist.objects.filter(key__icontains="Ticket_Status")
+    return statuses
+
+def get_account_types_picklist():
+    account_types = Picklist.objects.filter(key__icontains="Account_AccountType")
+    return account_types
 
 ############################################################
 #

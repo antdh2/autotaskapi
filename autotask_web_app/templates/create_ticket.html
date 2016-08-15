@@ -70,7 +70,7 @@ $(document).ready(function () {
       <div class="portlet-body">
         <div class="row">
           <div class="col-md-8">
-            <h6 class="card-header primary-color white-text">Create New Ticket</strong></h6>
+            <h6 class="card-header primary-color white-text">TICKET INFORMATION</strong></h6>
             <div class="card-block">
                 <form id="create-ticket" action="{% url 'create_ticket' ataccount.id %}" method="post">
                   {% csrf_token %}
@@ -83,37 +83,125 @@ $(document).ready(function () {
                     <label>Ticket Description</label>
                     <textarea class="form-control" rows="3" placeholder="Enter Ticket Description" name="description" id="description" {% if description %} value="{{ description }}" {% endif %}></textarea>
                   </div>
-
-                  <label>Ticket Due Date</label>
-                  <div class="form-group" data-date-start-date="+0d">
-                    <input id="duedatetime" name="duedatetime" class="form-control form-control-inline input-medium date-picker" size="16" type="text" value="">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label>Ticket Status</label>
+                      <select class="form-control" name="status" id="status">
+                        {% for status in statuses %}
+                            <option value="{{ status.value }}">{{ status.key }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label>Ticket Priority</label>
+                      <select class="form-control priority" name="priority" id="priority">
+                        {% for priority in priorities %}
+                            <option value="{{ priority.value }}">{{ priority.key }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label>Ticket Due Date</label>
+                      <div class="form-group" data-date-start-date="+0d">
+                        <input id="duedatetime" name="duedatetime" class="form-control form-control-inline input-medium date-picker" size="16" type="text" value="">
+                      </div>
+                      <div class="form-group">
+                        <label>Ticket Estimated Hours</label>
+                            <input type="text" class="form-control" placeholder="Estimated Hours" name="estimatedhours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" {% endif %}></input>
+                    </div>
                   </div>
-                  <br>
-                  <div class="form-group">
-                    <label>Ticket Estimated Hours</label>
-                        <input type="text" class="form-control" placeholder="Estimated Hours" name="estimatedhours" id="estimatedhours" {% if estimatedhours %} value="{{ estimatedhours }}" {% endif %}></input>
-                  <br>
-                  <label>Ticket Priority</label>
-                  <select class="form-control priority" name="priority" id="priority">
-                    {% for field, value in PRIORITY.items %}
-                        <option value="{{ value }}">{{ field }}</option>
-                    {% endfor %}
-                  </select>
-                  <br>
-                  <label>Ticket Status</label>
-                  <select class="form-control" name="status" id="status">
-                    {% for field, value in STATUS.items %}
-                        <option value="{{ value }}">{{ field }}</option>
-                    {% endfor %}
-                  </select>
-                  <br>
-                  <label>Ticket Queue</label>
+                    <div class="col-md-6">
+                      <label>Ticket Type</label>
+                      <select class="form-control" name="TicketType" id="TicketType">
+                        {% for ticket_type in ticket_types %}
+                            <option value="{{ ticket_type.value }}">{{ ticket_type.key }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label>Issue Type</label>
+                      <select class="form-control" name="IssueType" id="IssueType">
+                        {% for issue_type in issue_types %}
+                            <option value="{{ issue_type.value }}">{{ issue_type.key }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label>Sub Issue Type</label>
+                      <select class="form-control" name="SubIssueType" id="SubIssueType">
+                        {% for sub_issue_type in sub_issue_types %}
+                            <option value="{{ sub_issue_type.value }}">{{ sub_issue_type.key }}</option>
+                        {% endfor %}
+                      </select>
+                      <br>
+                      <label>SLA</label>
+                      <select class="form-control" name="ServiceLevelAgreementID" id="ServiceLevelAgreementID">
+                        {% for sla in slas %}
+                            <option value="{{ sla.value }}">{{ sla.key }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+
+
+
+
+                  <h6 class="card-header primary-color white-text">ASSIGNMENT</strong></h6>
+                  <label>Assign to Queue</label>
                   <select class="form-control" name="queueid" id="queueid">
-                    {% for field, value in QUEUE_IDS.items %}
-                      <option value="{{ value }}">{{ field }}</option>
+                    {% for queue_id in queue_ids %}
+                        <option value="{{ queue_id.value }}">{{ queue_id.key }}</option>
                     {% endfor %}
                   </select>
                   <br>
+                  <label>Primary Resource</label>
+                  <select class="form-control" name="AssignedResourceID" id="AssignedResourceID">
+                    {% for resource in resources %}
+                        <option value="{{ resource.id }}">{{ resource.FirstName }} {{ resource.LastName }}</option>
+                    {% endfor %}
+                  </select>
+                  <br>
+                  <label>Role</label>
+                  <select class="form-control" name="queueid" id="queueid">
+                    {% for role in roles %}
+                        <option value="{{ role.id }}">{{ role.Name }}</option>
+                    {% endfor %}
+                  </select>
+                  <br>
+
+                  <h6 class="card-header primary-color white-text">BILLING</strong></h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label>Contract</label>
+                      <select class="form-control" name="ContractID" id="ContractID">
+                        {% if not contracts %}
+                          <option value="-1">No contracts for this account</option>
+                        {% else %}
+                          {% for contract in contracts %}
+                              <option value="{{ contract.id }}">{{ contract.ContractName }}</option>
+                          {% endfor %}
+                        {% endif %}
+                      </select>
+                      <br>
+                      <label>Service/Bundle</label>
+                      <select class="form-control" name="test" id="test">
+                        {% if not services %}
+                          <option value="-1">No services for this account</option>
+                          {% for service in services %}
+                              <option value="{{ service.id }}">{{ service.InvoiceDescription }}</option>
+                          {% endfor %}
+                        {% endif %}
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label>Work Type</label>
+                      <select class="form-control" name="AllocationCodeID" id="AllocationCodeID">
+                        {% if not allocation_codes %}
+                          <option value="-1">No services for this account</option>
+                        {% else %}
+                          {% for allocation_code in allocation_codes %}
+                              <option value="{{ allocation_code.id }}">{{ allocation_code.Name }}</option>
+                          {% endfor %}
+                        {% endif %}
+                      </select>
+                    </div>
+                  </div>
                   <input type="submit" style="margin-top: 10px;" />
                 </form>
             </div>
@@ -122,11 +210,6 @@ $(document).ready(function () {
       </div>
   </div>
 </div>
-
-
-
-
-
 
         <!-- End Portlet -->
       </div>
