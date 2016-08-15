@@ -718,13 +718,24 @@ def create_ticket(request, id):
     # Grab all validation groups for this user
     validation_groups = ValidationGroup.objects.filter(profile=request.user.profile)
     selected_validation_group = None
+    sel_val_group_name = None
     if request.method == "POST":
-        # Grab the selected validation group from form then check to see if we are validated
-        selected_validation_group = request.POST['validation-group-name']
-        validated = validate_input(request, selected_validation_group)
+        # First we must check to see if user has selected to apply validation groups
+        if request.POST.get('apply_validation', False):
+            # Grab the selected validation group from form
+            selected_validation_group = request.POST['validation-group-name']
+            # Format hidden field info to redisplay info to user
+            for group in validation_groups:
+                if request.POST['validation-group-name'] == str(group.id):
+                    sel_val_group_name = group.name
+            # Then refresh the page with our validation group
+            return render(request, 'create_ticket.html', {"sel_val_group_name": sel_val_group_name, "services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
+        # If we have a selected validation group, then lets go ahead and check for validations using that group
+        if selected_validation_group:
+            validated = validate_input(request, selected_validation_group)
         # if validation fails then return to webpage with an error message (this is handled by function call)
         if not validated:
-            return render(request, 'create_ticket.html', {"services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
+            return render(request, 'create_ticket.html', {"sel_val_group_name": sel_val_group_name, "services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
         # if we pass validation, previous line of code is not run and a ticket is created
         new_ticket = ticket_create_new(True,
             AccountID = account_id,
@@ -777,7 +788,7 @@ def create_ticket(request, id):
             Title = request.POST['title'],
         )
         messages.add_message(request, messages.SUCCESS, ('Ticket - ' + new_ticket.TicketNumber + ' - ' + new_ticket.Title + ' created.'))
-    return render(request, 'create_ticket.html', {"services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
+    return render(request, 'create_ticket.html', {"sel_val_group_name": sel_val_group_name, "services": services, "allocation_codes": allocation_codes, "contracts": contracts, "roles": roles, "resources": resources, "account_types": account_types, "statuses": statuses, "priorities": priorities, "queue_ids": queue_ids, "ticket_sources": ticket_sources, "issue_types": issue_types, "sub_issue_types": sub_issue_types, "slas": slas, "ticket_types": ticket_types, "selected_validation_group": selected_validation_group, "ataccount": ataccount, "PRIORITY": PRIORITY, "QUEUE_IDS": QUEUE_IDS, "STATUS": STATUS, "validation_groups": validation_groups})
 
 create_home_user_ticket_dict = {}
 @login_required(login_url='/account/login/')

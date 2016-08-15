@@ -68,6 +68,29 @@ $(document).ready(function () {
         </div>
       </div>
       <div class="portlet-body">
+        {% if validation_groups %}
+        <div class="row">
+          <div class="col-md-8">
+            <form method="POST" name="apply_validation_form" action="{% url 'create_ticket' ataccount.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="apply_validation" value="apply_validation">
+              <h6 class="card-header primary-color white-text">Apply validation rule?</strong></h6>
+              <select class="form-control" name="validation-group-name"  onchange="apply_validation_form.submit();">
+                {% if selected_validation_group %}
+                  <option value="{{ selected_validation_group }}">{{ sel_val_group_name }} - Selected</option>
+                  <option data-divider="true"></option>
+                {% else %}
+                  <option value="-1">No Validation Group Selected</option>
+                {% endif %}
+                {% for validation_group in validation_groups %}
+                    <option value="{{ validation_group.id }}">{{ validation_group.name }}</option>
+                {% endfor %}
+              </select>
+              <hr>
+            </form>
+          </div>
+        </div>
+        {% endif %}
         <div class="row">
           <div class="col-md-8">
             <h6 class="card-header primary-color white-text">TICKET INFORMATION</strong></h6>
