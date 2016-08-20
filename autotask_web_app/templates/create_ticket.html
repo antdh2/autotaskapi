@@ -110,6 +110,8 @@ $(document).ready(function () {
                     <div class="col-md-6">
                       <label>Ticket Status</label>
                       <select class="form-control" name="status" id="status">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for status in statuses %}
                             <option value="{{ status.value }}">{{ status.key }}</option>
                         {% endfor %}
@@ -117,6 +119,8 @@ $(document).ready(function () {
                       <br>
                       <label>Ticket Priority</label>
                       <select class="form-control priority" name="priority" id="priority">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for priority in priorities %}
                             <option value="{{ priority.value }}">{{ priority.key }}</option>
                         {% endfor %}
@@ -134,6 +138,8 @@ $(document).ready(function () {
                     <div class="col-md-6">
                       <label>Ticket Type</label>
                       <select class="form-control" name="TicketType" id="TicketType">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for ticket_type in ticket_types %}
                             <option value="{{ ticket_type.value }}">{{ ticket_type.key }}</option>
                         {% endfor %}
@@ -141,6 +147,8 @@ $(document).ready(function () {
                       <br>
                       <label>Issue Type</label>
                       <select class="form-control" name="IssueType" id="IssueType">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for issue_type in issue_types %}
                             <option value="{{ issue_type.value }}">{{ issue_type.key }}</option>
                         {% endfor %}
@@ -148,6 +156,8 @@ $(document).ready(function () {
                       <br>
                       <label>Sub Issue Type</label>
                       <select class="form-control" name="SubIssueType" id="SubIssueType">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for sub_issue_type in sub_issue_types %}
                             <option value="{{ sub_issue_type.value }}">{{ sub_issue_type.key }}</option>
                         {% endfor %}
@@ -155,6 +165,8 @@ $(document).ready(function () {
                       <br>
                       <label>SLA</label>
                       <select class="form-control" name="ServiceLevelAgreementID" id="ServiceLevelAgreementID">
+                        <option value="-1">Please select...</option>
+                        <option value="-2">None</option>
                         {% for sla in slas %}
                             <option value="{{ sla.value }}">{{ sla.key }}</option>
                         {% endfor %}
@@ -168,6 +180,8 @@ $(document).ready(function () {
                   <h6 class="card-header primary-color white-text">ASSIGNMENT</strong></h6>
                   <label>Assign to Queue</label>
                   <select class="form-control" name="queueid" id="queueid">
+                    <option value="-1">Please select...</option>
+                    <option value="-2">None</option>
                     {% for queue_id in queue_ids %}
                         <option value="{{ queue_id.value }}">{{ queue_id.key }}</option>
                     {% endfor %}
@@ -175,6 +189,8 @@ $(document).ready(function () {
                   <br>
                   <label>Primary Resource</label>
                   <select class="form-control" name="AssignedResourceID" id="AssignedResourceID">
+                    <option value="-1">Please select...</option>
+                    <option value="-2">None</option>
                     {% for resource in resources %}
                         <option value="{{ resource.id }}">{{ resource.FirstName }} {{ resource.LastName }}</option>
                     {% endfor %}
@@ -182,6 +198,8 @@ $(document).ready(function () {
                   <br>
                   <label>Role</label>
                   <select class="form-control" name="queueid" id="queueid">
+                    <option value="-1">Please select...</option>
+                    <option value="-2">None</option>
                     {% for role in roles %}
                         <option value="{{ role.id }}">{{ role.Name }}</option>
                     {% endfor %}
@@ -218,6 +236,8 @@ $(document).ready(function () {
                         {% if not allocation_codes %}
                           <option value="-1">No services for this account</option>
                         {% else %}
+                          <option value="-1">Please select...</option>
+                          <option value="-2">None</option>
                           {% for allocation_code in allocation_codes %}
                               <option value="{{ allocation_code.id }}">{{ allocation_code.Name }}</option>
                           {% endfor %}

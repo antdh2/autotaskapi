@@ -24,70 +24,20 @@
             <div class="portlet-title">
                 <div class="caption">
                     <i class=" fa fa-search fa-2x font-green"></i>
-                    <span class="caption-subject font-green bold uppercase">Search for an Account</span>
+                    <span class="caption-subject font-green bold uppercase">Welcome to the Autotask Validator</span>
                 </div>
             </div>
-            <div class="portlet-body form">
-                <!-- BEGIN FORM-->
-                <form id="search-account" action="{% url 'index' %}" method="post" class="form-horizontal">
-                  {% csrf_token %}
-                    <div class="form-body">
-                        <div class="form-group">
-                            <label class="col-md-3 control-label">Account</label>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control input-circle" placeholder="Enter text" id="account-name" name="account-name">
-                                <span class="help-block"> You can enter partial account names </span>
-                              </div>
-                      </div>
-                    <div class="form-actions">
-                        <div class="row">
-                            <div class="col-md-offset-4 col-md-9">
-                                <button type="submit" class="btn btn-circle green">Submit</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                <!-- END FORM-->
-                <div class="container">
-                  <div class="portlet box green">
-                    <div class="portlet-title">
-                      <div class="caption">
-                          <i class="fa fa-cogs"></i>Accounts search results... </div>
-                      <div class="tools">
-                          <a href="javascript:;" class="collapse" data-original-title="" title=""> </a>
-                          <a href="javascript:;" class="remove" data-original-title="" title=""> </a>
-                      </div>
-                    </div>
-                    <div class="portlet-body flip-scroll" style="padding: 20px;">
-                        {% if accounts %}
-                        {{ accounts.AccountName }}
-                        <table class="table table-bordered table-striped table-condensed flip-content">
-                          <thead class="flip-content">
-                            <tr>
-                              <th>Account Name</th>
-                              <th>Account Type</th>
-                            </tr>
-                          </thead>
-                          {% for n in accounts %}
-                          <tr>
-                            <td><a href="{% url 'ataccount' n.id %}">{{ n.AccountName }}</a></td>
-                            <td>
-                              {% for key, value in ACCOUNT_TYPES.items %}
-                                {% if n.AccountType == value %}
-                                  {{ key }}
-                                {% endif %}
-                              {% endfor %}
-                            </td>
-                          </tr>
-                          {% endfor %}
-                        </table>
-                        {% endif %}
-                      </div>
-                  </div>
-                  </div>
-                </div>
+            <div class="portlet-body">
+              <p>Take back control of Autotask and ensure your engineers are entering the right information.</p>
+              <p><strong>Instructions:</strong></p>
+                <p>1. Enter your Autotask login credentials on the profile page <br>
+                2. Create Picklist modules by clicking on "Create Picklist Module".<br>
+                3. Configure Validation Groups!<br>
+                4. Configure Autotask LiveLinks<br>
+                5. Validate your input!</p>
             </div>
           </div>
+        </div>
         {% endif %}
       </div>
     </div>

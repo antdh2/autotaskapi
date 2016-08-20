@@ -87,6 +87,7 @@
               <!-- END RESPONSIVE MENU TOGGLER -->
               <!-- BEGIN PAGE ACTIONS -->
               <!-- DOC: Remove "hide" class to enable the page header actions -->
+              {% if customer.has_active_subscription and customer.current_subscription.plan == "extended" %}
               {% if ataccount %}
                 <div class="page-actions">
                   <span class="caption-subject font-green bold uppercase">Quick Links - {{ ataccount.AccountName }}</span>
@@ -140,7 +141,7 @@
                               <i class="icon-tag"></i> Home User Ticket </a>
                       </li>
                       <li>
-                          <a href="{% url 'create_upsell' ataccount.id %}">
+                          <a href="">
                               <i class="fa fa-gbp"></i> Upsell </a>
                       </li>
                       <li class="disabled">
@@ -164,6 +165,7 @@
                 <div class="page-actions">
                   <span class="caption-subject font-green bold uppercase">No Account Selected</span>
                 </div>
+                {% endif %}
                 {% endif %}
               <!-- END PAGE ACTIONS -->
               <!-- BEGIN PAGE TOP -->
@@ -189,6 +191,7 @@
                                       <a href="{% url 'djstripe:account' %}">
                                           <i class="fa fa-gbp"></i> Payment Settings </a>
                                   </li>
+                                  {% if customer.has_active_subscription and customer.current_subscription.plan == "extended" %}
                                   <li class="disabled">
                                       <a href="#">
                                           <i class="icon-envelope-open"></i> My Inbox
@@ -201,6 +204,7 @@
                                           <span class="badge badge-success"> 7 </span>
                                       </a>
                                   </li>
+                                  {% endif %}
                                   <li class="divider"> </li>
                                   <li>
                                       <a href="{% url 'account_logout' %}">
@@ -237,91 +241,114 @@
                   <!-- DOC: Set data-keep-expand="true" to keep the submenues expanded -->
                   <!-- DOC: Set data-auto-speed="200" to adjust the sub menu slide up/down speed -->
                   <ul class="page-sidebar-menu  page-header-fixed" data-keep-expanded="false" data-auto-scroll="true" data-slide-speed="200">
-                    <li class="nav-item {% if module == 'crm' %} active open{% endif %} ">
+                    <li class="nav-item {% if module == 'validation' %} active open{% endif %} ">
                         <a href="javascript:;" class="nav-link nav-toggle">
                             <i class="fa fa-user fa-2x"></i>
-                            <span class="title">CRM</span>
+                            <span class="title">Validation</span>
                             <span class="arrow"></span>
                             <span class="selected"></span>
                         </a>
                         <ul class="sub-menu">
-                          <li class="nav-item {% if page == 'search-for-account' %} active {% endif %}">
-                              <a href="{% url 'index' %}" class="nav-link ">
-                                  <i class="fa fa-search"></i> <span class="title">Search Account</span>
+                          <li class="nav-item {% if page == 'input-validation' %} active {% endif %}">
+                              <a href="{% url 'input_validation' user.id %}" class="nav-link ">
+                                  <span class="title">Create Validation Groups</span>
+                              </a>
+                          </li>
+                          <li class="nav-item {% if page == 'profile' %} active {% endif %}">
+                              <a href="{% url 'profile' user.id %}" class="nav-link ">
+                                  <span class="title">Configure Autotask Settings</span>
                               </a>
                           </li>
                         </ul>
                     </li>
-                    <li class="nav-item {% if module == 'customerservices' %} active open{% endif %} ">
-                        <a href="javascript:;" class="nav-link nav-toggle">
-                            <i class="fa fa-support fa-2x"></i>
-                            <span class="title">Customer Services</span>
-                            <span class="arrow"></span>
-                            <span class="selected"></span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li class="nav-item {% if page == 'booking-in-form' %} active {% endif %}">
-                                <a href="{% url 'booking_in_form' %}" class="nav-link ">
-                                    <i class="fa fa-pencil-square-o"></i> <span class="title">Booking In Form</span>
+
+                    {% if customer.has_active_subscription and customer.current_subscription.plan == "extended" %}
+                      <li class="nav-item {% if module == 'crm' %} active open{% endif %} ">
+                          <a href="javascript:;" class="nav-link nav-toggle">
+                              <i class="fa fa-user fa-2x"></i>
+                              <span class="title">CRM</span>
+                              <span class="arrow"></span>
+                              <span class="selected"></span>
+                          </a>
+                          <ul class="sub-menu">
+                            <li class="nav-item {% if page == 'search-for-account' %} active {% endif %}">
+                                <a href="{% url 'index' %}" class="nav-link ">
+                                    <i class="fa fa-search"></i> <span class="title">Search Account</span>
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {% if module == 'servicedesk' %} active open{% endif %} ">
-                        <a href="javascript:;" class="nav-link nav-toggle">
-                            <i class="fa fa-wheelchair fa-2x"></i>
-                            <span class="title">Service Desk</span>
-                            <span class="arrow"></span>
-                            <span class="selected"></span>
-                        </a>
-                        <ul class="sub-menu">
-                          <li class="nav-item {% if page == 'view-tickets' %} active {% endif %}">
-                              <a href="{% url 'index' %}" class="nav-link ">
-                                  <i class="icon-docs"></i> <span class="title">View All Tickets</span>
-                              </a>
-                          </li>
-                          <li class="nav-item {% if page == 'create-ticket' %} active {% endif %}">
-                              <a href="{% url 'index' %}" class="nav-link ">
-                                  <i class="icon-doc"></i> <span class="title">Create Ticket</span>
-                              </a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {% if module == 'sales' %} active open{% endif %} ">
-                        <a href="javascript:;" class="nav-link nav-toggle">
-                            <i class="fa fa-line-chart fa-2x"></i>
-                            <span class="title">Sales</span>
-                            <span class="arrow"></span>
-                            <span class="selected"></span>
-                        </a>
-                        <ul class="sub-menu">
-                          <li class="nav-item {% if page == 'create-upsell' %} active {% endif %}">
-                              <a href="{% url 'index' %}" class="nav-link ">
-                                  <i class="fa fa-gbp"></i> <span class="title">Create Upsell</span>
-                              </a>
-                          </li>
-                          <li class="nav-item {% if page == 'products' %} active {% endif %}">
-                              <a href="{% url 'index' %}" class="nav-link ">
-                                  <i class="fa fa-shopping-cart"></i> <span class="title">Product Database</span>
-                              </a>
-                          </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item {% if module == 'billing' %} active open{% endif %} ">
-                        <a href="javascript:;" class="nav-link nav-toggle">
-                            <i class="fa fa-money fa-2x"></i>
-                            <span class="title">Billing</span>
-                            <span class="arrow"></span>
-                            <span class="selected"></span>
-                        </a>
-                        <ul class="sub-menu">
-                          <li class="nav-item {% if page == 'mysubscription' %} active {% endif %} ">
-                              <a href="{% url 'djstripe:account' %}" class="nav-link ">
-                                    <i class="fa fa-credit-card"></i> <span class="title">My Subscription</span>
-                              </a>
-                          </li>
-                        </ul>
-                    </li>
+                          </ul>
+                      </li>
+                      <li class="nav-item {% if module == 'customerservices' %} active open{% endif %} ">
+                          <a href="javascript:;" class="nav-link nav-toggle">
+                              <i class="fa fa-support fa-2x"></i>
+                              <span class="title">Customer Services</span>
+                              <span class="arrow"></span>
+                              <span class="selected"></span>
+                          </a>
+                          <ul class="sub-menu">
+                              <li class="nav-item {% if page == 'booking-in-form' %} active {% endif %}">
+                                  <a href="{% url 'booking_in_form' %}" class="nav-link ">
+                                      <i class="fa fa-pencil-square-o"></i> <span class="title">Booking In Form</span>
+                                  </a>
+                              </li>
+                          </ul>
+                      </li>
+                      <li class="nav-item {% if module == 'servicedesk' %} active open{% endif %} ">
+                          <a href="javascript:;" class="nav-link nav-toggle">
+                              <i class="fa fa-wheelchair fa-2x"></i>
+                              <span class="title">Service Desk</span>
+                              <span class="arrow"></span>
+                              <span class="selected"></span>
+                          </a>
+                          <ul class="sub-menu">
+                            <li class="nav-item {% if page == 'view-tickets' %} active {% endif %}">
+                                <a href="{% url 'index' %}" class="nav-link ">
+                                    <i class="icon-docs"></i> <span class="title">View All Tickets</span>
+                                </a>
+                            </li>
+                            <li class="nav-item {% if page == 'create-ticket' %} active {% endif %}">
+                                <a href="{% url 'index' %}" class="nav-link ">
+                                    <i class="icon-doc"></i> <span class="title">Create Ticket</span>
+                                </a>
+                            </li>
+                          </ul>
+                      </li>
+                      <li class="nav-item {% if module == 'sales' %} active open{% endif %} ">
+                          <a href="javascript:;" class="nav-link nav-toggle">
+                              <i class="fa fa-line-chart fa-2x"></i>
+                              <span class="title">Sales</span>
+                              <span class="arrow"></span>
+                              <span class="selected"></span>
+                          </a>
+                          <ul class="sub-menu">
+                            <li class="nav-item {% if page == 'create-upsell' %} active {% endif %}">
+                                <a href="{% url 'index' %}" class="nav-link ">
+                                    <i class="fa fa-gbp"></i> <span class="title">Create Upsell</span>
+                                </a>
+                            </li>
+                            <li class="nav-item {% if page == 'products' %} active {% endif %}">
+                                <a href="{% url 'index' %}" class="nav-link ">
+                                    <i class="fa fa-shopping-cart"></i> <span class="title">Product Database</span>
+                                </a>
+                            </li>
+                          </ul>
+                      </li>
+                      <li class="nav-item {% if module == 'billing' %} active open{% endif %} ">
+                          <a href="javascript:;" class="nav-link nav-toggle">
+                              <i class="fa fa-money fa-2x"></i>
+                              <span class="title">Billing</span>
+                              <span class="arrow"></span>
+                              <span class="selected"></span>
+                          </a>
+                          <ul class="sub-menu">
+                            <li class="nav-item {% if page == 'mysubscription' %} active {% endif %} ">
+                                <a href="{% url 'djstripe:account' %}" class="nav-link ">
+                                      <i class="fa fa-credit-card"></i> <span class="title">My Subscription</span>
+                                </a>
+                            </li>
+                          </ul>
+                      </li>
+                      {% endif %}
                   </ul>
                   <!-- END SIDEBAR MENU -->
               </div>

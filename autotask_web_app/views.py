@@ -101,6 +101,7 @@ def input_validation(request, id):
     return render(request, 'input_validation.html', {"entitytypes": entitytypes, "ACCOUNT_TYPES": ACCOUNT_TYPES, "OPERATORS": OPERATORS, "step": step, "entity_attributes": entity_attributes, "existing_validations": existing_validations, "input_validation_dict": input_validation_dict, "existing_validation_groups": existing_validation_groups})
 
 def profile(request, id):
+    module = 'validation'
     page = 'profile'
     # First we must connect to autotask using valid credentials
     if request.method == "POST":
@@ -118,9 +119,9 @@ def profile(request, id):
             at = autotask_login_function(request, username, password)
             if at:
                 messages.add_message(request, messages.SUCCESS, 'Successfully logged in. You may now search for an Autotask account.')
-                return render(request, 'index.html', {"page": page, "at": at})
+                return render(request, 'index.html', {"module": module, "page": page, "at": at})
             else:
-                return render(request, 'account/profile.html', {"page": page, "at": at, "profile": profile})
+                return render(request, 'account/profile.html', {"module": module, "page": page, "at": at, "profile": profile})
 
     # Now figure out sales figures
     upsells = Upsell.objects.filter(profile=request.user.profile)
@@ -131,20 +132,6 @@ def profile(request, id):
         x = upsell.product_price - upsell.product_cost
         total_profit += x
     return render(request, 'account/profile.html', {"total_revenue": round(total_revenue,2), "upsells": upsells.count, "total_profit": round(total_profit,2)})
-
-def profile_overview(request, id):
-    page = 'profile_overview'
-    # Work out revenue for user
-    upsells = Upsell.objects.filter(profile=request.user.profile)
-    total_revenue = 0
-    total_profit = 0
-    for upsell in upsells:
-        total_revenue += upsell.product_price
-        x = upsell.product_price - upsell.product_cost
-        total_profit += x
-
-
-    return render(request, 'account/profile_overview.html', {"total_revenue": round(total_revenue,2), "upsells": upsells.count, "total_profit": round(total_profit,2)})
 
 def create_upsell(request, id):
     account_id = id
@@ -1134,6 +1121,17 @@ def quote_item_create_new(quote, **kwargs):
     new_quote_item.UnitPrice = kwargs.get('UnitPrice', None)
     quote_item = at.create(new_quote_item).fetch_one()
     return quote_item
+
+
+def upsell_create_new(profile, sold, account_id, product_id, cost, **kwargs):
+    # Now save info to DB
+    for key, value in sold.items():
+        Upsell.objects.create(profile=profile,
+                              product_name=key,
+                              account_id=account_id,
+                              product_id=product_id,
+                              product_cost=cost,
+                              product_price=value,)
 
 
 def ticket_cost_item_create_new(ticket, **kwargs):

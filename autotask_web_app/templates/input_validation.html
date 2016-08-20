@@ -12,15 +12,17 @@
                 <div class="portlet-title tabbable-line">
                     <div class="caption caption-md">
                         <i class="icon-globe theme-font hide"></i>
-                        <span class="caption-subject font-blue-madison bold uppercase">Configure Input Validation</span>
+                        <span class="caption-subject font-blue-madison bold uppercase">Configure Input Validation {% if step == 2 %} - {{ input_validation_dict.ValidationGroup.name }} {% endif %}</span>
                     </div>
                     <ul class="nav nav-tabs">
                         <li class="active">
                             <a href="#tab_2_1" data-toggle="tab">Tickets</a>
                         </li>
+                        {% if customer.has_active_subscription and customer.current_subscription.plan == "extended" %}
                         <li>
                             <a href="#tab_2_2" data-toggle="tab">Opportunities</a>
                         </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <div class="portlet-body">

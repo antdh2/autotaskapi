@@ -55,30 +55,46 @@
                                 <p class="uppercase">per {{ plan.interval }}</p>
                             </div>
                             <div class="price-table-content">
+                              {% if plan.feature1 %}
                                 <div class="row no-margin">
                                     <div class="col-xs-3 text-right">
-                                        <i class="icon-user"></i>
+                                        <i class="{{ plan.feature1icon }}"></i>
                                     </div>
-                                    <div class="col-xs-9 text-left uppercase">3 Members</div>
+                                    <div class="col-xs-9 text-left uppercase">{{ plan.feature1 }}</div>
                                 </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-drawer"></i>
+                                {% endif %}
+                                {% if plan.feature2 %}
+                                  <div class="row no-margin">
+                                      <div class="col-xs-3 text-right">
+                                        <i class="{{ plan.feature2icon }}"></i>
+                                      </div>
+                                      <div class="col-xs-9 text-left uppercase">{{ plan.feature2 }}</div>
+                                  </div>
+                                {% endif %}
+                                {% if plan.feature3 %}
+                                  <div class="row no-margin">
+                                      <div class="col-xs-3 text-right">
+                                          <i class="icon-user"></i>
+                                      </div>
+                                      <div class="col-xs-9 text-left uppercase">{{ plan.feature3 }}</div>
+                                  </div>
+                                  {% endif %}
+                                  {% if plan.feature4 %}
+                                    <div class="row no-margin">
+                                        <div class="col-xs-3 text-right">
+                                            <i class="icon-user"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-left uppercase">{{ plan.feature4 }}</div>
                                     </div>
-                                    <div class="col-xs-9 text-left uppercase">50GB Storage</div>
-                                </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-screen-smartphone"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-left uppercase">Single Device</div>
-                                </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-refresh"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-left uppercase">Monthly Backups</div>
-                                </div>
+                                    {% endif %}
+                                    {% if plan.feature5 %}
+                                      <div class="row no-margin">
+                                          <div class="col-xs-3 text-right">
+                                              <i class="icon-user"></i>
+                                          </div>
+                                          <div class="col-xs-9 text-left uppercase">{{ plan.feature5 }}</div>
+                                      </div>
+                                    {% endif %}
                             </div>
                             <div class="price-table-footer">
                               <a class="btn grey-salsa btn-outline sbold uppercase disabled" href="{% url 'djstripe:confirm' plan=plan.plan %}" role="button"> CURRENT PLAN </a>
@@ -98,30 +114,46 @@
                                 <p class="uppercase">per {{ plan.interval }}</p>
                             </div>
                             <div class="price-table-content">
+                              {% if plan.feature1 %}
                                 <div class="row no-margin">
                                     <div class="col-xs-3 text-right">
-                                        <i class="icon-user"></i>
+                                        <i class="{{ plan.feature1icon }}"></i>
                                     </div>
-                                    <div class="col-xs-9 text-left uppercase">3 Members</div>
+                                    <div class="col-xs-9 text-left uppercase">{{ plan.feature1 }}</div>
                                 </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-drawer"></i>
+                                {% endif %}
+                                {% if plan.feature2 %}
+                                  <div class="row no-margin">
+                                      <div class="col-xs-3 text-right">
+                                        <i class="{{ plan.feature2icon }}"></i>
+                                      </div>
+                                      <div class="col-xs-9 text-left uppercase">{{ plan.feature2 }}</div>
+                                  </div>
+                                {% endif %}
+                                {% if plan.feature3 %}
+                                  <div class="row no-margin">
+                                      <div class="col-xs-3 text-right">
+                                        <i class="{{ plan.feature3icon }}"></i>
+                                      </div>
+                                      <div class="col-xs-9 text-left uppercase">{{ plan.feature3 }}</div>
+                                  </div>
+                                  {% endif %}
+                                  {% if plan.feature4 %}
+                                    <div class="row no-margin">
+                                        <div class="col-xs-3 text-right">
+                                          <i class="{{ plan.feature4icon }}"></i>
+                                        </div>
+                                        <div class="col-xs-9 text-left uppercase">{{ plan.feature4 }}</div>
                                     </div>
-                                    <div class="col-xs-9 text-left uppercase">50GB Storage</div>
-                                </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-screen-smartphone"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-left uppercase">Single Device</div>
-                                </div>
-                                <div class="row no-margin">
-                                    <div class="col-xs-3 text-right">
-                                        <i class="icon-refresh"></i>
-                                    </div>
-                                    <div class="col-xs-9 text-left uppercase">Monthly Backups</div>
-                                </div>
+                                    {% endif %}
+                                    {% if plan.feature5 %}
+                                      <div class="row no-margin">
+                                          <div class="col-xs-3 text-right">
+                                            <i class="{{ plan.feature5icon }}"></i>
+                                          </div>
+                                          <div class="col-xs-9 text-left uppercase">{{ plan.feature5 }}</div>
+                                      </div>
+                                    {% endif %}
                             </div>
                             <div class="price-table-footer">
                               {% if customer.current_subscription.amount < plan.price|djdiv:100 %}

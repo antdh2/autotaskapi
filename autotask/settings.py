@@ -54,29 +54,51 @@ DJSTRIPE_PLANS = {
     "bronze": {
         "stripe_plan_id": "bronze",
         "name": "Bronze",
-        "description": "The monthly subscription plan to WebApp",
+        "description": "Basic frontend input validation",
         "price": 5,  # £5.00
         "webprice": 5,
         "currency": "gbp",
-        "interval": "month"
+        "interval": "month",
+        "feature1": "Frontend validation",
+        "feature1icon": "fa fa-check-circle-o",
+        "feature2": "Tickets",
+        "feature2icon": "icon-docs",
     },
     "silver": {
         "stripe_plan_id": "silver",
         "name": "Silver",
-        "description": "The monthly subscription plan to WebApp",
+        "description": "Advanced and customisable backend input validation",
         "price": 1000,  # £10.00
         "webprice": 10,
         "currency": "gbp",
-        "interval": "month"
+        "interval": "month",
+        "feature1": "Frontend validation",
+        "feature1icon": "fa fa-check-circle-o",
+        "feature2": "Tickets",
+        "feature2icon": "icon-docs",
+        "feature3": "Opportunities",
+        "feature3icon": "fa fa-tachometer",
+        "feature4": "Time Entries",
+        "feature4icon": "fa fa-clock-o",
     },
     "gold": {
         "stripe_plan_id": "gold",
         "name": "Gold",
-        "description": "The monthly subscription plan to WebApp",
+        "description": "Extended input validation",
         "price": 1500,  # £15.00
         "webprice": 15,
         "currency": "gbp",
-        "interval": "month"
+        "interval": "month",
+        "feature1": "Frontend validation",
+        "feature1icon": "fa fa-check-circle-o",
+        "feature2": "Backend validation",
+        "feature2icon": "fa fa-check-square-o",
+        "feature3": "Tickets",
+        "feature3icon": "icon-docs",
+        "feature4": "Opportunities",
+        "feature4icon": "fa fa-tachometer",
+        "feature5": "Time Entries",
+        "feature5icon": "fa fa-clock-o",
     },
 }
 
@@ -175,12 +197,3 @@ STATIC_URL = '/static/'
 
 # To server static files on heroku
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_HOST_USER = 'info@studiointhecloud.co.uk'
-EMAIL_HOST_PASSWORD = 'Mnschnaap1'
-SERVER_EMAIL = 'info@studiointhecloud.co.uk'
-DEFAULT_FROM_EMAIL = 'info@studiointhecloud.co.uk'
